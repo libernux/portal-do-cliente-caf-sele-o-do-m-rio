@@ -2,11 +2,14 @@ import React, { useState, useEffect } from "react";
 import { ReservaCafe } from "@/entities/ReservaCafe";
 import { ItemChecklist } from "@/entities/ItemChecklist";
 import { ClienteChecklistItem } from "@/entities/ClienteChecklistItem";
+import { DemandaExterna } from "@/entities/DemandaExterna";
+import { User as UserEntity } from "@/entities/User";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   DollarSign,
   Search,
@@ -18,14 +21,18 @@ import {
   User,
   Package,
   Coffee,
-  Filter
+  Filter,
+  FileText
 } from "lucide-react";
-import { format } from "date-fns";
+import { format, isPast, isToday } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { motion } from "framer-motion";
 
 import GerenciarItensChecklistModal from "../components/areceber/GerenciarItensChecklistModal";
 import ReservaChecklistCard from "../components/areceber/ReservaChecklistCard";
+import DemandaExternaFormModal from "../components/areceber/DemandaExternaFormModal";
+import DemandaExternaCard from "../components/areceber/DemandaExternaCard";
+import HistoricoDemandaModal from "../components/areceber/HistoricoDemandaModal";
 
 export default function AReceber() {
   const [reservas, setReservas] = useState([]);
