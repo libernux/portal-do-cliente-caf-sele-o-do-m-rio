@@ -38,10 +38,20 @@ export default function AReceber() {
   const [reservas, setReservas] = useState([]);
   const [itensChecklist, setItensChecklist] = useState([]);
   const [reservaChecklistItems, setReservaChecklistItems] = useState([]);
+  const [demandas, setDemandas] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [showGerenciarItens, setShowGerenciarItens] = useState(false);
   const [filtroStatus, setFiltroStatus] = useState("todos");
+  const [activeTab, setActiveTab] = useState("reservas");
+  
+  // Demandas modals
+  const [showDemandaForm, setShowDemandaForm] = useState(false);
+  const [editingDemanda, setEditingDemanda] = useState(null);
+  const [showHistorico, setShowHistorico] = useState(false);
+  const [selectedDemandaHistorico, setSelectedDemandaHistorico] = useState(null);
+  const [filtroDemandaStatus, setFiltroDemandaStatus] = useState("todos");
 
   useEffect(() => {
     loadData();
@@ -49,15 +59,62 @@ export default function AReceber() {
 
   const loadData = async () => {
     setIsLoading(true);
-    const [reservasData, itensChecklistData, reservaChecklistItemsData] = await Promise.all([
+    const [reservasData, itensChecklistData, reservaChecklistItemsData, demandasData, userData] = await Promise.all([
       ReservaCafe.filter({ status: "Ativa" }, "-created_date"),
       ItemChecklist.list("ordem"),
-      ClienteChecklistItem.list("-created_date")
+      ClienteChecklistItem.list("-created_date"),
+      DemandaExterna.list("-created_date"),
+      UserEntity.me()
     ]);
     setReservas(reservasData);
     setItensChecklist(itensChecklistData.filter(i => i.ativo));
     setReservaChecklistItems(reservaChecklistItemsData);
+    setDemandas(demandasData);
+    setCurrentUser(userData);
     setIsLoading(false);
+  };
+
+  const handleEditDemanda = (demanda) => {
+    setEditingDemanda(demanda);
+    setShowDemandaForm(true);
+  };
+
+  const handleViewHistory = (demanda) => {
+    setSelectedDemandaHistorico(demanda);
+    setShowHistorico(true);
+  };
+
+  const handleDeleteDemanda = async (demanda) => {
+    if (confirm(`Tem certeza que deseja excluir a demanda de ${demanda.cliente_nome}?`)) {
+      await DemandaExterna.delete(demanda.id);
+      loadData();
+    }
+  };
+
+  const demandasFiltradas = demandas.filter(d => {
+    const matchSearch = d.cliente_nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                       d.descricao.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    let matchStatus = true;
+    if (filtroDemandaStatus === "pendente") {
+      matchStatus = d.status === "Pendente";
+    } else if (filtroDemandaStatus === "pago") {
+      matchStatus = d.status === "Pago";
+    } else if (filtroDemandaStatus === "vencido") {
+      matchStatus = d.status === "Vencido" || (d.status === "Pendente" && d.data_vencimento && isPast(new Date(d.data_vencimento)) && !isToday(new Date(d.data_vencimento)));
+    } else if (filtroDemandaStatus === "renegociado") {
+      matchStatus = d.status === "Renegociado";
+    }
+    
+    return matchSearch && matchStatus;
+  });
+
+  const demandaStats = {
+    total: demandas.length,
+    pendente: demandas.filter(d => d.status === "Pendente").length,
+    pago: demandas.filter(d => d.status === "Pago").length,
+    vencido: demandas.filter(d => d.status === "Vencido" || (d.status === "Pendente" && d.data_vencimento && isPast(new Date(d.data_vencimento)) && !isToday(new Date(d.data_vencimento)))).length,
+    valorTotal: demandas.filter(d => d.status === "Pendente").reduce((acc, d) => acc + (d.valor || 0), 0)
   };
 
   const reservasComStatus = reservas.map(reserva => {
