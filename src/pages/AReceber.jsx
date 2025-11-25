@@ -195,155 +195,362 @@ export default function AReceber() {
               A Receber
             </h1>
             <p className="text-[#8B7355]">
-              Acompanhamento de processos por reserva
+              Acompanhamento de processos e demandas
             </p>
           </div>
-          <Button
-            onClick={() => setShowGerenciarItens(true)}
-            variant="outline"
-            className="border-[#6B4423] text-[#6B4423] hover:bg-[#F5F1E8]"
-          >
-            <Settings className="w-5 h-5 mr-2" />
-            Gerenciar Itens do Checklist
-          </Button>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Card className="border-[#E5DCC8]">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-[#6B4423]/10 rounded-lg">
-                  <Package className="w-5 h-5 text-[#6B4423]" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-[#6B4423]">{stats.totalReservas}</p>
-                  <p className="text-xs text-[#8B7355]">Total de Reservas</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="bg-white border border-[#E5DCC8]">
+            <TabsTrigger value="reservas" className="data-[state=active]:bg-[#6B4423] data-[state=active]:text-white">
+              <Package className="w-4 h-4 mr-2" />
+              Reservas
+            </TabsTrigger>
+            <TabsTrigger value="demandas" className="data-[state=active]:bg-[#6B4423] data-[state=active]:text-white">
+              <FileText className="w-4 h-4 mr-2" />
+              Demandas Externas
+            </TabsTrigger>
+          </TabsList>
 
-          <Card className="border-[#E5DCC8]">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-[#2D5016]/10 rounded-lg">
-                  <CheckCircle2 className="w-5 h-5 text-[#2D5016]" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-[#2D5016]">{stats.reservasCompletas}</p>
-                  <p className="text-xs text-[#8B7355]">Checklist Completo</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-[#E5DCC8]">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-[#D97706]/10 rounded-lg">
-                  <Circle className="w-5 h-5 text-[#D97706]" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-[#D97706]">{stats.reservasEmAndamento}</p>
-                  <p className="text-xs text-[#8B7355]">Em Andamento</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-[#E5DCC8]">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-[#C9A961]/10 rounded-lg">
-                  <Coffee className="w-5 h-5 text-[#8B7355]" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-[#6B4423]">{stats.reservasPendentes}</p>
-                  <p className="text-xs text-[#8B7355]">Pendentes</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Filtros e Busca */}
-        <Card className="border-[#E5DCC8] mb-6">
-          <CardContent className="p-4">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#8B7355] w-5 h-5" />
-                  <Input
-                    placeholder="Buscar por cliente ou café..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 border-[#E5DCC8]"
-                  />
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant={filtroStatus === "todos" ? "default" : "outline"}
-                  onClick={() => setFiltroStatus("todos")}
-                  className={filtroStatus === "todos" ? "bg-[#6B4423]" : "border-[#E5DCC8]"}
-                  size="sm"
-                >
-                  Todos
-                </Button>
-                <Button
-                  variant={filtroStatus === "pendente" ? "default" : "outline"}
-                  onClick={() => setFiltroStatus("pendente")}
-                  className={filtroStatus === "pendente" ? "bg-[#C9A961]" : "border-[#E5DCC8]"}
-                  size="sm"
-                >
-                  Pendentes
-                </Button>
-                <Button
-                  variant={filtroStatus === "em_andamento" ? "default" : "outline"}
-                  onClick={() => setFiltroStatus("em_andamento")}
-                  className={filtroStatus === "em_andamento" ? "bg-[#D97706]" : "border-[#E5DCC8]"}
-                  size="sm"
-                >
-                  Em Andamento
-                </Button>
-                <Button
-                  variant={filtroStatus === "completo" ? "default" : "outline"}
-                  onClick={() => setFiltroStatus("completo")}
-                  className={filtroStatus === "completo" ? "bg-[#2D5016]" : "border-[#E5DCC8]"}
-                  size="sm"
-                >
-                  Completos
-                </Button>
-              </div>
+          {/* Tab Reservas */}
+          <TabsContent value="reservas" className="space-y-6">
+            <div className="flex justify-end">
+              <Button
+                onClick={() => setShowGerenciarItens(true)}
+                variant="outline"
+                className="border-[#6B4423] text-[#6B4423] hover:bg-[#F5F1E8]"
+              >
+                <Settings className="w-5 h-5 mr-2" />
+                Gerenciar Checklist
+              </Button>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Lista de Reservas */}
-        {isLoading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6B4423] mx-auto"></div>
-          </div>
-        ) : reservasFiltradas.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {reservasFiltradas.map((reserva, index) => (
-              <ReservaChecklistCard
-                key={reserva.id}
-                reserva={reserva}
-                itensChecklist={itensChecklist}
-                onToggleItem={handleToggleItem}
-                index={index}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12 bg-white/80 backdrop-blur-sm rounded-xl border border-[#E5DCC8]">
-            <Package className="w-16 h-16 text-[#8B7355] mx-auto mb-4 opacity-30" />
-            <p className="text-[#8B7355] text-lg">Nenhuma reserva encontrada</p>
-          </div>
-        )}
+            {/* Stats Cards Reservas */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card className="border-[#E5DCC8]">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-[#6B4423]/10 rounded-lg">
+                      <Package className="w-5 h-5 text-[#6B4423]" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-[#6B4423]">{stats.totalReservas}</p>
+                      <p className="text-xs text-[#8B7355]">Total de Reservas</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
+              <Card className="border-[#E5DCC8]">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-[#2D5016]/10 rounded-lg">
+                      <CheckCircle2 className="w-5 h-5 text-[#2D5016]" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-[#2D5016]">{stats.reservasCompletas}</p>
+                      <p className="text-xs text-[#8B7355]">Completos</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-[#E5DCC8]">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-[#D97706]/10 rounded-lg">
+                      <Circle className="w-5 h-5 text-[#D97706]" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-[#D97706]">{stats.reservasEmAndamento}</p>
+                      <p className="text-xs text-[#8B7355]">Em Andamento</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-[#E5DCC8]">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-[#C9A961]/10 rounded-lg">
+                      <Coffee className="w-5 h-5 text-[#8B7355]" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-[#6B4423]">{stats.reservasPendentes}</p>
+                      <p className="text-xs text-[#8B7355]">Pendentes</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Filtros Reservas */}
+            <Card className="border-[#E5DCC8]">
+              <CardContent className="p-4">
+                <div className="flex flex-col md:flex-row gap-4">
+                  <div className="flex-1">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#8B7355] w-5 h-5" />
+                      <Input
+                        placeholder="Buscar por cliente ou café..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10 border-[#E5DCC8]"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-2 flex-wrap">
+                    <Button
+                      variant={filtroStatus === "todos" ? "default" : "outline"}
+                      onClick={() => setFiltroStatus("todos")}
+                      className={filtroStatus === "todos" ? "bg-[#6B4423]" : "border-[#E5DCC8]"}
+                      size="sm"
+                    >
+                      Todos
+                    </Button>
+                    <Button
+                      variant={filtroStatus === "pendente" ? "default" : "outline"}
+                      onClick={() => setFiltroStatus("pendente")}
+                      className={filtroStatus === "pendente" ? "bg-[#C9A961]" : "border-[#E5DCC8]"}
+                      size="sm"
+                    >
+                      Pendentes
+                    </Button>
+                    <Button
+                      variant={filtroStatus === "em_andamento" ? "default" : "outline"}
+                      onClick={() => setFiltroStatus("em_andamento")}
+                      className={filtroStatus === "em_andamento" ? "bg-[#D97706]" : "border-[#E5DCC8]"}
+                      size="sm"
+                    >
+                      Em Andamento
+                    </Button>
+                    <Button
+                      variant={filtroStatus === "completo" ? "default" : "outline"}
+                      onClick={() => setFiltroStatus("completo")}
+                      className={filtroStatus === "completo" ? "bg-[#2D5016]" : "border-[#E5DCC8]"}
+                      size="sm"
+                    >
+                      Completos
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Lista de Reservas */}
+            {isLoading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6B4423] mx-auto"></div>
+              </div>
+            ) : reservasFiltradas.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {reservasFiltradas.map((reserva, index) => (
+                  <ReservaChecklistCard
+                    key={reserva.id}
+                    reserva={reserva}
+                    itensChecklist={itensChecklist}
+                    onToggleItem={handleToggleItem}
+                    index={index}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 bg-white/80 backdrop-blur-sm rounded-xl border border-[#E5DCC8]">
+                <Package className="w-16 h-16 text-[#8B7355] mx-auto mb-4 opacity-30" />
+                <p className="text-[#8B7355] text-lg">Nenhuma reserva encontrada</p>
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Tab Demandas Externas */}
+          <TabsContent value="demandas" className="space-y-6">
+            <div className="flex justify-end">
+              <Button
+                onClick={() => {
+                  setEditingDemanda(null);
+                  setShowDemandaForm(true);
+                }}
+                className="bg-[#6B4423] hover:bg-[#5A3A1E]"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Nova Demanda
+              </Button>
+            </div>
+
+            {/* Stats Cards Demandas */}
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <Card className="border-[#E5DCC8]">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-[#6B4423]/10 rounded-lg">
+                      <FileText className="w-5 h-5 text-[#6B4423]" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-[#6B4423]">{demandaStats.total}</p>
+                      <p className="text-xs text-[#8B7355]">Total</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-[#E5DCC8]">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-yellow-100 rounded-lg">
+                      <Circle className="w-5 h-5 text-yellow-600" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-yellow-600">{demandaStats.pendente}</p>
+                      <p className="text-xs text-[#8B7355]">Pendentes</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-[#E5DCC8]">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-red-100 rounded-lg">
+                      <Calendar className="w-5 h-5 text-red-600" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-red-600">{demandaStats.vencido}</p>
+                      <p className="text-xs text-[#8B7355]">Vencidos</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-[#E5DCC8]">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-green-100 rounded-lg">
+                      <CheckCircle2 className="w-5 h-5 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-green-600">{demandaStats.pago}</p>
+                      <p className="text-xs text-[#8B7355]">Pagos</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-[#E5DCC8] bg-[#2D5016]/5">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-[#2D5016]/10 rounded-lg">
+                      <DollarSign className="w-5 h-5 text-[#2D5016]" />
+                    </div>
+                    <div>
+                      <p className="text-xl font-bold text-[#2D5016]">
+                        R$ {demandaStats.valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </p>
+                      <p className="text-xs text-[#8B7355]">A Receber</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Filtros Demandas */}
+            <Card className="border-[#E5DCC8]">
+              <CardContent className="p-4">
+                <div className="flex flex-col md:flex-row gap-4">
+                  <div className="flex-1">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#8B7355] w-5 h-5" />
+                      <Input
+                        placeholder="Buscar por cliente ou descrição..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10 border-[#E5DCC8]"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-2 flex-wrap">
+                    <Button
+                      variant={filtroDemandaStatus === "todos" ? "default" : "outline"}
+                      onClick={() => setFiltroDemandaStatus("todos")}
+                      className={filtroDemandaStatus === "todos" ? "bg-[#6B4423]" : "border-[#E5DCC8]"}
+                      size="sm"
+                    >
+                      Todos
+                    </Button>
+                    <Button
+                      variant={filtroDemandaStatus === "pendente" ? "default" : "outline"}
+                      onClick={() => setFiltroDemandaStatus("pendente")}
+                      className={filtroDemandaStatus === "pendente" ? "bg-yellow-500" : "border-[#E5DCC8]"}
+                      size="sm"
+                    >
+                      Pendentes
+                    </Button>
+                    <Button
+                      variant={filtroDemandaStatus === "vencido" ? "default" : "outline"}
+                      onClick={() => setFiltroDemandaStatus("vencido")}
+                      className={filtroDemandaStatus === "vencido" ? "bg-red-500" : "border-[#E5DCC8]"}
+                      size="sm"
+                    >
+                      Vencidos
+                    </Button>
+                    <Button
+                      variant={filtroDemandaStatus === "pago" ? "default" : "outline"}
+                      onClick={() => setFiltroDemandaStatus("pago")}
+                      className={filtroDemandaStatus === "pago" ? "bg-green-500" : "border-[#E5DCC8]"}
+                      size="sm"
+                    >
+                      Pagos
+                    </Button>
+                    <Button
+                      variant={filtroDemandaStatus === "renegociado" ? "default" : "outline"}
+                      onClick={() => setFiltroDemandaStatus("renegociado")}
+                      className={filtroDemandaStatus === "renegociado" ? "bg-blue-500" : "border-[#E5DCC8]"}
+                      size="sm"
+                    >
+                      Renegociados
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Lista de Demandas */}
+            {isLoading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6B4423] mx-auto"></div>
+              </div>
+            ) : demandasFiltradas.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {demandasFiltradas.map((demanda, index) => (
+                  <DemandaExternaCard
+                    key={demanda.id}
+                    demanda={demanda}
+                    onEdit={handleEditDemanda}
+                    onViewHistory={handleViewHistory}
+                    onDelete={handleDeleteDemanda}
+                    index={index}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 bg-white/80 backdrop-blur-sm rounded-xl border border-[#E5DCC8]">
+                <FileText className="w-16 h-16 text-[#8B7355] mx-auto mb-4 opacity-30" />
+                <p className="text-[#8B7355] text-lg">Nenhuma demanda encontrada</p>
+                <Button
+                  onClick={() => {
+                    setEditingDemanda(null);
+                    setShowDemandaForm(true);
+                  }}
+                  className="mt-4 bg-[#6B4423] hover:bg-[#5A3A1E]"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Criar Primeira Demanda
+                </Button>
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+
+        {/* Modals */}
         <GerenciarItensChecklistModal
           open={showGerenciarItens}
           onClose={() => {
@@ -351,6 +558,26 @@ export default function AReceber() {
             loadData();
           }}
           itensChecklist={itensChecklist}
+        />
+
+        <DemandaExternaFormModal
+          open={showDemandaForm}
+          onClose={() => {
+            setShowDemandaForm(false);
+            setEditingDemanda(null);
+            loadData();
+          }}
+          demanda={editingDemanda}
+          userName={currentUser?.full_name}
+        />
+
+        <HistoricoDemandaModal
+          open={showHistorico}
+          onClose={() => {
+            setShowHistorico(false);
+            setSelectedDemandaHistorico(null);
+          }}
+          demanda={selectedDemandaHistorico}
         />
       </div>
     </div>
