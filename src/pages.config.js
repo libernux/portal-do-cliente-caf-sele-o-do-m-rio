@@ -23,6 +23,8 @@ import InfoCafePublico from './pages/InfoCafePublico';
 import GerenciarInfosCafe from './pages/GerenciarInfosCafe';
 import FormularioProdutor from './pages/FormularioProdutor';
 import GerenciarSubmissoes from './pages/GerenciarSubmissoes';
+import ClubeAssinatura from './pages/ClubeAssinatura';
+import MinhaAssinatura from './pages/MinhaAssinatura';
 import __Layout from './Layout.jsx';
 
 
@@ -52,6 +54,8 @@ export const PAGES = {
     "GerenciarInfosCafe": GerenciarInfosCafe,
     "FormularioProdutor": FormularioProdutor,
     "GerenciarSubmissoes": GerenciarSubmissoes,
+    "ClubeAssinatura": ClubeAssinatura,
+    "MinhaAssinatura": MinhaAssinatura,
 }
 
 export const pagesConfig = {
