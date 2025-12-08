@@ -20,10 +20,11 @@ Deno.serve(async (req) => {
     }
 
     // Buscar clientes da API Yampi
-    const response = await fetch(`https://api.yampi.com.br/v3/customers?include=addresses`, {
+    const response = await fetch(`https://api.yampi.com.br/v3/customers?alias=${alias}&include=addresses`, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
+        'Content-Type': 'application/json',
         'User-Token': token,
         'User-Secret-Key': secretKey
       }

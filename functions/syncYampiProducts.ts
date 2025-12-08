@@ -20,10 +20,11 @@ Deno.serve(async (req) => {
     }
 
     // Buscar produtos da API Yampi
-    const response = await fetch(`https://api.yampi.com.br/v3/catalog/products`, {
+    const response = await fetch(`https://api.yampi.com.br/v3/catalog/products?alias=${alias}`, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
+        'Content-Type': 'application/json',
         'User-Token': token,
         'User-Secret-Key': secretKey
       }
