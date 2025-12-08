@@ -16,7 +16,8 @@ import {
   FileText,
   Calculator,
   DollarSign,
-  Info
+  Info,
+  ShoppingBag
 } from "lucide-react";
 import {
   Sidebar,
@@ -104,6 +105,11 @@ const navigationItems = [
     title: "Cotação de Frete",
     url: createPageUrl("CotacaoFrete"),
     icon: Package,
+  },
+  {
+    title: "Integração Yampi",
+    url: createPageUrl("IntegracaoYampi"),
+    icon: ShoppingBag,
   },
   {
     title: "Chamados",

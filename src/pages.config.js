@@ -26,6 +26,7 @@ import GerenciarSubmissoes from './pages/GerenciarSubmissoes';
 import ClubeAssinatura from './pages/ClubeAssinatura';
 import MinhaAssinatura from './pages/MinhaAssinatura';
 import CotacaoFrete from './pages/CotacaoFrete';
+import IntegracaoYampi from './pages/IntegracaoYampi';
 import __Layout from './Layout.jsx';
 
 
@@ -58,6 +59,7 @@ export const PAGES = {
     "ClubeAssinatura": ClubeAssinatura,
     "MinhaAssinatura": MinhaAssinatura,
     "CotacaoFrete": CotacaoFrete,
+    "IntegracaoYampi": IntegracaoYampi,
 }
 
 export const pagesConfig = {
