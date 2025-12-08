@@ -25,6 +25,7 @@ import FormularioProdutor from './pages/FormularioProdutor';
 import GerenciarSubmissoes from './pages/GerenciarSubmissoes';
 import ClubeAssinatura from './pages/ClubeAssinatura';
 import MinhaAssinatura from './pages/MinhaAssinatura';
+import CotacaoFrete from './pages/CotacaoFrete';
 import __Layout from './Layout.jsx';
 
 
@@ -56,6 +57,7 @@ export const PAGES = {
     "GerenciarSubmissoes": GerenciarSubmissoes,
     "ClubeAssinatura": ClubeAssinatura,
     "MinhaAssinatura": MinhaAssinatura,
+    "CotacaoFrete": CotacaoFrete,
 }
 
 export const pagesConfig = {
