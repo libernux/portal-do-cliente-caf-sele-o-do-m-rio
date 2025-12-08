@@ -101,6 +101,11 @@ const navigationItems = [
     icon: Users,
   },
   {
+    title: "Cotação de Frete",
+    url: createPageUrl("CotacaoFrete"),
+    icon: Package,
+  },
+  {
     title: "Chamados",
     url: createPageUrl("Problemas"),
     icon: AlertCircle,
