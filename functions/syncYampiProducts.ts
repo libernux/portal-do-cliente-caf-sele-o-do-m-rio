@@ -19,33 +19,40 @@ Deno.serve(async (req) => {
       }, { status: 500 });
     }
 
-    // Buscar produtos da API Yampi
-    const response = await fetch(`https://api.dooki.com.br/v2/${alias}/catalog/products?include=skus,prices,images,categories`, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'User-Token': token,
-        'User-Secret-Key': secretKey
-      }
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('Erro Yampi:', errorData);
-      return Response.json({ 
-        error: 'Erro ao buscar produtos da Yampi',
-        details: errorData 
-      }, { status: response.status });
-    }
-
-    const data = await response.json();
-    const produtos = data.data || [];
-
+    // Buscar produtos da API Yampi com paginação
     let produtosNovos = 0;
     let produtosAtualizados = 0;
+    let currentPage = 1;
+    let hasMorePages = true;
+    let totalProdutos = 0;
 
-    for (const produto of produtos) {
+    while (hasMorePages) {
+      const response = await fetch(`https://api.dooki.com.br/v2/${alias}/catalog/products?include=skus,prices,images,categories&limit=100&page=${currentPage}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'User-Token': token,
+          'User-Secret-Key': secretKey
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Erro Yampi:', errorData);
+        return Response.json({ 
+          error: 'Erro ao buscar produtos da Yampi',
+          details: errorData 
+        }, { status: response.status });
+      }
+
+      const data = await response.json();
+      const produtos = data.data || [];
+      const pagination = data.meta?.pagination;
+
+      totalProdutos += produtos.length;
+
+      for (const produto of produtos) {
       const produtoData = {
         yampi_id: String(produto.id),
         sku: produto.sku || '',
@@ -79,11 +86,15 @@ Deno.serve(async (req) => {
         await base44.asServiceRole.entities.ProdutoYampi.create(produtoData);
         produtosNovos++;
       }
+
+      // Verificar se há mais páginas
+      hasMorePages = pagination && currentPage < pagination.total_pages;
+      currentPage++;
     }
 
     return Response.json({
       success: true,
-      total_produtos: produtos.length,
+      total_produtos: totalProdutos,
       novos: produtosNovos,
       atualizados: produtosAtualizados,
       mensagem: `Sincronização concluída: ${produtosNovos} novos, ${produtosAtualizados} atualizados`

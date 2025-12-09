@@ -19,33 +19,40 @@ Deno.serve(async (req) => {
       }, { status: 500 });
     }
 
-    // Buscar pedidos da API Yampi
-    const response = await fetch(`https://api.dooki.com.br/v2/${alias}/orders?include=items,customer,shipping`, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'User-Token': token,
-        'User-Secret-Key': secretKey
-      }
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('Erro Yampi:', errorData);
-      return Response.json({ 
-        error: 'Erro ao buscar pedidos da Yampi',
-        details: errorData 
-      }, { status: response.status });
-    }
-
-    const data = await response.json();
-    const pedidos = data.data || [];
-
+    // Buscar pedidos da API Yampi com paginação
     let pedidosNovos = 0;
     let pedidosAtualizados = 0;
+    let currentPage = 1;
+    let hasMorePages = true;
+    let totalPedidos = 0;
 
-    for (const pedido of pedidos) {
+    while (hasMorePages) {
+      const response = await fetch(`https://api.dooki.com.br/v2/${alias}/orders?include=items,customer,shipping&limit=100&page=${currentPage}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'User-Token': token,
+          'User-Secret-Key': secretKey
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Erro Yampi:', errorData);
+        return Response.json({ 
+          error: 'Erro ao buscar pedidos da Yampi',
+          details: errorData 
+        }, { status: response.status });
+      }
+
+      const data = await response.json();
+      const pedidos = data.data || [];
+      const pagination = data.meta?.pagination;
+
+      totalPedidos += pedidos.length;
+
+      for (const pedido of pedidos) {
       const itens = (pedido.items?.data || []).map(item => ({
         produto_nome: item.name || '',
         sku: item.sku_code || '',
@@ -100,11 +107,15 @@ Deno.serve(async (req) => {
         await base44.asServiceRole.entities.PedidoYampi.create(pedidoData);
         pedidosNovos++;
       }
+
+      // Verificar se há mais páginas
+      hasMorePages = pagination && currentPage < pagination.total_pages;
+      currentPage++;
     }
 
     return Response.json({
       success: true,
-      total_pedidos: pedidos.length,
+      total_pedidos: totalPedidos,
       novos: pedidosNovos,
       atualizados: pedidosAtualizados,
       mensagem: `Sincronização concluída: ${pedidosNovos} novos, ${pedidosAtualizados} atualizados`

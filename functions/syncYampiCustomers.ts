@@ -19,33 +19,40 @@ Deno.serve(async (req) => {
       }, { status: 500 });
     }
 
-    // Buscar clientes da API Yampi
-    const response = await fetch(`https://api.dooki.com.br/v2/${alias}/customers?include=addresses`, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'User-Token': token,
-        'User-Secret-Key': secretKey
-      }
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('Erro Yampi:', errorData);
-      return Response.json({ 
-        error: 'Erro ao buscar clientes da Yampi',
-        details: errorData 
-      }, { status: response.status });
-    }
-
-    const data = await response.json();
-    const clientes = data.data || [];
-
+    // Buscar clientes da API Yampi com paginação
     let clientesNovos = 0;
     let clientesAtualizados = 0;
+    let currentPage = 1;
+    let hasMorePages = true;
+    let totalClientes = 0;
 
-    for (const cliente of clientes) {
+    while (hasMorePages) {
+      const response = await fetch(`https://api.dooki.com.br/v2/${alias}/customers?include=addresses&limit=100&page=${currentPage}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'User-Token': token,
+          'User-Secret-Key': secretKey
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Erro Yampi:', errorData);
+        return Response.json({ 
+          error: 'Erro ao buscar clientes da Yampi',
+          details: errorData 
+        }, { status: response.status });
+      }
+
+      const data = await response.json();
+      const clientes = data.data || [];
+      const pagination = data.meta?.pagination;
+
+      totalClientes += clientes.length;
+
+      for (const cliente of clientes) {
       const enderecos = (cliente.addresses?.data || []).map(addr => ({
         rua: addr.street || '',
         numero: addr.number || '',
@@ -87,11 +94,15 @@ Deno.serve(async (req) => {
         await base44.asServiceRole.entities.ClienteYampi.create(clienteData);
         clientesNovos++;
       }
+
+      // Verificar se há mais páginas
+      hasMorePages = pagination && currentPage < pagination.total_pages;
+      currentPage++;
     }
 
     return Response.json({
       success: true,
-      total_clientes: clientes.length,
+      total_clientes: totalClientes,
       novos: clientesNovos,
       atualizados: clientesAtualizados,
       mensagem: `Sincronização concluída: ${clientesNovos} novos, ${clientesAtualizados} atualizados`
