@@ -53,59 +53,60 @@ Deno.serve(async (req) => {
       totalPedidos += pedidos.length;
 
       for (const pedido of pedidos) {
-      const itens = (pedido.items?.data || []).map(item => ({
-        produto_nome: item.name || '',
-        sku: item.sku_code || '',
-        quantidade: item.quantity || 0,
-        preco_unitario: parseFloat(item.price || 0)
-      }));
+        const itens = (pedido.items?.data || []).map(item => ({
+          produto_nome: item.name || '',
+          sku: item.sku_code || '',
+          quantidade: item.quantity || 0,
+          preco_unitario: parseFloat(item.price || 0)
+        }));
 
-      const endereco = pedido.shipping?.data || {};
-      const cliente = pedido.customer?.data || {};
+        const endereco = pedido.shipping?.data || {};
+        const cliente = pedido.customer?.data || {};
 
-      const pedidoData = {
-        yampi_id: String(pedido.id),
-        numero_pedido: String(pedido.number || pedido.id),
-        cliente_nome: cliente.first_name && cliente.last_name 
-          ? `${cliente.first_name} ${cliente.last_name}`
-          : cliente.name || '',
-        cliente_email: cliente.email || '',
-        cliente_telefone: cliente.phone || '',
-        status: pedido.status?.data?.name || pedido.status_name || '',
-        status_pagamento: pedido.paid ? 'Pago' : 'Pendente',
-        valor_total: parseFloat(pedido.value || 0),
-        valor_frete: parseFloat(pedido.shipping_value || 0),
-        valor_desconto: parseFloat(pedido.discount || 0),
-        itens: itens,
-        endereco_entrega: {
-          rua: endereco.street || '',
-          numero: endereco.number || '',
-          complemento: endereco.complement || '',
-          bairro: endereco.neighborhood || '',
-          cidade: endereco.city || '',
-          estado: endereco.state || '',
-          cep: endereco.zipcode || ''
-        },
-        data_pedido: pedido.created_at?.date || new Date().toISOString(),
-        forma_pagamento: pedido.payment?.data?.name || '',
-        codigo_rastreamento: endereco.tracking_code || '',
-        ultima_sincronizacao: new Date().toISOString()
-      };
+        const pedidoData = {
+          yampi_id: String(pedido.id),
+          numero_pedido: String(pedido.number || pedido.id),
+          cliente_nome: cliente.first_name && cliente.last_name 
+            ? `${cliente.first_name} ${cliente.last_name}`
+            : cliente.name || '',
+          cliente_email: cliente.email || '',
+          cliente_telefone: cliente.phone || '',
+          status: pedido.status?.data?.name || pedido.status_name || '',
+          status_pagamento: pedido.paid ? 'Pago' : 'Pendente',
+          valor_total: parseFloat(pedido.value || 0),
+          valor_frete: parseFloat(pedido.shipping_value || 0),
+          valor_desconto: parseFloat(pedido.discount || 0),
+          itens: itens,
+          endereco_entrega: {
+            rua: endereco.street || '',
+            numero: endereco.number || '',
+            complemento: endereco.complement || '',
+            bairro: endereco.neighborhood || '',
+            cidade: endereco.city || '',
+            estado: endereco.state || '',
+            cep: endereco.zipcode || ''
+          },
+          data_pedido: pedido.created_at?.date || new Date().toISOString(),
+          forma_pagamento: pedido.payment?.data?.name || '',
+          codigo_rastreamento: endereco.tracking_code || '',
+          ultima_sincronizacao: new Date().toISOString()
+        };
 
-      // Verificar se pedido já existe
-      const existente = await base44.asServiceRole.entities.PedidoYampi.filter({
-        yampi_id: pedidoData.yampi_id
-      });
+        // Verificar se pedido já existe
+        const existente = await base44.asServiceRole.entities.PedidoYampi.filter({
+          yampi_id: pedidoData.yampi_id
+        });
 
-      if (existente.length > 0) {
-        await base44.asServiceRole.entities.PedidoYampi.update(
-          existente[0].id,
-          pedidoData
-        );
-        pedidosAtualizados++;
-      } else {
-        await base44.asServiceRole.entities.PedidoYampi.create(pedidoData);
-        pedidosNovos++;
+        if (existente.length > 0) {
+          await base44.asServiceRole.entities.PedidoYampi.update(
+            existente[0].id,
+            pedidoData
+          );
+          pedidosAtualizados++;
+        } else {
+          await base44.asServiceRole.entities.PedidoYampi.create(pedidoData);
+          pedidosNovos++;
+        }
       }
 
       // Verificar se há mais páginas

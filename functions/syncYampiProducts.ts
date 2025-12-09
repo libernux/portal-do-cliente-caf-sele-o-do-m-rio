@@ -53,38 +53,39 @@ Deno.serve(async (req) => {
       totalProdutos += produtos.length;
 
       for (const produto of produtos) {
-      const produtoData = {
-        yampi_id: String(produto.id),
-        sku: produto.sku || '',
-        nome: produto.name || '',
-        descricao: produto.description || '',
-        preco: parseFloat(produto.prices?.data?.[0]?.price || 0),
-        preco_promocional: parseFloat(produto.prices?.data?.[0]?.promotional_price || 0),
-        estoque: produto.skus?.data?.[0]?.quantity || 0,
-        imagem_url: produto.images?.data?.[0]?.url || '',
-        categoria: produto.categories?.data?.[0]?.name || '',
-        ativo: produto.active || false,
-        peso: parseFloat(produto.skus?.data?.[0]?.weight || 0),
-        altura: parseFloat(produto.skus?.data?.[0]?.height || 0),
-        largura: parseFloat(produto.skus?.data?.[0]?.width || 0),
-        comprimento: parseFloat(produto.skus?.data?.[0]?.length || 0),
-        ultima_sincronizacao: new Date().toISOString()
-      };
+        const produtoData = {
+          yampi_id: String(produto.id),
+          sku: produto.sku || '',
+          nome: produto.name || '',
+          descricao: produto.description || '',
+          preco: parseFloat(produto.prices?.data?.[0]?.price || 0),
+          preco_promocional: parseFloat(produto.prices?.data?.[0]?.promotional_price || 0),
+          estoque: produto.skus?.data?.[0]?.quantity || 0,
+          imagem_url: produto.images?.data?.[0]?.url || '',
+          categoria: produto.categories?.data?.[0]?.name || '',
+          ativo: produto.active || false,
+          peso: parseFloat(produto.skus?.data?.[0]?.weight || 0),
+          altura: parseFloat(produto.skus?.data?.[0]?.height || 0),
+          largura: parseFloat(produto.skus?.data?.[0]?.width || 0),
+          comprimento: parseFloat(produto.skus?.data?.[0]?.length || 0),
+          ultima_sincronizacao: new Date().toISOString()
+        };
 
-      // Verificar se produto já existe
-      const existente = await base44.asServiceRole.entities.ProdutoYampi.filter({
-        yampi_id: produtoData.yampi_id
-      });
+        // Verificar se produto já existe
+        const existente = await base44.asServiceRole.entities.ProdutoYampi.filter({
+          yampi_id: produtoData.yampi_id
+        });
 
-      if (existente.length > 0) {
-        await base44.asServiceRole.entities.ProdutoYampi.update(
-          existente[0].id,
-          produtoData
-        );
-        produtosAtualizados++;
-      } else {
-        await base44.asServiceRole.entities.ProdutoYampi.create(produtoData);
-        produtosNovos++;
+        if (existente.length > 0) {
+          await base44.asServiceRole.entities.ProdutoYampi.update(
+            existente[0].id,
+            produtoData
+          );
+          produtosAtualizados++;
+        } else {
+          await base44.asServiceRole.entities.ProdutoYampi.create(produtoData);
+          produtosNovos++;
+        }
       }
 
       // Verificar se há mais páginas

@@ -53,46 +53,47 @@ Deno.serve(async (req) => {
       totalClientes += clientes.length;
 
       for (const cliente of clientes) {
-      const enderecos = (cliente.addresses?.data || []).map(addr => ({
-        rua: addr.street || '',
-        numero: addr.number || '',
-        complemento: addr.complement || '',
-        bairro: addr.neighborhood || '',
-        cidade: addr.city || '',
-        estado: addr.state || '',
-        cep: addr.zipcode || ''
-      }));
+        const enderecos = (cliente.addresses?.data || []).map(addr => ({
+          rua: addr.street || '',
+          numero: addr.number || '',
+          complemento: addr.complement || '',
+          bairro: addr.neighborhood || '',
+          cidade: addr.city || '',
+          estado: addr.state || '',
+          cep: addr.zipcode || ''
+        }));
 
-      const clienteData = {
-        yampi_id: String(cliente.id),
-        nome: cliente.first_name && cliente.last_name 
-          ? `${cliente.first_name} ${cliente.last_name}`
-          : cliente.name || '',
-        email: cliente.email || '',
-        telefone: cliente.phone || '',
-        cpf_cnpj: cliente.cpf || cliente.cnpj || '',
-        data_nascimento: cliente.birth_date || null,
-        total_pedidos: cliente.orders_count || 0,
-        valor_total_gasto: parseFloat(cliente.total_spent || 0),
-        enderecos: enderecos,
-        ultima_compra: cliente.last_order_date || null,
-        ultima_sincronizacao: new Date().toISOString()
-      };
+        const clienteData = {
+          yampi_id: String(cliente.id),
+          nome: cliente.first_name && cliente.last_name 
+            ? `${cliente.first_name} ${cliente.last_name}`
+            : cliente.name || '',
+          email: cliente.email || '',
+          telefone: cliente.phone || '',
+          cpf_cnpj: cliente.cpf || cliente.cnpj || '',
+          data_nascimento: cliente.birth_date || null,
+          total_pedidos: cliente.orders_count || 0,
+          valor_total_gasto: parseFloat(cliente.total_spent || 0),
+          enderecos: enderecos,
+          ultima_compra: cliente.last_order_date || null,
+          ultima_sincronizacao: new Date().toISOString()
+        };
 
-      // Verificar se cliente já existe
-      const existente = await base44.asServiceRole.entities.ClienteYampi.filter({
-        yampi_id: clienteData.yampi_id
-      });
+        // Verificar se cliente já existe
+        const existente = await base44.asServiceRole.entities.ClienteYampi.filter({
+          yampi_id: clienteData.yampi_id
+        });
 
-      if (existente.length > 0) {
-        await base44.asServiceRole.entities.ClienteYampi.update(
-          existente[0].id,
-          clienteData
-        );
-        clientesAtualizados++;
-      } else {
-        await base44.asServiceRole.entities.ClienteYampi.create(clienteData);
-        clientesNovos++;
+        if (existente.length > 0) {
+          await base44.asServiceRole.entities.ClienteYampi.update(
+            existente[0].id,
+            clienteData
+          );
+          clientesAtualizados++;
+        } else {
+          await base44.asServiceRole.entities.ClienteYampi.create(clienteData);
+          clientesNovos++;
+        }
       }
 
       // Verificar se há mais páginas
