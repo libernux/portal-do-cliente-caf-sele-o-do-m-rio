@@ -107,12 +107,18 @@ Deno.serve(async (req) => {
 </html>
     `;
 
+    // Mapeamento de tipo para action do Autentique
+    const actionMap = {
+      "Contratante": "SIGN",
+      "Contratada": "SIGN",
+      "Testemunha": "SIGN_AS_A_WITNESS",
+      "Aprovador": "APPROVE"
+    };
+
     // Preparar signatários para o Autentique
     const signatariosAutentique = signatarios.map((sig, index) => ({
       email: sig.email,
-      action: {
-        name: "SIGN"
-      },
+      action: actionMap[sig.tipo] || "SIGN",
       positions: [
         {
           x: "50%",
@@ -141,9 +147,7 @@ Deno.serve(async (req) => {
             name
             email
             created_at
-            action {
-              name
-            }
+            action
             link {
               short_link
             }
