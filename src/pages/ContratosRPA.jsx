@@ -63,16 +63,22 @@ export default function ContratosRPA() {
         signatarios
       });
 
+      console.log('Resposta completa:', response);
+
       if (response.data.success) {
         alert('Contrato enviado para assinatura com sucesso!');
         setShowEnviarModal(false);
         await loadContratos();
+        return response.data;
       } else {
-        alert('Erro ao enviar contrato: ' + (response.data.error || 'Erro desconhecido'));
+        const errorMsg = response.data.error || 'Erro desconhecido';
+        const errorDetails = response.data.details || '';
+        throw new Error(`${errorMsg}\n\nDetalhes: ${JSON.stringify(errorDetails, null, 2)}`);
       }
     } catch (error) {
-      console.error('Erro:', error);
-      alert('Erro ao enviar contrato para assinatura');
+      console.error('Erro completo:', error);
+      console.error('Response data:', error.response?.data);
+      throw error;
     }
   };
 

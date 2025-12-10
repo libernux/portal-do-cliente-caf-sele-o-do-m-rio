@@ -27,6 +27,7 @@ export default function EnviarAssinaturaModal({ open, onClose, contrato, onEnvia
     }
   ]);
   const [isEnviando, setIsEnviando] = useState(false);
+  const [debugInfo, setDebugInfo] = useState(null);
 
   const addSignatario = () => {
     setSignatarios([...signatarios, { nome: "", email: "", cpf: "", tipo: "Contratada" }]);
@@ -53,10 +54,40 @@ export default function EnviarAssinaturaModal({ open, onClose, contrato, onEnvia
     }
 
     setIsEnviando(true);
+    setDebugInfo({
+      status: 'enviando',
+      message: 'Enviando contrato para o Autentique...',
+      timestamp: new Date().toISOString(),
+      data: {
+        contratoId: contrato?.id,
+        numeroContrato: contrato?.numero_contrato,
+        signatarios: signatarios.map(s => ({ nome: s.nome, email: s.email, tipo: s.tipo }))
+      }
+    });
+
     try {
-      await onEnviar(signatarios);
+      const result = await onEnviar(signatarios);
+      
+      setDebugInfo({
+        status: 'sucesso',
+        message: 'Contrato enviado com sucesso!',
+        timestamp: new Date().toISOString(),
+        data: result
+      });
     } catch (error) {
       console.error("Erro ao enviar:", error);
+      
+      setDebugInfo({
+        status: 'erro',
+        message: error.message || 'Erro desconhecido',
+        timestamp: new Date().toISOString(),
+        error: {
+          name: error.name,
+          message: error.message,
+          stack: error.stack,
+          response: error.response
+        }
+      });
     }
     setIsEnviando(false);
   };
@@ -162,6 +193,43 @@ export default function EnviarAssinaturaModal({ open, onClose, contrato, onEnvia
               </div>
             ))}
           </div>
+
+          {/* Debug Section */}
+          {debugInfo && (
+            <div className={`p-4 rounded-lg border ${
+              debugInfo.status === 'sucesso' ? 'bg-green-50 border-green-300' :
+              debugInfo.status === 'erro' ? 'bg-red-50 border-red-300' :
+              'bg-blue-50 border-blue-300'
+            }`}>
+              <div className="flex items-center gap-2 mb-2">
+                <div className={`w-2 h-2 rounded-full ${
+                  debugInfo.status === 'sucesso' ? 'bg-green-500' :
+                  debugInfo.status === 'erro' ? 'bg-red-500' :
+                  'bg-blue-500 animate-pulse'
+                }`}></div>
+                <span className="font-bold text-sm">
+                  {debugInfo.status === 'sucesso' ? '✓ Sucesso' :
+                   debugInfo.status === 'erro' ? '✗ Erro' :
+                   '⟳ Processando'}
+                </span>
+              </div>
+              
+              <p className="text-sm mb-2">{debugInfo.message}</p>
+              
+              <details className="text-xs">
+                <summary className="cursor-pointer text-gray-600 hover:text-gray-800 mb-2">
+                  Ver detalhes técnicos
+                </summary>
+                <pre className="bg-white p-3 rounded border overflow-x-auto text-xs">
+                  {JSON.stringify(debugInfo, null, 2)}
+                </pre>
+              </details>
+              
+              <p className="text-xs text-gray-500 mt-2">
+                Timestamp: {new Date(debugInfo.timestamp).toLocaleString('pt-BR')}
+              </p>
+            </div>
+          )}
 
           <div className="flex justify-end gap-3 pt-4 border-t border-[#E5DCC8]">
             <Button
