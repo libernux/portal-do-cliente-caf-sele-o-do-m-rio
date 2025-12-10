@@ -1,5 +1,96 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.4';
 
+// ---- CONFIGURAÇÕES ----
+const AUTENTIQUE_TOKEN = Deno.env.get("AUTENTIQUE_API_TOKEN");
+const AUTENTIQUE_ENDPOINT = "https://api.autentique.com.br/v2/graphql";
+
+// ---- MAP DE AÇÕES ----
+const ACTION_MAP = {
+  "Contratante": "SIGN",
+  "Contratada": "SIGN",
+  "Testemunha": "SIGN_AS_A_WITNESS",
+  "Aprovador": "APPROVE",
+  "Reconhecedor": "RECOGNIZE"
+};
+
+// ---- QUERY DE CRIAÇÃO DE DOCUMENTO ----
+const CREATE_DOCUMENT_MUTATION = `
+mutation CreateDocument(
+  $document: DocumentInput!
+  $signers: [SignerInput!]!
+  $file: Upload!
+) {
+  createDocument(
+    document: $document
+    signers: $signers
+    file: $file
+  ) {
+    id
+    name
+    created_at
+    signatures {
+      public_id
+      name
+      email
+      created_at
+      action {
+        name
+      }
+      link {
+        short_link
+      }
+    }
+    files {
+      original
+      signed
+    }
+  }
+}
+`;
+
+// ---- FUNÇÃO AUXILIAR PARA MULTIPART ----
+function createMultipartRequest({
+  query,
+  variables,
+  fileField,
+  fileVariablePath,
+  fileBuffer,
+  filename
+}) {
+  const form = new FormData();
+
+  // 1) Forçar variáveis com file = null
+  const vars = JSON.parse(JSON.stringify(variables));
+  const path = fileVariablePath.replace("variables.", "").split(".");
+  let obj = vars;
+
+  for (let i = 0; i < path.length - 1; i++) {
+    obj = obj[path[i]] = obj[path[i]] ?? {};
+  }
+
+  obj[path[path.length - 1]] = null;
+
+  form.append(
+    "operations",
+    JSON.stringify({
+      query,
+      variables: vars
+    })
+  );
+
+  form.append(
+    "map",
+    JSON.stringify({
+      [fileField]: [`${fileVariablePath}`]
+    })
+  );
+
+  form.append(fileField, new Blob([fileBuffer]), filename);
+
+  return form;
+}
+
+// ---- FUNÇÃO PRINCIPAL ----
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -9,8 +100,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const apiToken = Deno.env.get('AUTENTIQUE_API_TOKEN');
-    if (!apiToken) {
+    if (!AUTENTIQUE_TOKEN) {
       return Response.json({ 
         error: 'Token do Autentique não configurado' 
       }, { status: 500 });
@@ -18,7 +108,7 @@ Deno.serve(async (req) => {
 
     const { contratoId, signatarios } = await req.json();
 
-    // Buscar dados do contrato
+    // 1) Buscar dados do contrato
     const contratos = await base44.asServiceRole.entities.ContratoRPA.filter({
       id: contratoId
     });
@@ -29,7 +119,7 @@ Deno.serve(async (req) => {
 
     const contrato = contratos[0];
 
-    // Gerar HTML do contrato
+    // 2) Gerar HTML do contrato
     const htmlContent = `
 <!DOCTYPE html>
 <html>
@@ -40,7 +130,6 @@ Deno.serve(async (req) => {
     h1 { text-align: center; color: #333; }
     h2 { color: #555; margin-top: 30px; }
     .clausula { margin: 20px 0; }
-    .assinatura { margin-top: 60px; border-top: 1px solid #000; width: 300px; text-align: center; padding-top: 10px; }
   </style>
 </head>
 <body>
@@ -107,18 +196,14 @@ Deno.serve(async (req) => {
 </html>
     `;
 
-    // Mapeamento de tipo para action do Autentique
-    const actionMap = {
-      "Contratante": "SIGN",
-      "Contratada": "SIGN",
-      "Testemunha": "SIGN_AS_A_WITNESS",
-      "Aprovador": "APPROVE"
-    };
+    // 3) Converter HTML para buffer
+    const encoder = new TextEncoder();
+    const htmlBuffer = encoder.encode(htmlContent);
 
-    // Preparar signatários para o Autentique
-    const signatariosAutentique = signatarios.map((sig, index) => ({
+    // 4) Converter signatários para formato do Autentique
+    const signers = signatarios.map((sig, index) => ({
       email: sig.email,
-      action: actionMap[sig.tipo] || "SIGN",
+      action: ACTION_MAP[sig.tipo] || "SIGN",
       positions: [
         {
           x: "50%",
@@ -128,69 +213,30 @@ Deno.serve(async (req) => {
       ]
     }));
 
-    // Criar documento no Autentique via GraphQL
-    const mutation = `
-      mutation CreateDocumentMutation($document: DocumentInput!, $signers: [SignerInput!]!, $file: Upload!) {
-        createDocument(
-          sandbox: false
-          document: $document
-          signers: $signers
-          file: $file
-        ) {
-          id
-          name
-          refusable
-          sortable
-          created_at
-          signatures {
-            public_id
-            name
-            email
-            created_at
-            action
-            link {
-              short_link
-            }
-            user {
-              id
-              name
-              email
-            }
-          }
-          files {
-            original
-            signed
-          }
-        }
-      }
-    `;
-
+    // 5) Criar documento com upload multipart
     const variables = {
       document: {
         name: `Contrato RPA - ${contrato.numero_contrato}`
       },
-      signers: signatariosAutentique,
-      file: new Blob([htmlContent], { type: 'text/html' })
+      signers,
+      file: null
     };
 
-    // Fazer requisição ao Autentique
-    const formData = new FormData();
-    formData.append('operations', JSON.stringify({
-      query: mutation,
-      variables: {
-        document: variables.document,
-        signers: variables.signers
-      }
-    }));
-    formData.append('map', JSON.stringify({ "0": ["variables.file"] }));
-    formData.append('0', new Blob([htmlContent], { type: 'text/html' }), 'contrato.html');
+    const form = createMultipartRequest({
+      query: CREATE_DOCUMENT_MUTATION,
+      variables,
+      fileField: "0",
+      fileVariablePath: "variables.file",
+      fileBuffer: htmlBuffer,
+      filename: "contrato.html"
+    });
 
-    const response = await fetch('https://api.autentique.com.br/v2/graphql', {
-      method: 'POST',
+    const response = await fetch(AUTENTIQUE_ENDPOINT, {
+      method: "POST",
       headers: {
-        'Authorization': `Bearer ${apiToken}`
+        Authorization: `Bearer ${AUTENTIQUE_TOKEN}`
       },
-      body: formData
+      body: form
     });
 
     if (!response.ok) {
@@ -214,7 +260,7 @@ Deno.serve(async (req) => {
 
     const document = data.data.createDocument;
 
-    // Atualizar contrato com informações do Autentique
+    // 6) Atualizar contrato com informações do Autentique
     await base44.asServiceRole.entities.ContratoRPA.update(contratoId, {
       autentique_document_id: document.id,
       autentique_document_url: document.signatures[0]?.link?.short_link || '',
@@ -222,7 +268,7 @@ Deno.serve(async (req) => {
       data_envio_assinatura: new Date().toISOString()
     });
 
-    // Criar/atualizar registros de signatários
+    // 7) Criar registros de signatários
     for (let i = 0; i < signatarios.length; i++) {
       const sig = signatarios[i];
       const autentiqueSig = document.signatures[i];
@@ -251,7 +297,8 @@ Deno.serve(async (req) => {
     console.error('Erro ao criar contrato:', error);
     return Response.json({ 
       error: 'Erro interno',
-      details: error.message 
+      details: error.message,
+      stack: error.stack
     }, { status: 500 });
   }
 });
