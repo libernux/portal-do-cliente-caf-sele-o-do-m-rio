@@ -141,7 +141,9 @@ Deno.serve(async (req) => {
             name
             email
             created_at
-            action
+            action {
+              name
+            }
             link {
               short_link
             }
