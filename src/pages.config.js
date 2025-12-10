@@ -27,6 +27,7 @@ import ClubeAssinatura from './pages/ClubeAssinatura';
 import MinhaAssinatura from './pages/MinhaAssinatura';
 import CotacaoFrete from './pages/CotacaoFrete';
 import IntegracaoYampi from './pages/IntegracaoYampi';
+import ContratosRPA from './pages/ContratosRPA';
 import __Layout from './Layout.jsx';
 
 
@@ -60,6 +61,7 @@ export const PAGES = {
     "MinhaAssinatura": MinhaAssinatura,
     "CotacaoFrete": CotacaoFrete,
     "IntegracaoYampi": IntegracaoYampi,
+    "ContratosRPA": ContratosRPA,
 }
 
 export const pagesConfig = {
