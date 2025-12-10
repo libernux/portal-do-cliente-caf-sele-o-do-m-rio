@@ -110,7 +110,9 @@ Deno.serve(async (req) => {
     // Preparar signatários para o Autentique
     const signatariosAutentique = signatarios.map((sig, index) => ({
       email: sig.email,
-      action: "SIGN",
+      action: {
+        name: "SIGN"
+      },
       positions: [
         {
           x: "50%",
