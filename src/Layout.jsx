@@ -112,6 +112,11 @@ const navigationItems = [
     icon: ShoppingBag,
   },
   {
+    title: "Contratos RPA",
+    url: createPageUrl("ContratosRPA"),
+    icon: FileText,
+  },
+  {
     title: "Chamados",
     url: createPageUrl("Problemas"),
     icon: AlertCircle,
