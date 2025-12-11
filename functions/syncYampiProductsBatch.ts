@@ -73,6 +73,8 @@ Deno.serve(async (req) => {
 
           // Processar SKUs individuais com seus preços e detalhes
           const skus = produto.skus?.data || [];
+          const precosArray = Array.isArray(produto.prices?.data) ? produto.prices.data : [];
+          
           const variacoes = skus.map((sku) => {
             // Extrair opções/variações do SKU (ex: Tamanho: P, Cor: Azul)
             const opcoes = [];
@@ -86,7 +88,7 @@ Deno.serve(async (req) => {
             }
 
             // Buscar preço específico deste SKU
-            const precoSku = produto.prices?.data?.find(p => p.sku_id === sku.id);
+            const precoSku = precosArray.find(p => p.sku_id === sku.id);
             
             return {
               sku_id: sku.id?.toString() || '',
@@ -118,13 +120,15 @@ Deno.serve(async (req) => {
           const estoqueTotal = variacoes.reduce((sum, v) => sum + (v.estoque || 0), 0);
 
           // Pegar o preço do SKU principal (primeiro SKU ou com menor preço)
-          const precoBase = variacoes.length > 0 
-            ? Math.min(...variacoes.map(v => v.preco).filter(p => p > 0))
-            : parseFloat(produto.prices?.data?.[0]?.price || 0);
+          const precosValidos = variacoes.map(v => v.preco).filter(p => p > 0);
+          const precoBase = precosValidos.length > 0 
+            ? Math.min(...precosValidos)
+            : parseFloat(precosArray[0]?.price || 0);
 
-          const precoPromocional = variacoes.length > 0
-            ? Math.min(...variacoes.map(v => v.preco_promocional).filter(p => p > 0))
-            : parseFloat(produto.prices?.data?.[0]?.promotional_price || 0);
+          const precosPromoValidos = variacoes.map(v => v.preco_promocional).filter(p => p > 0);
+          const precoPromocional = precosPromoValidos.length > 0
+            ? Math.min(...precosPromoValidos)
+            : parseFloat(precosArray[0]?.promotional_price || 0);
 
           const produtoData = {
             yampi_id: String(produto.id),
