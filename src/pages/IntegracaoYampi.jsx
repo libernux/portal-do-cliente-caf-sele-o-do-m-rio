@@ -138,25 +138,9 @@ export default function IntegracaoYampi() {
           batchSize: 10
         });
       } else if (previewTipo === 'pedidos') {
-        // Para pedidos, usar o método de 2 etapas
-        addDebugLog('📥 Etapa 1/2: Coletando pedidos da API Yampi...', 'info');
-        setImportProgress({ current: 0, total: 100, status: 'Coletando dados da API...' });
-        
-        const exportResponse = await base44.functions.invoke('exportYampiOrdersToJson', {});
-        
-        addDebugLog('✅ Dados coletados da API', 'sucesso');
-        addDebugLog('💾 Etapa 2/2: Importando para o banco de dados...', 'info');
-        setImportProgress({ current: 50, total: 100, status: 'Importando para o banco...' });
-        
-        // Converter a resposta para Blob e depois para FormData
-        const jsonData = exportResponse.data;
-        const blob = new Blob([jsonData], { type: 'application/json' });
-        const file = new File([blob], 'pedidos_temp.json', { type: 'application/json' });
-        
-        const formData = new FormData();
-        formData.append('file', file);
-        
-        response = await base44.functions.invoke('importYampiOrdersFromJson', formData);
+        addDebugLog('⚙️ Sincronizando pedidos via API...', 'info');
+        addDebugLog('⏱️ Este processo pode demorar alguns minutos...', 'aviso');
+        response = await base44.functions.invoke('syncYampiOrders', {});
       } else if (previewTipo === 'clientes') {
         addDebugLog('⚙️ Sincronizando clientes via API...', 'info');
         response = await base44.functions.invoke('syncYampiCustomers', {});

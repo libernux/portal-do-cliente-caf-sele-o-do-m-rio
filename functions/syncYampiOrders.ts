@@ -19,7 +19,15 @@ Deno.serve(async (req) => {
       }, { status: 500 });
     }
 
-    // Buscar pedidos da API Yampi com paginação
+    // Limites da API Yampi
+    const REQUESTS_PER_MINUTE = 120;
+    const DELAY_BETWEEN_REQUESTS = Math.ceil((60 * 1000) / REQUESTS_PER_MINUTE);
+    const MAX_PAGES_PER_SYNC = 10; // Limitar a 10 páginas (1000 pedidos) por sincronização
+
+    console.log('🚀 Iniciando sincronização de pedidos...');
+    console.log(`⏱️ Rate limit: ${REQUESTS_PER_MINUTE} req/min`);
+    console.log(`📊 Máximo de ${MAX_PAGES_PER_SYNC} páginas por sincronização`);
+
     let pedidosNovos = 0;
     let pedidosAtualizados = 0;
     let pedidosErro = 0;
@@ -28,7 +36,9 @@ Deno.serve(async (req) => {
     let totalPedidos = 0;
     const errosDetalhados = [];
 
-    while (hasMorePages) {
+    while (hasMorePages && currentPage <= MAX_PAGES_PER_SYNC) {
+      console.log(`📥 Buscando página ${currentPage}...`);
+      
       const response = await fetch(`https://api.dooki.com.br/v2/${alias}/orders?include=items,items.product,items.sku,customer,shipping,payment,status,transactions,status_history,coupons&limit=100&page=${currentPage}`, {
         method: 'GET',
         headers: {
@@ -166,6 +176,15 @@ Deno.serve(async (req) => {
       // Verificar se há mais páginas
       hasMorePages = pagination && currentPage < pagination.total_pages;
       currentPage++;
+
+      // Aguardar entre requisições para respeitar rate limit
+      if (hasMorePages && currentPage <= MAX_PAGES_PER_SYNC) {
+        await new Promise(resolve => setTimeout(resolve, DELAY_BETWEEN_REQUESTS));
+      }
+    }
+
+    if (currentPage > MAX_PAGES_PER_SYNC) {
+      console.log(`⚠️ Limite de ${MAX_PAGES_PER_SYNC} páginas atingido. Execute novamente para continuar.`);
     }
 
     // Log de sincronização
@@ -180,6 +199,10 @@ Deno.serve(async (req) => {
       mensagem: `${pedidosNovos} novos, ${pedidosAtualizados} atualizados, ${pedidosErro} erros`
     });
 
+    const mensagem = currentPage > MAX_PAGES_PER_SYNC 
+      ? `Sincronização parcial: ${pedidosNovos} novos, ${pedidosAtualizados} atualizados (${MAX_PAGES_PER_SYNC} páginas). Execute novamente para mais.`
+      : `Sincronização concluída: ${pedidosNovos} novos, ${pedidosAtualizados} atualizados`;
+
     return Response.json({
       success: true,
       total: totalPedidos,
@@ -187,7 +210,8 @@ Deno.serve(async (req) => {
       atualizados: pedidosAtualizados,
       erros: pedidosErro,
       erros_detalhados: errosDetalhados,
-      mensagem: `Sincronização concluída: ${pedidosNovos} novos, ${pedidosAtualizados} atualizados${pedidosErro > 0 ? `, ${pedidosErro} erros` : ''}`
+      tem_mais_paginas: hasMorePages,
+      mensagem: mensagem + (pedidosErro > 0 ? `, ${pedidosErro} erros` : '')
     });
 
   } catch (error) {
