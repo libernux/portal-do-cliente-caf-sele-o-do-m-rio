@@ -50,14 +50,14 @@ Deno.serve(async (req) => {
       await Promise.all(batch.map(async (pedido) => {
         try {
           const itens = (pedido.items?.data || []).map(item => ({
-            produto_id: item.product?.data?.id ? String(item.product.data.id) : '',
-            produto_nome: item.name || '',
-            sku_id: item.sku?.data?.id ? String(item.sku.data.id) : '',
-            sku: item.sku_code || '',
-            quantidade: item.quantity || 0,
+            produto_id: String(item.product?.data?.id || ''),
+            produto_nome: String(item.name || 'Produto sem nome'),
+            sku_id: String(item.sku?.data?.id || ''),
+            sku: String(item.sku_code || ''),
+            quantidade: Number(item.quantity || 0),
             preco_unitario: parseFloat(item.price || 0),
             preco_total: parseFloat(item.total || 0),
-            imagem_url: item.product?.data?.images?.data?.[0]?.url || ''
+            imagem_url: String(item.product?.data?.images?.data?.[0]?.url || '')
           }));
 
           const endereco = pedido.shipping?.data || {};
@@ -85,12 +85,14 @@ Deno.serve(async (req) => {
           const pedidoData = {
             yampi_id: String(pedido.id),
             numero_pedido: String(pedido.number || pedido.id),
-            cliente_nome: cliente.first_name && cliente.last_name 
-              ? `${cliente.first_name} ${cliente.last_name}`
-              : cliente.name || '',
-            cliente_email: cliente.email || '',
-            cliente_telefone: cliente.phone || '',
-            cliente_cpf: cliente.cpf || '',
+            cliente_nome: String(
+              cliente.first_name && cliente.last_name 
+                ? `${cliente.first_name} ${cliente.last_name}`
+                : cliente.name || 'Cliente não identificado'
+            ),
+            cliente_email: String(cliente.email || ''),
+            cliente_telefone: String(cliente.phone || ''),
+            cliente_cpf: String(cliente.cpf || ''),
             status: pedido.status?.data?.name || pedido.status_name || '',
             status_pagamento: pedido.paid ? 'Pago' : 'Pendente',
             valor_total: parseFloat(pedido.value || 0),
