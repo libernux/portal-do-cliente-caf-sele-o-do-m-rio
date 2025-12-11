@@ -34,6 +34,7 @@ import CriarProdutoModal from "../components/yampi/CriarProdutoModal";
 import BuscarProdutoModal from "../components/yampi/BuscarProdutoModal";
 import LogsSincronizacao from "../components/yampi/LogsSincronizacao";
 import PedidoDetalhesModal from "../components/yampi/PedidoDetalhesModal";
+import PreviewImportacaoModal from "../components/yampi/PreviewImportacaoModal";
 
 export default function IntegracaoYampi() {
   const [produtos, setProdutos] = useState([]);
@@ -53,6 +54,14 @@ export default function IntegracaoYampi() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [previewData, setPreviewData] = useState(null);
+  const [previewTipo, setPreviewTipo] = useState(null);
+  const [isImporting, setIsImporting] = useState(false);
+  const [currentPageProdutos, setCurrentPageProdutos] = useState(1);
+  const [currentPagePedidos, setCurrentPagePedidos] = useState(1);
+  const [currentPageClientes, setCurrentPageClientes] = useState(1);
+  const itemsPerPage = 20;
 
   useEffect(() => {
     loadData();
@@ -73,25 +82,17 @@ export default function IntegracaoYampi() {
     setIsLoading(false);
   };
 
-  const handleSync = async (type) => {
+  const handlePreviewSync = async (type) => {
     setIsSyncing({ ...isSyncing, [type]: true });
     setSyncResult(null);
 
     try {
-      let response;
-      if (type === 'produtos') {
-        response = await base44.functions.invoke('syncYampiProducts', {});
-      } else if (type === 'pedidos') {
-        response = await base44.functions.invoke('syncYampiOrders', {});
-      } else if (type === 'clientes') {
-        response = await base44.functions.invoke('syncYampiCustomers', {});
-      } else if (type === 'categorias') {
-        response = await base44.functions.invoke('syncYampiCategories', {});
-      }
+      const response = await base44.functions.invoke('previewYampiData', { tipo: type });
 
       if (response.data.success) {
-        setSyncResult({ type, ...response.data });
-        await loadData();
+        setPreviewData(response.data.items);
+        setPreviewTipo(type);
+        setShowPreviewModal(true);
       } else {
         setSyncResult({ type, error: response.data.error });
       }
@@ -99,6 +100,40 @@ export default function IntegracaoYampi() {
       setSyncResult({ type, error: error.message });
     } finally {
       setIsSyncing({ ...isSyncing, [type]: false });
+    }
+  };
+
+  const handleConfirmImport = async () => {
+    if (!previewTipo) return;
+
+    setIsImporting(true);
+    setSyncResult(null);
+
+    try {
+      let response;
+      if (previewTipo === 'produtos') {
+        response = await base44.functions.invoke('syncYampiProducts', {});
+      } else if (previewTipo === 'pedidos') {
+        response = await base44.functions.invoke('syncYampiOrders', {});
+      } else if (previewTipo === 'clientes') {
+        response = await base44.functions.invoke('syncYampiCustomers', {});
+      } else if (previewTipo === 'categorias') {
+        response = await base44.functions.invoke('syncYampiCategories', {});
+      }
+
+      if (response.data.success) {
+        setSyncResult({ type: previewTipo, ...response.data });
+        await loadData();
+        setShowPreviewModal(false);
+        setPreviewData(null);
+        setPreviewTipo(null);
+      } else {
+        setSyncResult({ type: previewTipo, error: response.data.error });
+      }
+    } catch (error) {
+      setSyncResult({ type: previewTipo, error: error.message });
+    } finally {
+      setIsImporting(false);
     }
   };
 
@@ -156,6 +191,12 @@ export default function IntegracaoYampi() {
     p.sku?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const totalPagesProdutos = Math.ceil(produtosFiltrados.length / itemsPerPage);
+  const produtosPaginados = produtosFiltrados.slice(
+    (currentPageProdutos - 1) * itemsPerPage,
+    currentPageProdutos * itemsPerPage
+  );
+
   const pedidosFiltrados = pedidos.filter(p => {
     const matchesSearch = 
       p.numero_pedido?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -180,9 +221,21 @@ export default function IntegracaoYampi() {
     return matchesSearch && matchesStatus && matchesDate;
   });
 
+  const totalPagesPedidos = Math.ceil(pedidosFiltrados.length / itemsPerPage);
+  const pedidosPaginados = pedidosFiltrados.slice(
+    (currentPagePedidos - 1) * itemsPerPage,
+    currentPagePedidos * itemsPerPage
+  );
+
   const clientesFiltrados = clientes.filter(c =>
     c.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     c.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const totalPagesClientes = Math.ceil(clientesFiltrados.length / itemsPerPage);
+  const clientesPaginados = clientesFiltrados.slice(
+    (currentPageClientes - 1) * itemsPerPage,
+    currentPageClientes * itemsPerPage
   );
 
   const stats = {
@@ -347,7 +400,7 @@ export default function IntegracaoYampi() {
                     Criar Produto
                   </Button>
                   <Button
-                    onClick={() => handleSync('produtos')}
+                    onClick={() => handlePreviewSync('produtos')}
                     disabled={isSyncing.produtos}
                     className="bg-[#6B4423] hover:bg-[#5A3A1E]"
                   >
@@ -368,8 +421,9 @@ export default function IntegracaoYampi() {
                 <p className="text-[#8B7355]">Carregando...</p>
               </div>
             ) : produtosFiltrados.length > 0 ? (
-              <div className="grid gap-4">
-                {produtosFiltrados.map((produto) => (
+              <>
+                <div className="grid gap-4">
+                  {produtosPaginados.map((produto) => (
                   <Card key={produto.id} className="border-[#E5DCC8]">
                     <CardContent className="p-6">
                       <div className="flex gap-4">
@@ -452,7 +506,7 @@ export default function IntegracaoYampi() {
               <CardContent className="p-4">
                 <div className="flex justify-end">
                   <Button
-                    onClick={() => handleSync('categorias')}
+                    onClick={() => handlePreviewSync('categorias')}
                     disabled={isSyncing.categorias}
                     className="bg-[#6B4423] hover:bg-[#5A3A1E]"
                   >
@@ -521,7 +575,7 @@ export default function IntegracaoYampi() {
                       />
                     </div>
                     <Button
-                      onClick={() => handleSync('pedidos')}
+                      onClick={() => handlePreviewSync('pedidos')}
                       disabled={isSyncing.pedidos}
                       className="bg-[#6B4423] hover:bg-[#5A3A1E]"
                     >
@@ -597,8 +651,9 @@ export default function IntegracaoYampi() {
                 <p className="text-[#8B7355]">Carregando...</p>
               </div>
             ) : pedidosFiltrados.length > 0 ? (
-              <div className="grid gap-4">
-                {pedidosFiltrados.map((pedido) => (
+              <>
+                <div className="grid gap-4">
+                  {pedidosPaginados.map((pedido) => (
                   <Card 
                     key={pedido.id} 
                     className="border-[#E5DCC8] cursor-pointer hover:shadow-lg transition-shadow"
@@ -641,21 +696,56 @@ export default function IntegracaoYampi() {
                     </CardContent>
                   </Card>
                 ))}
-              </div>
-            ) : (
-              <Card className="border-[#E5DCC8]">
+                </div>
+
+                {/* Paginação Pedidos */}
+                {totalPagesPedidos > 1 && (
+                <Card className="border-[#E5DCC8]">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-[#8B7355]">
+                        Mostrando {((currentPagePedidos - 1) * itemsPerPage) + 1}-{Math.min(currentPagePedidos * itemsPerPage, pedidosFiltrados.length)} de {pedidosFiltrados.length}
+                      </p>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setCurrentPagePedidos(p => Math.max(1, p - 1))}
+                          disabled={currentPagePedidos === 1}
+                        >
+                          Anterior
+                        </Button>
+                        <span className="flex items-center px-3 text-sm">
+                          Página {currentPagePedidos} de {totalPagesPedidos}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setCurrentPagePedidos(p => Math.min(totalPagesPedidos, p + 1))}
+                          disabled={currentPagePedidos === totalPagesPedidos}
+                        >
+                          Próxima
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                )}
+                </>
+                ) : (
+                <Card className="border-[#E5DCC8]">
                 <CardContent className="p-12 text-center">
-                  <ShoppingCart className="w-16 h-16 text-[#8B7355] mx-auto mb-4 opacity-30" />
-                  <p className="text-[#8B7355]">Nenhum pedido encontrado</p>
-                  <Button
-                    onClick={() => handleSync('pedidos')}
-                    className="mt-4 bg-[#6B4423] hover:bg-[#5A3A1E]"
-                  >
-                    Sincronizar Pedidos
-                  </Button>
+                <ShoppingCart className="w-16 h-16 text-[#8B7355] mx-auto mb-4 opacity-30" />
+                <p className="text-[#8B7355]">Nenhum pedido encontrado</p>
+                <Button
+                  onClick={() => handlePreviewSync('pedidos')}
+                  className="mt-4 bg-[#6B4423] hover:bg-[#5A3A1E]"
+                >
+                  Sincronizar Pedidos
+                </Button>
                 </CardContent>
-              </Card>
-            )}
+                </Card>
+                )}
           </TabsContent>
 
           {/* Tab Clientes */}
@@ -673,7 +763,7 @@ export default function IntegracaoYampi() {
                     />
                   </div>
                   <Button
-                    onClick={() => handleSync('clientes')}
+                    onClick={() => handlePreviewSync('clientes')}
                     disabled={isSyncing.clientes}
                     className="bg-[#6B4423] hover:bg-[#5A3A1E]"
                   >
@@ -694,8 +784,9 @@ export default function IntegracaoYampi() {
                 <p className="text-[#8B7355]">Carregando...</p>
               </div>
             ) : clientesFiltrados.length > 0 ? (
-              <div className="grid gap-4">
-                {clientesFiltrados.map((cliente) => (
+              <>
+                <div className="grid gap-4">
+                  {clientesPaginados.map((cliente) => (
                   <Card key={cliente.id} className="border-[#E5DCC8]">
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between mb-3">
@@ -733,21 +824,56 @@ export default function IntegracaoYampi() {
                     </CardContent>
                   </Card>
                 ))}
-              </div>
-            ) : (
-              <Card className="border-[#E5DCC8]">
+                </div>
+
+                {/* Paginação Clientes */}
+                {totalPagesClientes > 1 && (
+                <Card className="border-[#E5DCC8]">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-[#8B7355]">
+                        Mostrando {((currentPageClientes - 1) * itemsPerPage) + 1}-{Math.min(currentPageClientes * itemsPerPage, clientesFiltrados.length)} de {clientesFiltrados.length}
+                      </p>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setCurrentPageClientes(p => Math.max(1, p - 1))}
+                          disabled={currentPageClientes === 1}
+                        >
+                          Anterior
+                        </Button>
+                        <span className="flex items-center px-3 text-sm">
+                          Página {currentPageClientes} de {totalPagesClientes}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setCurrentPageClientes(p => Math.min(totalPagesClientes, p + 1))}
+                          disabled={currentPageClientes === totalPagesClientes}
+                        >
+                          Próxima
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                )}
+                </>
+                ) : (
+                <Card className="border-[#E5DCC8]">
                 <CardContent className="p-12 text-center">
-                  <Users className="w-16 h-16 text-[#8B7355] mx-auto mb-4 opacity-30" />
-                  <p className="text-[#8B7355]">Nenhum cliente encontrado</p>
-                  <Button
-                    onClick={() => handleSync('clientes')}
-                    className="mt-4 bg-[#6B4423] hover:bg-[#5A3A1E]"
-                  >
-                    Sincronizar Clientes
-                  </Button>
+                <Users className="w-16 h-16 text-[#8B7355] mx-auto mb-4 opacity-30" />
+                <p className="text-[#8B7355]">Nenhum cliente encontrado</p>
+                <Button
+                  onClick={() => handlePreviewSync('clientes')}
+                  className="mt-4 bg-[#6B4423] hover:bg-[#5A3A1E]"
+                >
+                  Sincronizar Clientes
+                </Button>
                 </CardContent>
-              </Card>
-            )}
+                </Card>
+                )}
           </TabsContent>
 
           {/* Tab Logs */}
@@ -786,6 +912,19 @@ export default function IntegracaoYampi() {
           }}
           pedidoId={selectedPedidoId}
           onUpdate={handlePedidoUpdated}
+        />
+
+        <PreviewImportacaoModal
+          open={showPreviewModal}
+          onClose={() => {
+            setShowPreviewModal(false);
+            setPreviewData(null);
+            setPreviewTipo(null);
+          }}
+          tipo={previewTipo}
+          dados={previewData}
+          onConfirm={handleConfirmImport}
+          isLoading={isImporting}
         />
       </div>
     </div>
