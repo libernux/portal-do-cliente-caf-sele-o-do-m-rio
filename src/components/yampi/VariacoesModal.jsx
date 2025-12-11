@@ -56,13 +56,21 @@ export default function VariacoesModal({ open, onClose, produto }) {
                             <p className="text-xs text-[#8B7355]">
                               SKU: {variacao.sku}
                             </p>
+                            {variacao.descricao && (
+                              <p className="text-xs text-[#A69483] mt-1">{variacao.descricao}</p>
+                            )}
                           </div>
-                          <Badge 
-                            variant={variacao.estoque > 0 ? "default" : "secondary"}
-                            className={variacao.estoque > 0 ? "bg-green-100 text-green-800" : ""}
-                          >
-                            {variacao.estoque > 0 ? "Em Estoque" : "Sem Estoque"}
-                          </Badge>
+                          <div className="flex gap-2">
+                            <Badge 
+                              variant={variacao.estoque > 0 ? "default" : "secondary"}
+                              className={variacao.estoque > 0 ? "bg-green-100 text-green-800" : ""}
+                            >
+                              {variacao.estoque > 0 ? `${variacao.estoque} un` : "Sem Estoque"}
+                            </Badge>
+                            {!variacao.ativo && (
+                              <Badge variant="outline" className="border-red-300 text-red-600">Inativo</Badge>
+                            )}
+                          </div>
                         </div>
 
                         {/* Opções da variação */}
@@ -80,27 +88,65 @@ export default function VariacoesModal({ open, onClose, produto }) {
                           </div>
                         )}
 
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-                          <div>
-                            <p className="text-[#8B7355]">Preço</p>
-                            <p className="font-semibold text-[#2D5016]">
-                              R$ {variacao.preco?.toFixed(2)}
-                            </p>
+                        <div className="space-y-3">
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                            <div>
+                              <p className="text-[#8B7355]">Preço</p>
+                              <p className="font-semibold text-[#2D5016]">
+                                R$ {variacao.preco?.toFixed(2).replace('.', ',')}
+                              </p>
+                              {variacao.preco_promocional > 0 && (
+                                <p className="text-xs text-red-600">
+                                  Promo: R$ {variacao.preco_promocional?.toFixed(2).replace('.', ',')}
+                                </p>
+                              )}
+                            </div>
+                            <div>
+                              <p className="text-[#8B7355]">Estoque</p>
+                              <p className="font-semibold">{variacao.estoque} un</p>
+                            </div>
+                            <div>
+                              <p className="text-[#8B7355]">Peso</p>
+                              <p className="font-semibold">{variacao.peso} kg</p>
+                            </div>
+                            <div>
+                              <p className="text-[#8B7355]">Dimensões</p>
+                              <p className="font-semibold">
+                                {variacao.altura}x{variacao.largura}x{variacao.comprimento} cm
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="text-[#8B7355]">Estoque</p>
-                            <p className="font-semibold">{variacao.estoque} un</p>
-                          </div>
-                          <div>
-                            <p className="text-[#8B7355]">Peso</p>
-                            <p className="font-semibold">{variacao.peso} kg</p>
-                          </div>
-                          <div>
-                            <p className="text-[#8B7355]">Dimensões</p>
-                            <p className="font-semibold">
-                              {variacao.altura}x{variacao.largura}x{variacao.comprimento} cm
-                            </p>
-                          </div>
+
+                          {(variacao.referencia || variacao.ean || variacao.ncm || variacao.preco_custo) && (
+                            <div className="border-t border-[#E5DCC8] pt-3">
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                                {variacao.preco_custo > 0 && (
+                                  <div>
+                                    <p className="text-[#8B7355]">Custo</p>
+                                    <p className="font-semibold">R$ {variacao.preco_custo?.toFixed(2).replace('.', ',')}</p>
+                                  </div>
+                                )}
+                                {variacao.referencia && (
+                                  <div>
+                                    <p className="text-[#8B7355]">Referência</p>
+                                    <p className="font-semibold">{variacao.referencia}</p>
+                                  </div>
+                                )}
+                                {variacao.ean && (
+                                  <div>
+                                    <p className="text-[#8B7355]">EAN</p>
+                                    <p className="font-semibold">{variacao.ean}</p>
+                                  </div>
+                                )}
+                                {variacao.ncm && (
+                                  <div>
+                                    <p className="text-[#8B7355]">NCM</p>
+                                    <p className="font-semibold">{variacao.ncm}</p>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
