@@ -70,7 +70,7 @@ export default function IntegracaoYampi() {
   const [deleteType, setDeleteType] = useState(null);
   const [debugLogs, setDebugLogs] = useState([]);
   const [isExporting, setIsExporting] = useState(false);
-  const [isImporting, setIsImporting] = useState(false);
+  const [isImportingJson, setIsImportingJson] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
 
   useEffect(() => {
@@ -222,7 +222,7 @@ export default function IntegracaoYampi() {
   };
 
   const handleImportFromJson = async (file) => {
-    setIsImporting(true);
+    setIsImportingJson(true);
     setDebugLogs([]);
     addDebugLog('🚀 Iniciando importação do arquivo JSON...', 'info');
 
@@ -254,7 +254,7 @@ export default function IntegracaoYampi() {
       addDebugLog(`💥 Erro crítico: ${error.message}`, 'erro');
       setSyncResult({ type: 'pedidos', error: error.message });
     } finally {
-      setIsImporting(false);
+      setIsImportingJson(false);
     }
   };
 
@@ -1277,7 +1277,7 @@ export default function IntegracaoYampi() {
               <CardContent className="p-6">
                 <h3 className="font-bold text-xl mb-4">Importar Pedidos via JSON</h3>
 
-                {isImporting ? (
+                {isImportingJson ? (
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
                       <Loader2 className="w-6 h-6 text-[#6B4423] animate-spin" />
@@ -1346,9 +1346,9 @@ export default function IntegracaoYampi() {
                       setShowImportModal(false);
                       setDebugLogs([]);
                     }}
-                    disabled={isImporting}
+                    disabled={isImportingJson}
                   >
-                    {isImporting ? 'Processando...' : 'Cancelar'}
+                    {isImportingJson ? 'Processando...' : 'Cancelar'}
                   </Button>
                 </div>
               </CardContent>
