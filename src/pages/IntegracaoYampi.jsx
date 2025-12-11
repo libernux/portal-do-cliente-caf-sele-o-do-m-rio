@@ -136,6 +136,10 @@ export default function IntegracaoYampi() {
       console.log('🔍 DEBUG - Response completa:', response);
       console.log('🔍 DEBUG - Response.data:', response.data);
 
+      if (response.data.erros_detalhados && response.data.erros_detalhados.length > 0) {
+        console.error('❌ ERROS DETALHADOS:', response.data.erros_detalhados);
+      }
+
       if (response.data.success) {
         setSyncResult({ type: previewTipo, ...response.data });
         await loadData();
@@ -423,14 +427,26 @@ export default function IntegracaoYampi() {
                   {syncResult.error && (
                     <p className="text-sm text-red-600 mt-1">{syncResult.error}</p>
                   )}
-                  {syncResult.erros > 0 && (
+                  {syncResult.erros > 0 && syncResult.erros_detalhados && (
                     <div className="mt-3 p-3 bg-red-100 rounded-lg border border-red-200">
                       <p className="font-semibold text-red-800 mb-2">
                         ⚠️ {syncResult.erros} erro(s) encontrado(s):
                       </p>
-                      <pre className="text-xs text-red-700 whitespace-pre-wrap max-h-60 overflow-y-auto">
-                        {JSON.stringify(syncResult, null, 2)}
-                      </pre>
+                      <div className="max-h-96 overflow-y-auto space-y-2">
+                        {syncResult.erros_detalhados.map((erro, idx) => (
+                          <div key={idx} className="bg-white p-2 rounded border border-red-300">
+                            <p className="font-semibold text-xs text-red-800">
+                              Produto: {erro.produto_nome} (ID: {erro.produto_id})
+                            </p>
+                            <p className="text-xs text-red-600 mt-1">
+                              SKU: {erro.produto_sku}
+                            </p>
+                            <p className="text-xs text-red-700 mt-1 font-mono">
+                              {erro.erro}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
