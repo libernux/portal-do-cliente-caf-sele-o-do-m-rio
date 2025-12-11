@@ -20,8 +20,8 @@ Deno.serve(async (req) => {
     }
 
     // Limites da API Yampi e da função
-    const MAX_PAGES_PER_SYNC = 3; // Apenas 3 páginas (300 pedidos) por vez para evitar timeout
-    const DELAY_BETWEEN_REQUESTS = 600; // 600ms entre requisições
+    const MAX_PAGES_PER_SYNC = 2; // Apenas 2 páginas (200 pedidos) por vez
+    const DELAY_BETWEEN_REQUESTS = 1000; // 1 segundo entre requisições para evitar rate limit
 
     console.log('🚀 Iniciando sincronização de pedidos...');
     console.log(`📊 Processando até ${MAX_PAGES_PER_SYNC} páginas (${MAX_PAGES_PER_SYNC * 100} pedidos)`);
@@ -52,8 +52,9 @@ Deno.serve(async (req) => {
         console.error('Erro Yampi página', currentPage, ':', errorData);
         
         if (response.status === 429) {
-          console.log('⏸️ Rate limit atingido');
-          break;
+          console.log('⏸️ Rate limit atingido. Aguardando 60s...');
+          await new Promise(resolve => setTimeout(resolve, 60000));
+          continue; // Tentar novamente
         }
         
         return Response.json({ 
@@ -71,14 +72,14 @@ Deno.serve(async (req) => {
       for (const pedido of pedidos) {
         try {
           const itens = (pedido.items?.data || []).map(item => ({
-            produto_id: item.product?.data?.id ? String(item.product.data.id) : '',
-            produto_nome: item.name || '',
-            sku_id: item.sku?.data?.id ? String(item.sku.data.id) : '',
-            sku: item.sku_code || '',
-            quantidade: item.quantity || 0,
+            produto_id: String(item.product?.data?.id || ''),
+            produto_nome: String(item.name || 'Produto sem nome'),
+            sku_id: String(item.sku?.data?.id || ''),
+            sku: String(item.sku_code || ''),
+            quantidade: Number(item.quantity || 0),
             preco_unitario: parseFloat(item.price || 0),
             preco_total: parseFloat(item.total || 0),
-            imagem_url: item.product?.data?.images?.data?.[0]?.url || ''
+            imagem_url: String(item.product?.data?.images?.data?.[0]?.url || '')
           }));
 
           const endereco = pedido.shipping?.data || {};
@@ -106,9 +107,11 @@ Deno.serve(async (req) => {
           const pedidoData = {
             yampi_id: String(pedido.id),
             numero_pedido: String(pedido.number || pedido.id),
-            cliente_nome: cliente.first_name && cliente.last_name 
-              ? `${cliente.first_name} ${cliente.last_name}`
-              : cliente.name || '',
+            cliente_nome: String(
+              cliente.first_name && cliente.last_name 
+                ? `${cliente.first_name} ${cliente.last_name}`
+                : cliente.name || 'Cliente não identificado'
+            ),
             cliente_email: String(cliente.email || ''),
             cliente_telefone: String(cliente.phone || ''),
             cliente_cpf: String(cliente.cpf || ''),
