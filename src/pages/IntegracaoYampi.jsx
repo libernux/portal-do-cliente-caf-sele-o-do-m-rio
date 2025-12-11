@@ -69,6 +69,9 @@ export default function IntegracaoYampi() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteType, setDeleteType] = useState(null);
   const [debugLogs, setDebugLogs] = useState([]);
+  const [isExporting, setIsExporting] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -190,6 +193,69 @@ export default function IntegracaoYampi() {
   const handleDeleteLocal = async (type) => {
     setDeleteType(type);
     setShowDeleteConfirm(true);
+  };
+
+  const handleExportToJson = async () => {
+    setIsExporting(true);
+    try {
+      const response = await base44.functions.invoke('exportYampiOrdersToJson', {});
+      
+      const blob = new Blob([JSON.stringify(response.data)], { type: 'application/json' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `yampi_pedidos_${Date.now()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+
+      setSyncResult({ 
+        type: 'pedidos', 
+        mensagem: 'Pedidos exportados com sucesso!' 
+      });
+    } catch (error) {
+      setSyncResult({ type: 'pedidos', error: error.message });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleImportFromJson = async (file) => {
+    setIsImporting(true);
+    setDebugLogs([]);
+    addDebugLog('🚀 Iniciando importação do arquivo JSON...', 'info');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      addDebugLog(`📄 Arquivo: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`, 'info');
+
+      const response = await base44.functions.invoke('importYampiOrdersFromJson', formData);
+
+      if (response.data.success) {
+        addDebugLog(`✅ Importação concluída!`, 'sucesso');
+        addDebugLog(`📊 Total: ${response.data.total}`, 'info');
+        addDebugLog(`🆕 Novos: ${response.data.novos}`, 'sucesso');
+        addDebugLog(`🔄 Atualizados: ${response.data.atualizados}`, 'info');
+        if (response.data.erros > 0) {
+          addDebugLog(`⚠️ Erros: ${response.data.erros}`, 'aviso');
+        }
+
+        setSyncResult({ type: 'pedidos', ...response.data });
+        await loadData();
+        setShowImportModal(false);
+      } else {
+        addDebugLog(`❌ Erro: ${response.data.error}`, 'erro');
+        setSyncResult({ type: 'pedidos', error: response.data.error });
+      }
+    } catch (error) {
+      addDebugLog(`💥 Erro crítico: ${error.message}`, 'erro');
+      setSyncResult({ type: 'pedidos', error: error.message });
+    } finally {
+      setIsImporting(false);
+    }
   };
 
   const confirmDeleteLocal = async () => {
@@ -780,6 +846,27 @@ export default function IntegracaoYampi() {
                       />
                     </div>
                     <Button
+                      onClick={handleExportToJson}
+                      disabled={isExporting}
+                      variant="outline"
+                      className="border-[#6B4423] text-[#6B4423]"
+                    >
+                      {isExporting ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <FileText className="w-4 h-4 mr-2" />
+                      )}
+                      Exportar JSON
+                    </Button>
+                    <Button
+                      onClick={() => setShowImportModal(true)}
+                      variant="outline"
+                      className="border-green-600 text-green-600"
+                    >
+                      <FileText className="w-4 h-4 mr-2" />
+                      Importar JSON
+                    </Button>
+                    <Button
                       onClick={() => handlePreviewSync('pedidos')}
                       disabled={isSyncing.pedidos}
                       className="bg-[#6B4423] hover:bg-[#5A3A1E]"
@@ -1176,6 +1263,92 @@ export default function IntegracaoYampi() {
                     className="bg-red-600 hover:bg-red-700"
                   >
                     Confirmar Exclusão
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Modal de Importação JSON */}
+        {showImportModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <Card className="max-w-2xl w-full mx-4">
+              <CardContent className="p-6">
+                <h3 className="font-bold text-xl mb-4">Importar Pedidos via JSON</h3>
+
+                {isImporting ? (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <Loader2 className="w-6 h-6 text-[#6B4423] animate-spin" />
+                      <span>Processando arquivo...</span>
+                    </div>
+
+                    {debugLogs.length > 0 && (
+                      <ScrollArea className="h-48 border border-gray-300 rounded p-2 bg-white">
+                        <div className="space-y-1 font-mono text-xs">
+                          {debugLogs.map((log, idx) => (
+                            <div
+                              key={idx}
+                              className={`p-1 rounded ${
+                                log.tipo === 'erro' ? 'bg-red-50 text-red-800' :
+                                log.tipo === 'sucesso' ? 'bg-green-50 text-green-800' :
+                                log.tipo === 'aviso' ? 'bg-yellow-50 text-yellow-800' :
+                                'text-gray-700'
+                              }`}
+                            >
+                              <span className="text-gray-500">[{log.timestamp}]</span> {log.mensagem}
+                            </div>
+                          ))}
+                        </div>
+                      </ScrollArea>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="border-2 border-dashed border-[#E5DCC8] rounded-lg p-8 text-center">
+                      <input
+                        type="file"
+                        accept=".json"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            handleImportFromJson(file);
+                          }
+                        }}
+                        className="hidden"
+                        id="json-upload"
+                      />
+                      <label htmlFor="json-upload" className="cursor-pointer">
+                        <FileText className="w-12 h-12 text-[#6B4423] mx-auto mb-4" />
+                        <p className="text-lg font-semibold text-[#6B4423] mb-2">
+                          Clique para selecionar o arquivo JSON
+                        </p>
+                        <p className="text-sm text-[#8B7355]">
+                          Arquivo exportado da Yampi com os pedidos
+                        </p>
+                      </label>
+                    </div>
+
+                    <div className="bg-blue-50 border border-blue-200 rounded p-4">
+                      <p className="text-sm text-blue-800">
+                        <strong>💡 Dica:</strong> Use o botão "Exportar JSON" para gerar o arquivo primeiro, 
+                        depois importe-o aqui para processar grandes volumes de pedidos de forma mais eficiente.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex gap-3 justify-end mt-6">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowImportModal(false);
+                      setDebugLogs([]);
+                    }}
+                    disabled={isImporting}
+                  >
+                    {isImporting ? 'Processando...' : 'Cancelar'}
                   </Button>
                 </div>
               </CardContent>
