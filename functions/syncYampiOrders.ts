@@ -109,9 +109,9 @@ Deno.serve(async (req) => {
             cliente_nome: cliente.first_name && cliente.last_name 
               ? `${cliente.first_name} ${cliente.last_name}`
               : cliente.name || '',
-            cliente_email: cliente.email || '',
-            cliente_telefone: cliente.phone || '',
-            cliente_cpf: cliente.cpf || '',
+            cliente_email: String(cliente.email || ''),
+            cliente_telefone: String(cliente.phone || ''),
+            cliente_cpf: String(cliente.cpf || ''),
             status: pedido.status?.data?.name || pedido.status_name || '',
             status_pagamento: pedido.paid ? 'Pago' : 'Pendente',
             valor_total: parseFloat(pedido.value || 0),
