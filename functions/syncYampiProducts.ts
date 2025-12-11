@@ -40,6 +40,13 @@ Deno.serve(async (req) => {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         console.error('Erro Yampi:', errorData);
+        
+        if (response.status === 429) {
+          console.log('⏸️ Rate limit atingido. Aguardando 60s...');
+          await new Promise(resolve => setTimeout(resolve, 60000));
+          continue;
+        }
+        
         return Response.json({ 
           error: 'Erro ao buscar produtos da Yampi',
           details: errorData 
@@ -54,6 +61,11 @@ Deno.serve(async (req) => {
 
       for (const produto of produtos) {
         try {
+          if (!produto.id || !produto.name) {
+            console.log(`⚠️ Produto sem ID ou nome, pulando...`);
+            continue;
+          }
+          
           console.log('🔍 Processando produto:', produto.id, produto.name);
           console.log('📦 SKUs encontrados:', produto.skus?.data?.length || 0);
           
