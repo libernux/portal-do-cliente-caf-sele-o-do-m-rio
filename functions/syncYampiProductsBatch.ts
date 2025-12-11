@@ -114,7 +114,7 @@ Deno.serve(async (req) => {
           });
 
           // Processar todas as imagens do produto
-          const imagens = produto.images?.data?.map(img => img.url) || [];
+          const imagens = produto.images?.data?.map(img => String(img.url || '')).filter(url => url) || [];
 
           // Calcular estoque total somando todos os SKUs
           const estoqueTotal = variacoes.reduce((sum, v) => sum + (v.estoque || 0), 0);
@@ -138,7 +138,7 @@ Deno.serve(async (req) => {
             preco: precoBase,
             preco_promocional: precoPromocional || 0,
             estoque: estoqueTotal,
-            imagem_url: produto.images?.data?.[0]?.url || '',
+            imagem_url: produto.images?.data?.[0]?.url ? String(produto.images.data[0].url) : '',
             categoria: produto.categories?.data?.[0]?.name || '',
             ativo: produto.active !== false,
             peso: parseFloat(variacoes[0]?.peso || 0),
