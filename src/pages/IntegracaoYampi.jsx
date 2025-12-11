@@ -126,50 +126,61 @@ export default function IntegracaoYampi() {
     setDebugLogs([]);
     setImportProgress({ current: 0, total: previewData?.length || 0, status: 'Iniciando...' });
 
-    addDebugLog(`🚀 Iniciando importação de ${previewTipo}`, 'info');
-    addDebugLog(`📊 Total de itens: ${previewData?.length || 0}`, 'info');
+    addDebugLog(`🚀 Iniciando sincronização de ${previewTipo}`, 'info');
+    addDebugLog(`📊 Total de itens na preview: ${previewData?.length || 0}`, 'info');
 
     try {
       let response;
+      
       if (previewTipo === 'produtos') {
-        addDebugLog('⚙️ Chamando syncYampiProductsBatch...', 'info');
+        addDebugLog('⚙️ Sincronizando produtos via API...', 'info');
         response = await base44.functions.invoke('syncYampiProductsBatch', { 
           batchSize: 10
         });
       } else if (previewTipo === 'pedidos') {
-        addDebugLog('⚙️ Chamando syncYampiOrders...', 'info');
-        response = await base44.functions.invoke('syncYampiOrders', {});
+        // Para pedidos, usar o método de 2 etapas
+        addDebugLog('📥 Etapa 1/2: Coletando pedidos da API Yampi...', 'info');
+        setImportProgress({ current: 0, total: 100, status: 'Coletando dados da API...' });
+        
+        const exportResponse = await base44.functions.invoke('exportYampiOrdersToJson', {});
+        
+        addDebugLog('✅ Dados coletados da API', 'sucesso');
+        addDebugLog('💾 Etapa 2/2: Importando para o banco de dados...', 'info');
+        setImportProgress({ current: 50, total: 100, status: 'Importando para o banco...' });
+        
+        // Converter a resposta para Blob e depois para FormData
+        const jsonData = exportResponse.data;
+        const blob = new Blob([jsonData], { type: 'application/json' });
+        const file = new File([blob], 'pedidos_temp.json', { type: 'application/json' });
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        response = await base44.functions.invoke('importYampiOrdersFromJson', formData);
       } else if (previewTipo === 'clientes') {
-        addDebugLog('⚙️ Chamando syncYampiCustomers...', 'info');
+        addDebugLog('⚙️ Sincronizando clientes via API...', 'info');
         response = await base44.functions.invoke('syncYampiCustomers', {});
       } else if (previewTipo === 'categorias') {
-        addDebugLog('⚙️ Chamando syncYampiCategories...', 'info');
+        addDebugLog('⚙️ Sincronizando categorias via API...', 'info');
         response = await base44.functions.invoke('syncYampiCategories', {});
       }
 
-      addDebugLog('📥 Resposta recebida da API', 'sucesso');
-
-      // Simular progresso (já que as funções não retornam progresso em tempo real)
-      const total = previewData?.length || 0;
-      for (let i = 1; i <= total; i += 10) {
-        setImportProgress({ 
-          current: Math.min(i, total), 
-          total, 
-          status: `Processando item ${Math.min(i, total)} de ${total}...` 
-        });
-        await new Promise(resolve => setTimeout(resolve, 100));
-      }
+      setImportProgress({ current: 100, total: 100, status: 'Finalizando...' });
 
       if (response.data.erros_detalhados && response.data.erros_detalhados.length > 0) {
         addDebugLog(`⚠️ ${response.data.erros_detalhados.length} erros encontrados`, 'aviso');
         response.data.erros_detalhados.slice(0, 5).forEach(erro => {
-          addDebugLog(`❌ ${erro.produto_nome}: ${erro.erro}`, 'erro');
+          const nome = erro.produto_nome || erro.pedido_numero || erro.cliente_nome || 'Item';
+          addDebugLog(`❌ ${nome}: ${erro.erro}`, 'erro');
         });
       }
 
       if (response.data.success) {
-        addDebugLog(`✅ Importação concluída com sucesso!`, 'sucesso');
+        addDebugLog(`✅ Sincronização concluída!`, 'sucesso');
         addDebugLog(`📈 Novos: ${response.data.novos}, Atualizados: ${response.data.atualizados}`, 'sucesso');
+        if (response.data.erros > 0) {
+          addDebugLog(`⚠️ Erros: ${response.data.erros}`, 'aviso');
+        }
 
         setSyncResult({ type: previewTipo, ...response.data });
         await loadData();
@@ -184,6 +195,7 @@ export default function IntegracaoYampi() {
       }
     } catch (error) {
       addDebugLog(`💥 Erro crítico: ${error.message}`, 'erro');
+      console.error('Erro detalhado:', error);
       setSyncResult({ type: previewTipo, error: error.message || 'Erro ao processar sincronização' });
     } finally {
       setIsImporting(false);
