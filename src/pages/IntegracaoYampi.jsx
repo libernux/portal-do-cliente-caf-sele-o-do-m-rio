@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   ShoppingBag,
   ShoppingCart,
@@ -139,6 +140,15 @@ export default function IntegracaoYampi() {
     } catch (error) {
       setSyncResult({ type: 'produtos', error: error.message });
     }
+  };
+
+  const handleViewPedido = (pedido) => {
+    setSelectedPedidoId(pedido.yampi_id);
+    setShowPedidoModal(true);
+  };
+
+  const handlePedidoUpdated = async () => {
+    await loadData();
   };
 
   const produtosFiltrados = produtos.filter(p =>
