@@ -65,6 +65,9 @@ export default function IntegracaoYampi() {
   const itemsPerPage = 20;
   const [showVariacoesModal, setShowVariacoesModal] = useState(false);
   const [selectedProduto, setSelectedProduto] = useState(null);
+  const [importProgress, setImportProgress] = useState({ current: 0, total: 0, status: '' });
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteType, setDeleteType] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -111,11 +114,17 @@ export default function IntegracaoYampi() {
 
     setIsImporting(true);
     setSyncResult(null);
+    setImportProgress({ current: 0, total: previewData?.length || 0, status: 'Iniciando...' });
 
     try {
       let response;
       if (previewTipo === 'produtos') {
-        response = await base44.functions.invoke('syncYampiProducts', {});
+        response = await base44.functions.invoke('syncYampiProductsBatch', { 
+          batchSize: 10,
+          onProgress: (progress) => {
+            setImportProgress(progress);
+          }
+        });
       } else if (previewTipo === 'pedidos') {
         response = await base44.functions.invoke('syncYampiOrders', {});
       } else if (previewTipo === 'clientes') {
@@ -126,7 +135,6 @@ export default function IntegracaoYampi() {
 
       console.log('🔍 DEBUG - Response completa:', response);
       console.log('🔍 DEBUG - Response.data:', response.data);
-      console.log('🔍 DEBUG - Response.status:', response.status);
 
       if (response.data.success) {
         setSyncResult({ type: previewTipo, ...response.data });
@@ -134,19 +142,83 @@ export default function IntegracaoYampi() {
         setShowPreviewModal(false);
         setPreviewData(null);
         setPreviewTipo(null);
+        setImportProgress({ current: 0, total: 0, status: '' });
       } else {
         console.error('❌ DEBUG - Erro na resposta:', response.data.error);
-        console.error('❌ DEBUG - Detalhes completos:', JSON.stringify(response.data, null, 2));
         setSyncResult({ type: previewTipo, error: response.data.error || 'Erro desconhecido' });
       }
     } catch (error) {
       console.error('❌ DEBUG - Erro capturado no catch:', error);
-      console.error('❌ DEBUG - Error.message:', error.message);
-      console.error('❌ DEBUG - Error.stack:', error.stack);
-      console.error('❌ DEBUG - Error completo:', JSON.stringify(error, null, 2));
       setSyncResult({ type: previewTipo, error: error.message || 'Erro ao processar sincronização' });
     } finally {
       setIsImporting(false);
+      setImportProgress({ current: 0, total: 0, status: '' });
+    }
+  };
+
+  const handleDeleteLocal = async (type) => {
+    setDeleteType(type);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDeleteLocal = async () => {
+    try {
+      let entityName;
+      switch(deleteType) {
+        case 'produtos': entityName = 'ProdutoYampi'; break;
+        case 'pedidos': entityName = 'PedidoYampi'; break;
+        case 'clientes': entityName = 'ClienteYampi'; break;
+        case 'categorias': entityName = 'CategoriaYampi'; break;
+      }
+
+      const allRecords = await base44.entities[entityName].list();
+      for (const record of allRecords) {
+        await base44.entities[entityName].delete(record.id);
+      }
+
+      setSyncResult({ 
+        type: deleteType, 
+        mensagem: `${allRecords.length} registro(s) excluído(s) localmente` 
+      });
+      await loadData();
+    } catch (error) {
+      setSyncResult({ type: deleteType, error: error.message });
+    } finally {
+      setShowDeleteConfirm(false);
+      setDeleteType(null);
+    }
+  };
+
+  const handleSyncToYampi = async (produto) => {
+    try {
+      const response = await base44.functions.invoke('updateYampiProduct', {
+        yampi_id: produto.yampi_id,
+        productData: {
+          name: produto.nome,
+          description: produto.descricao,
+          sku: produto.sku,
+          active: produto.ativo,
+          price: produto.preco,
+          promotional_price: produto.preco_promocional,
+          quantity: produto.estoque,
+          weight: produto.peso,
+          height: produto.altura,
+          width: produto.largura,
+          length: produto.comprimento
+        }
+      });
+
+      if (response.data.success) {
+        setSyncResult({ 
+          type: 'produtos', 
+          mensagem: 'Produto atualizado na Yampi com sucesso!' 
+        });
+        await loadData();
+      } else {
+        setSyncResult({ type: 'produtos', error: response.data.error });
+      }
+    } catch (error) {
+      setSyncResult({ type: 'produtos', error: error.message });
     }
   };
 
@@ -413,6 +485,14 @@ export default function IntegracaoYampi() {
                     Criar Produto
                   </Button>
                   <Button
+                    onClick={() => handleDeleteLocal('produtos')}
+                    variant="outline"
+                    className="border-red-600 text-red-600 hover:bg-red-50"
+                  >
+                    <AlertCircle className="w-4 h-4 mr-2" />
+                    Limpar Local
+                  </Button>
+                  <Button
                     onClick={() => handlePreviewSync('produtos')}
                     disabled={isSyncing.produtos}
                     className="bg-[#6B4423] hover:bg-[#5A3A1E]"
@@ -466,6 +546,18 @@ export default function IntegracaoYampi() {
                               )}
                             </div>
                             <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleSyncToYampi(produto);
+                                }}
+                                className="border-blue-600 text-blue-600 hover:bg-blue-50"
+                                title="Enviar alterações para Yampi"
+                              >
+                                <RefreshCw className="w-4 h-4" />
+                              </Button>
                               <Button
                                 size="sm"
                                 variant="outline"
@@ -995,6 +1087,71 @@ export default function IntegracaoYampi() {
           }}
           produto={selectedProduto}
         />
+
+        {/* Modal de confirmação de exclusão */}
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <Card className="max-w-md w-full mx-4">
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4 mb-4">
+                  <AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0 mt-1" />
+                  <div>
+                    <h3 className="font-bold text-lg mb-2">Confirmar Exclusão Local</h3>
+                    <p className="text-sm text-[#8B7355]">
+                      Tem certeza que deseja excluir todos os dados locais de <strong>{deleteType}</strong>?
+                    </p>
+                    <p className="text-xs text-red-600 mt-2">
+                      ⚠️ Esta ação não afeta os dados na Yampi, apenas remove os registros locais do Base44.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-3 justify-end">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowDeleteConfirm(false);
+                      setDeleteType(null);
+                    }}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    onClick={confirmDeleteLocal}
+                    className="bg-red-600 hover:bg-red-700"
+                  >
+                    Confirmar Exclusão
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Progresso da importação */}
+        {isImporting && importProgress.total > 0 && (
+          <div className="fixed bottom-6 right-6 z-50">
+            <Card className="w-80 border-[#E5DCC8] shadow-lg">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <Loader2 className="w-5 h-5 text-[#6B4423] animate-spin" />
+                  <div className="flex-1">
+                    <p className="font-semibold text-sm">Importando...</p>
+                    <p className="text-xs text-[#8B7355]">{importProgress.status}</p>
+                  </div>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-[#6B4423] h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${(importProgress.current / importProgress.total) * 100}%` }}
+                  />
+                </div>
+                <p className="text-xs text-center mt-2 text-[#8B7355]">
+                  {importProgress.current} / {importProgress.total}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   );
