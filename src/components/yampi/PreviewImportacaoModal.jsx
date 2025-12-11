@@ -61,6 +61,8 @@ export default function PreviewImportacaoModal({
   const renderItem = (item) => {
     switch (tipo) {
       case 'produtos':
+        const totalSkus = item.skus?.data?.length || 0;
+        const totalEstoque = item.skus?.data?.reduce((sum, sku) => sum + (sku.quantity || 0), 0) || 0;
         return (
           <div className="flex items-center gap-3">
             {item.images?.data?.[0]?.url && (
@@ -73,10 +75,13 @@ export default function PreviewImportacaoModal({
             <div className="flex-1">
               <p className="font-medium text-sm">{item.name}</p>
               <p className="text-xs text-[#8B7355]">SKU: {item.sku}</p>
+              {totalSkus > 1 && (
+                <p className="text-xs text-blue-600">{totalSkus} variações</p>
+              )}
             </div>
             <div className="text-right">
               <p className="font-semibold text-sm">R$ {item.prices?.data?.[0]?.price?.toFixed(2)}</p>
-              <p className="text-xs text-[#8B7355]">{item.skus?.data?.[0]?.quantity || 0} un</p>
+              <p className="text-xs text-[#8B7355]">{totalEstoque} un total</p>
             </div>
           </div>
         );

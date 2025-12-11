@@ -35,6 +35,7 @@ import BuscarProdutoModal from "../components/yampi/BuscarProdutoModal";
 import LogsSincronizacao from "../components/yampi/LogsSincronizacao";
 import PedidoDetalhesModal from "../components/yampi/PedidoDetalhesModal";
 import PreviewImportacaoModal from "../components/yampi/PreviewImportacaoModal";
+import VariacoesModal from "../components/yampi/VariacoesModal";
 
 export default function IntegracaoYampi() {
   const [produtos, setProdutos] = useState([]);
@@ -62,6 +63,8 @@ export default function IntegracaoYampi() {
   const [currentPagePedidos, setCurrentPagePedidos] = useState(1);
   const [currentPageClientes, setCurrentPageClientes] = useState(1);
   const itemsPerPage = 20;
+  const [showVariacoesModal, setShowVariacoesModal] = useState(false);
+  const [selectedProduto, setSelectedProduto] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -439,6 +442,18 @@ export default function IntegracaoYampi() {
                             <div>
                               <h3 className="font-bold text-[#6B4423] text-lg">{produto.nome}</h3>
                               <p className="text-sm text-[#8B7355]">SKU: {produto.sku}</p>
+                              {produto.variacoes && produto.variacoes.length > 0 && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedProduto(produto);
+                                    setShowVariacoesModal(true);
+                                  }}
+                                  className="text-xs text-blue-600 hover:underline mt-1"
+                                >
+                                  {produto.variacoes.length} variação(ões)
+                                </button>
+                              )}
                             </div>
                             <div className="flex gap-2">
                               <Button
@@ -960,6 +975,15 @@ export default function IntegracaoYampi() {
           dados={previewData}
           onConfirm={handleConfirmImport}
           isLoading={isImporting}
+        />
+
+        <VariacoesModal
+          open={showVariacoesModal}
+          onClose={() => {
+            setShowVariacoesModal(false);
+            setSelectedProduto(null);
+          }}
+          produto={selectedProduto}
         />
       </div>
     </div>
