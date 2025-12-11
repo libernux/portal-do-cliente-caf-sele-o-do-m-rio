@@ -91,7 +91,9 @@ Deno.serve(async (req) => {
                 : cliente.name || 'Cliente não identificado'
             ),
             cliente_email: String(cliente.email || ''),
-            cliente_telefone: String(cliente.phone || ''),
+            cliente_telefone: typeof cliente.phone === 'object' 
+              ? String(cliente.phone?.full_number || cliente.phone?.number || '')
+              : String(cliente.phone || ''),
             cliente_cpf: String(cliente.cpf || ''),
             status: pedido.status?.data?.name || pedido.status_name || '',
             status_pagamento: pedido.paid ? 'Pago' : 'Pendente',
