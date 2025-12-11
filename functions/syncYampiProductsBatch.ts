@@ -70,10 +70,11 @@ Deno.serve(async (req) => {
           processados++;
           console.log(`🔍 [${processados}/${totalProdutos}] Processando: ${produto.name}`);
 
-          // Processar variações/SKUs
-          const variacoes = produto.skus?.data?.map((sku) => {
+          // Processar SKUs individuais com seus preços e detalhes
+          const skus = produto.skus?.data || [];
+          const variacoes = skus.map((sku) => {
+            // Extrair opções/variações do SKU (ex: Tamanho: P, Cor: Azul)
             const opcoes = [];
-            
             if (sku.variations && Array.isArray(sku.variations)) {
               sku.variations.forEach(variation => {
                 opcoes.push({
@@ -83,42 +84,68 @@ Deno.serve(async (req) => {
               });
             }
 
+            // Buscar preço específico deste SKU
+            const precoSku = produto.prices?.data?.find(p => p.sku_id === sku.id);
+            
             return {
               sku_id: sku.id?.toString() || '',
               sku: sku.sku || '',
               titulo: sku.title || sku.sku || '',
-              preco: parseFloat(sku.price || 0),
-              preco_promocional: parseFloat(sku.price_discount || 0),
-              estoque: sku.quantity || 0,
+              descricao: sku.description || '',
+              preco: parseFloat(precoSku?.price || sku.price || 0),
+              preco_promocional: parseFloat(precoSku?.promotional_price || sku.price_discount || 0),
+              preco_custo: parseFloat(precoSku?.cost_price || 0),
+              estoque: parseInt(sku.quantity || 0),
               peso: parseFloat(sku.weight || 0),
               altura: parseFloat(sku.height || 0),
               largura: parseFloat(sku.width || 0),
               comprimento: parseFloat(sku.length || 0),
               imagem_url: sku.images?.data?.[0]?.url || '',
-              opcoes: opcoes
+              imagens: sku.images?.data?.map(img => img.url) || [],
+              opcoes: opcoes,
+              ativo: sku.active !== false,
+              referencia: sku.reference || '',
+              ean: sku.ean || '',
+              ncm: sku.ncm || ''
             };
-          }) || [];
+          });
 
-          // Processar todas as imagens
+          // Processar todas as imagens do produto
           const imagens = produto.images?.data?.map(img => img.url) || [];
+
+          // Calcular estoque total somando todos os SKUs
+          const estoqueTotal = variacoes.reduce((sum, v) => sum + (v.estoque || 0), 0);
+
+          // Pegar o preço do SKU principal (primeiro SKU ou com menor preço)
+          const precoBase = variacoes.length > 0 
+            ? Math.min(...variacoes.map(v => v.preco).filter(p => p > 0))
+            : parseFloat(produto.prices?.data?.[0]?.price || 0);
+
+          const precoPromocional = variacoes.length > 0
+            ? Math.min(...variacoes.map(v => v.preco_promocional).filter(p => p > 0))
+            : parseFloat(produto.prices?.data?.[0]?.promotional_price || 0);
 
           const produtoData = {
             yampi_id: String(produto.id),
-            sku: produto.sku || '',
+            sku: produto.sku || variacoes[0]?.sku || '',
             nome: produto.name || '',
             descricao: produto.description || '',
-            preco: parseFloat(produto.prices?.data?.[0]?.price || 0),
-            preco_promocional: parseFloat(produto.prices?.data?.[0]?.promotional_price || 0),
-            estoque: variacoes.reduce((sum, v) => sum + (v.estoque || 0), 0),
+            preco: precoBase,
+            preco_promocional: precoPromocional || 0,
+            estoque: estoqueTotal,
             imagem_url: produto.images?.data?.[0]?.url || '',
             categoria: produto.categories?.data?.[0]?.name || '',
-            ativo: produto.active || false,
-            peso: parseFloat(produto.skus?.data?.[0]?.weight || 0),
-            altura: parseFloat(produto.skus?.data?.[0]?.height || 0),
-            largura: parseFloat(produto.skus?.data?.[0]?.width || 0),
-            comprimento: parseFloat(produto.skus?.data?.[0]?.length || 0),
+            ativo: produto.active !== false,
+            peso: parseFloat(variacoes[0]?.peso || 0),
+            altura: parseFloat(variacoes[0]?.altura || 0),
+            largura: parseFloat(variacoes[0]?.largura || 0),
+            comprimento: parseFloat(variacoes[0]?.comprimento || 0),
             variacoes: variacoes,
             imagens: imagens,
+            marca: produto.brand?.data?.name || '',
+            slug: produto.slug || '',
+            tem_variacoes: variacoes.length > 1,
+            total_skus: variacoes.length,
             ultima_sincronizacao: new Date().toISOString()
           };
 
