@@ -19,14 +19,12 @@ Deno.serve(async (req) => {
       }, { status: 500 });
     }
 
-    // Limites da API Yampi
-    const REQUESTS_PER_MINUTE = 120;
-    const DELAY_BETWEEN_REQUESTS = Math.ceil((60 * 1000) / REQUESTS_PER_MINUTE);
-    const MAX_PAGES_PER_SYNC = 10; // Limitar a 10 páginas (1000 pedidos) por sincronização
+    // Limites da API Yampi e da função
+    const MAX_PAGES_PER_SYNC = 3; // Apenas 3 páginas (300 pedidos) por vez para evitar timeout
+    const DELAY_BETWEEN_REQUESTS = 600; // 600ms entre requisições
 
     console.log('🚀 Iniciando sincronização de pedidos...');
-    console.log(`⏱️ Rate limit: ${REQUESTS_PER_MINUTE} req/min`);
-    console.log(`📊 Máximo de ${MAX_PAGES_PER_SYNC} páginas por sincronização`);
+    console.log(`📊 Processando até ${MAX_PAGES_PER_SYNC} páginas (${MAX_PAGES_PER_SYNC * 100} pedidos)`);
 
     let pedidosNovos = 0;
     let pedidosAtualizados = 0;
@@ -51,7 +49,13 @@ Deno.serve(async (req) => {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error('Erro Yampi:', errorData);
+        console.error('Erro Yampi página', currentPage, ':', errorData);
+        
+        if (response.status === 429) {
+          console.log('⏸️ Rate limit atingido');
+          break;
+        }
+        
         return Response.json({ 
           error: 'Erro ao buscar pedidos da Yampi',
           details: errorData 
@@ -199,9 +203,11 @@ Deno.serve(async (req) => {
       mensagem: `${pedidosNovos} novos, ${pedidosAtualizados} atualizados, ${pedidosErro} erros`
     });
 
-    const mensagem = currentPage > MAX_PAGES_PER_SYNC 
-      ? `Sincronização parcial: ${pedidosNovos} novos, ${pedidosAtualizados} atualizados (${MAX_PAGES_PER_SYNC} páginas). Execute novamente para mais.`
-      : `Sincronização concluída: ${pedidosNovos} novos, ${pedidosAtualizados} atualizados`;
+    const mensagem = hasMorePages
+      ? `Sincronização parcial: ${pedidosNovos} novos, ${pedidosAtualizados} atualizados. Execute novamente para continuar.`
+      : `Sincronização completa: ${pedidosNovos} novos, ${pedidosAtualizados} atualizados`;
+
+    console.log(`✅ Sincronização finalizada: ${totalPedidos} pedidos processados`);
 
     return Response.json({
       success: true,
@@ -209,9 +215,9 @@ Deno.serve(async (req) => {
       novos: pedidosNovos,
       atualizados: pedidosAtualizados,
       erros: pedidosErro,
-      erros_detalhados: errosDetalhados,
+      erros_detalhados: errosDetalhados.slice(0, 10),
       tem_mais_paginas: hasMorePages,
-      mensagem: mensagem + (pedidosErro > 0 ? `, ${pedidosErro} erros` : '')
+      mensagem: mensagem + (pedidosErro > 0 ? ` (${pedidosErro} erros)` : '')
     });
 
   } catch (error) {
