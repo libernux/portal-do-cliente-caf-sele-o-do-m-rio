@@ -18,10 +18,13 @@ export default function PreviewImportacaoModal({
   tipo, 
   dados, 
   onConfirm,
-  isLoading 
+  isLoading,
+  progresso,
+  logsDebug
 }) {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
+  const [showDebug, setShowDebug] = useState(false);
 
   const totalPages = Math.ceil((dados?.length || 0) / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -143,30 +146,99 @@ export default function PreviewImportacaoModal({
         <DialogHeader>
           <div className="flex items-center gap-3">
             {getIcon()}
-            <div>
+            <div className="flex-1">
               <DialogTitle>Preview de Importação - {getTitulo()}</DialogTitle>
               <p className="text-sm text-[#8B7355] mt-1">
                 {dados?.length || 0} {getTitulo().toLowerCase()} encontrados na Yampi
               </p>
             </div>
+            {isLoading && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowDebug(!showDebug)}
+                className="text-xs"
+              >
+                {showDebug ? 'Ocultar' : 'Mostrar'} Debug
+              </Button>
+            )}
           </div>
         </DialogHeader>
 
         <div className="space-y-4">
-          <Card className="bg-blue-50 border-blue-200">
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />
-                <div className="text-sm text-blue-800">
-                  <p className="font-semibold mb-1">Revise os dados antes de importar</p>
-                  <p>
-                    Os dados serão sincronizados com seu banco de dados local. 
-                    Itens existentes serão atualizados e novos itens serão criados.
-                  </p>
+          {/* Progresso da Importação */}
+          {isLoading && progresso && progresso.total > 0 && (
+            <Card className="bg-green-50 border-green-200">
+              <CardContent className="p-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="w-5 h-5 text-green-600 animate-spin" />
+                      <span className="font-semibold text-green-800">
+                        Importando... {progresso.current} / {progresso.total}
+                      </span>
+                    </div>
+                    <span className="text-sm text-green-600">
+                      {Math.round((progresso.current / progresso.total) * 100)}%
+                    </span>
+                  </div>
+                  <div className="w-full bg-green-200 rounded-full h-2">
+                    <div
+                      className="bg-green-600 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${(progresso.current / progresso.total) * 100}%` }}
+                    />
+                  </div>
+                  <p className="text-sm text-green-700">{progresso.status}</p>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Debug Logs */}
+          {isLoading && showDebug && logsDebug && logsDebug.length > 0 && (
+            <Card className="bg-gray-50 border-gray-200">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-semibold text-sm text-gray-800">Debug Logs</span>
+                  <Badge variant="outline">{logsDebug.length} logs</Badge>
+                </div>
+                <ScrollArea className="h-48 border border-gray-300 rounded p-2 bg-white">
+                  <div className="space-y-1 font-mono text-xs">
+                    {logsDebug.map((log, idx) => (
+                      <div
+                        key={idx}
+                        className={`p-1 rounded ${
+                          log.tipo === 'erro' ? 'bg-red-50 text-red-800' :
+                          log.tipo === 'sucesso' ? 'bg-green-50 text-green-800' :
+                          log.tipo === 'aviso' ? 'bg-yellow-50 text-yellow-800' :
+                          'text-gray-700'
+                        }`}
+                      >
+                        <span className="text-gray-500">[{log.timestamp}]</span> {log.mensagem}
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          )}
+
+          {!isLoading && (
+            <Card className="bg-blue-50 border-blue-200">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />
+                  <div className="text-sm text-blue-800">
+                    <p className="font-semibold mb-1">Revise os dados antes de importar</p>
+                    <p>
+                      Os dados serão sincronizados com seu banco de dados local. 
+                      Itens existentes serão atualizados e novos itens serão criados.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           <ScrollArea className="h-[400px] border border-[#E5DCC8] rounded-lg p-4">
             <div className="space-y-2">

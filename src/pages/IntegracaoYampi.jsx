@@ -68,6 +68,7 @@ export default function IntegracaoYampi() {
   const [importProgress, setImportProgress] = useState({ current: 0, total: 0, status: '' });
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteType, setDeleteType] = useState(null);
+  const [debugLogs, setDebugLogs] = useState([]);
 
   useEffect(() => {
     loadData();
@@ -109,54 +110,80 @@ export default function IntegracaoYampi() {
     }
   };
 
+  const addDebugLog = (mensagem, tipo = 'info') => {
+    const timestamp = new Date().toLocaleTimeString('pt-BR');
+    setDebugLogs(prev => [...prev, { timestamp, mensagem, tipo }]);
+  };
+
   const handleConfirmImport = async () => {
     if (!previewTipo) return;
 
     setIsImporting(true);
     setSyncResult(null);
+    setDebugLogs([]);
     setImportProgress({ current: 0, total: previewData?.length || 0, status: 'Iniciando...' });
+
+    addDebugLog(`🚀 Iniciando importação de ${previewTipo}`, 'info');
+    addDebugLog(`📊 Total de itens: ${previewData?.length || 0}`, 'info');
 
     try {
       let response;
       if (previewTipo === 'produtos') {
+        addDebugLog('⚙️ Chamando syncYampiProductsBatch...', 'info');
         response = await base44.functions.invoke('syncYampiProductsBatch', { 
-          batchSize: 10,
-          onProgress: (progress) => {
-            setImportProgress(progress);
-          }
+          batchSize: 10
         });
       } else if (previewTipo === 'pedidos') {
+        addDebugLog('⚙️ Chamando syncYampiOrders...', 'info');
         response = await base44.functions.invoke('syncYampiOrders', {});
       } else if (previewTipo === 'clientes') {
+        addDebugLog('⚙️ Chamando syncYampiCustomers...', 'info');
         response = await base44.functions.invoke('syncYampiCustomers', {});
       } else if (previewTipo === 'categorias') {
+        addDebugLog('⚙️ Chamando syncYampiCategories...', 'info');
         response = await base44.functions.invoke('syncYampiCategories', {});
       }
 
-      console.log('🔍 DEBUG - Response completa:', response);
-      console.log('🔍 DEBUG - Response.data:', response.data);
+      addDebugLog('📥 Resposta recebida da API', 'sucesso');
+
+      // Simular progresso (já que as funções não retornam progresso em tempo real)
+      const total = previewData?.length || 0;
+      for (let i = 1; i <= total; i += 10) {
+        setImportProgress({ 
+          current: Math.min(i, total), 
+          total, 
+          status: `Processando item ${Math.min(i, total)} de ${total}...` 
+        });
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
 
       if (response.data.erros_detalhados && response.data.erros_detalhados.length > 0) {
-        console.error('❌ ERROS DETALHADOS:', response.data.erros_detalhados);
+        addDebugLog(`⚠️ ${response.data.erros_detalhados.length} erros encontrados`, 'aviso');
+        response.data.erros_detalhados.slice(0, 5).forEach(erro => {
+          addDebugLog(`❌ ${erro.produto_nome}: ${erro.erro}`, 'erro');
+        });
       }
 
       if (response.data.success) {
+        addDebugLog(`✅ Importação concluída com sucesso!`, 'sucesso');
+        addDebugLog(`📈 Novos: ${response.data.novos}, Atualizados: ${response.data.atualizados}`, 'sucesso');
+
         setSyncResult({ type: previewTipo, ...response.data });
         await loadData();
         setShowPreviewModal(false);
         setPreviewData(null);
         setPreviewTipo(null);
         setImportProgress({ current: 0, total: 0, status: '' });
+        setDebugLogs([]);
       } else {
-        console.error('❌ DEBUG - Erro na resposta:', response.data.error);
+        addDebugLog(`❌ Erro: ${response.data.error}`, 'erro');
         setSyncResult({ type: previewTipo, error: response.data.error || 'Erro desconhecido' });
       }
     } catch (error) {
-      console.error('❌ DEBUG - Erro capturado no catch:', error);
+      addDebugLog(`💥 Erro crítico: ${error.message}`, 'erro');
       setSyncResult({ type: previewTipo, error: error.message || 'Erro ao processar sincronização' });
     } finally {
       setIsImporting(false);
-      setImportProgress({ current: 0, total: 0, status: '' });
     }
   };
 
@@ -1098,11 +1125,14 @@ export default function IntegracaoYampi() {
             setShowPreviewModal(false);
             setPreviewData(null);
             setPreviewTipo(null);
+            setDebugLogs([]);
           }}
           tipo={previewTipo}
           dados={previewData}
           onConfirm={handleConfirmImport}
           isLoading={isImporting}
+          progresso={importProgress}
+          logsDebug={debugLogs}
         />
 
         <VariacoesModal
