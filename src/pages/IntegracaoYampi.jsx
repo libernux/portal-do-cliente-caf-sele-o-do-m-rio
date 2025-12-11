@@ -197,10 +197,16 @@ export default function IntegracaoYampi() {
 
   const handleExportToJson = async () => {
     setIsExporting(true);
+    setDebugLogs([]);
+    addDebugLog('🚀 Iniciando coleta de pedidos da Yampi...', 'info');
+    
     try {
       const response = await base44.functions.invoke('exportYampiOrdersToJson', {});
       
-      const blob = new Blob([JSON.stringify(response.data)], { type: 'application/json' });
+      addDebugLog('✅ Coleta concluída!', 'sucesso');
+      
+      // O response.data já é o JSON string do arquivo
+      const blob = new Blob([response.data], { type: 'application/json' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -210,11 +216,23 @@ export default function IntegracaoYampi() {
       window.URL.revokeObjectURL(url);
       a.remove();
 
+      // Extrair metadata para mostrar ao usuário
+      try {
+        const jsonData = JSON.parse(response.data);
+        if (jsonData.metadata) {
+          addDebugLog(`📊 ${jsonData.metadata.total_pedidos} pedidos coletados`, 'sucesso');
+          addDebugLog(`⏱️ Tempo de coleta: ${jsonData.metadata.tempo_coleta_segundos}s`, 'info');
+        }
+      } catch (e) {
+        // Ignorar erro de parse
+      }
+
       setSyncResult({ 
         type: 'pedidos', 
-        mensagem: 'Pedidos exportados com sucesso!' 
+        mensagem: 'Arquivo JSON baixado com sucesso! Agora você pode importá-lo.' 
       });
     } catch (error) {
+      addDebugLog(`❌ Erro: ${error.message}`, 'erro');
       setSyncResult({ type: 'pedidos', error: error.message });
     } finally {
       setIsExporting(false);
@@ -850,21 +868,28 @@ export default function IntegracaoYampi() {
                       disabled={isExporting}
                       variant="outline"
                       className="border-[#6B4423] text-[#6B4423]"
+                      title="Coletar todos os pedidos da API Yampi e salvar em arquivo JSON"
                     >
                       {isExporting ? (
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Coletando...
+                        </>
                       ) : (
-                        <FileText className="w-4 h-4 mr-2" />
+                        <>
+                          <FileText className="w-4 h-4 mr-2" />
+                          1. Coletar JSON
+                        </>
                       )}
-                      Exportar JSON
                     </Button>
                     <Button
                       onClick={() => setShowImportModal(true)}
                       variant="outline"
                       className="border-green-600 text-green-600"
+                      title="Importar pedidos do arquivo JSON coletado"
                     >
                       <FileText className="w-4 h-4 mr-2" />
-                      Importar JSON
+                      2. Importar JSON
                     </Button>
                     <Button
                       onClick={() => handlePreviewSync('pedidos')}

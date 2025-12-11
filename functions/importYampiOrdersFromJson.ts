@@ -17,19 +17,35 @@ Deno.serve(async (req) => {
     }
 
     const content = await jsonFile.text();
-    const pedidos = JSON.parse(content);
+    const jsonData = JSON.parse(content);
+    
+    // Suportar ambos os formatos: novo (com metadata) e antigo (array direto)
+    const pedidos = jsonData.pedidos || jsonData;
+    const metadata = jsonData.metadata || null;
 
-    console.log(`🚀 Iniciando importação de ${pedidos.length} pedidos...`);
+    if (metadata) {
+      console.log('📋 Metadata do arquivo:');
+      console.log(`   Total de pedidos: ${metadata.total_pedidos}`);
+      console.log(`   Data da coleta: ${metadata.data_coleta}`);
+      console.log(`   Loja: ${metadata.alias_loja}`);
+    }
+
+    console.log(`🚀 Iniciando importação de ${pedidos.length} pedidos no banco de dados...`);
 
     let pedidosNovos = 0;
     let pedidosAtualizados = 0;
     let pedidosErro = 0;
     const errosDetalhados = [];
-    const batchSize = 50;
+    const batchSize = 20; // Lotes menores para evitar sobrecarga
+    const delayBetweenBatches = 1000; // 1 segundo entre lotes
+    const totalBatches = Math.ceil(pedidos.length / batchSize);
 
     for (let i = 0; i < pedidos.length; i += batchSize) {
       const batch = pedidos.slice(i, i + batchSize);
-      console.log(`📦 Processando lote ${Math.floor(i / batchSize) + 1}: ${batch.length} pedidos`);
+      const batchNumber = Math.floor(i / batchSize) + 1;
+      const progress = Math.round((batchNumber / totalBatches) * 100);
+      
+      console.log(`📦 Lote ${batchNumber}/${totalBatches} (${progress}%): processando ${batch.length} pedidos...`);
 
       await Promise.all(batch.map(async (pedido) => {
         try {
@@ -134,7 +150,12 @@ Deno.serve(async (req) => {
         }
       }));
 
-      console.log(`✅ Lote processado: ${pedidosNovos} novos, ${pedidosAtualizados} atualizados, ${pedidosErro} erros`);
+      console.log(`✅ Lote ${batchNumber} concluído: ${pedidosNovos} novos, ${pedidosAtualizados} atualizados, ${pedidosErro} erros`);
+      
+      // Aguardar entre lotes para não sobrecarregar o banco
+      if (i + batchSize < pedidos.length) {
+        await new Promise(resolve => setTimeout(resolve, delayBetweenBatches));
+      }
     }
 
     await base44.asServiceRole.entities.LogSincronizacaoYampi.create({
