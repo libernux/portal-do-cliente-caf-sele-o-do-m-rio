@@ -53,74 +53,98 @@ Deno.serve(async (req) => {
       totalProdutos += produtos.length;
 
       for (const produto of produtos) {
-        // Processar variações/SKUs
-        const variacoes = produto.skus?.data?.map(sku => {
-          const opcoes = [];
+        try {
+          console.log('🔍 Processando produto:', produto.id, produto.name);
+          console.log('📦 SKUs encontrados:', produto.skus?.data?.length || 0);
           
-          // Processar customizações (tamanho, cor, etc)
-          if (sku.variations && Array.isArray(sku.variations)) {
-            sku.variations.forEach(variation => {
-              opcoes.push({
-                nome: variation.name || '',
-                valor: variation.value || ''
+          // Processar variações/SKUs
+          const variacoes = produto.skus?.data?.map((sku, index) => {
+            console.log(`  ↳ SKU ${index + 1}:`, sku.sku, '| Variações:', sku.variations?.length || 0);
+            
+            const opcoes = [];
+            
+            // Processar customizações (tamanho, cor, etc)
+            if (sku.variations && Array.isArray(sku.variations)) {
+              sku.variations.forEach(variation => {
+                console.log('    ↳ Opção:', variation.name, '=', variation.value);
+                opcoes.push({
+                  nome: variation.name || '',
+                  valor: variation.value || ''
+                });
               });
-            });
-          }
+            }
 
-          return {
-            sku_id: sku.id?.toString() || '',
-            sku: sku.sku || '',
-            titulo: sku.title || '',
-            preco: parseFloat(sku.price || 0),
-            preco_promocional: parseFloat(sku.price_discount || 0),
-            estoque: sku.quantity || 0,
-            peso: parseFloat(sku.weight || 0),
-            altura: parseFloat(sku.height || 0),
-            largura: parseFloat(sku.width || 0),
-            comprimento: parseFloat(sku.length || 0),
-            imagem_url: sku.images?.data?.[0]?.url || '',
-            opcoes: opcoes
+            return {
+              sku_id: sku.id?.toString() || '',
+              sku: sku.sku || '',
+              titulo: sku.title || '',
+              preco: parseFloat(sku.price || 0),
+              preco_promocional: parseFloat(sku.price_discount || 0),
+              estoque: sku.quantity || 0,
+              peso: parseFloat(sku.weight || 0),
+              altura: parseFloat(sku.height || 0),
+              largura: parseFloat(sku.width || 0),
+              comprimento: parseFloat(sku.length || 0),
+              imagem_url: sku.images?.data?.[0]?.url || '',
+              opcoes: opcoes
+            };
+          }) || [];
+
+          console.log('✅ Variações processadas:', variacoes.length);
+
+          // Processar todas as imagens
+          const imagens = produto.images?.data?.map(img => img.url) || [];
+          console.log('🖼️ Imagens processadas:', imagens.length);
+
+          const produtoData = {
+            yampi_id: String(produto.id),
+            sku: produto.sku || '',
+            nome: produto.name || '',
+            descricao: produto.description || '',
+            preco: parseFloat(produto.prices?.data?.[0]?.price || 0),
+            preco_promocional: parseFloat(produto.prices?.data?.[0]?.promotional_price || 0),
+            estoque: variacoes.reduce((sum, v) => sum + (v.estoque || 0), 0),
+            imagem_url: produto.images?.data?.[0]?.url || '',
+            categoria: produto.categories?.data?.[0]?.name || '',
+            ativo: produto.active || false,
+            peso: parseFloat(produto.skus?.data?.[0]?.weight || 0),
+            altura: parseFloat(produto.skus?.data?.[0]?.height || 0),
+            largura: parseFloat(produto.skus?.data?.[0]?.width || 0),
+            comprimento: parseFloat(produto.skus?.data?.[0]?.length || 0),
+            variacoes: variacoes,
+            imagens: imagens,
+            ultima_sincronizacao: new Date().toISOString()
           };
-        }) || [];
 
-        // Processar todas as imagens
-        const imagens = produto.images?.data?.map(img => img.url) || [];
+          console.log('💾 Dados do produto preparados, estoque total:', produtoData.estoque);
 
-        const produtoData = {
-          yampi_id: String(produto.id),
-          sku: produto.sku || '',
-          nome: produto.name || '',
-          descricao: produto.description || '',
-          preco: parseFloat(produto.prices?.data?.[0]?.price || 0),
-          preco_promocional: parseFloat(produto.prices?.data?.[0]?.promotional_price || 0),
-          estoque: variacoes.reduce((sum, v) => sum + (v.estoque || 0), 0),
-          imagem_url: produto.images?.data?.[0]?.url || '',
-          categoria: produto.categories?.data?.[0]?.name || '',
-          ativo: produto.active || false,
-          peso: parseFloat(produto.skus?.data?.[0]?.weight || 0),
-          altura: parseFloat(produto.skus?.data?.[0]?.height || 0),
-          largura: parseFloat(produto.skus?.data?.[0]?.width || 0),
-          comprimento: parseFloat(produto.skus?.data?.[0]?.length || 0),
-          variacoes: variacoes,
-          imagens: imagens,
-          ultima_sincronizacao: new Date().toISOString()
-        };
+          // Verificar se produto já existe
+          const existente = await base44.asServiceRole.entities.ProdutoYampi.filter({
+            yampi_id: produtoData.yampi_id
+          });
 
-      // Verificar se produto já existe
-      const existente = await base44.asServiceRole.entities.ProdutoYampi.filter({
-        yampi_id: produtoData.yampi_id
-      });
-
-      if (existente.length > 0) {
-        await base44.asServiceRole.entities.ProdutoYampi.update(
-          existente[0].id,
-          produtoData
-        );
-        produtosAtualizados++;
-      } else {
-        await base44.asServiceRole.entities.ProdutoYampi.create(produtoData);
-        produtosNovos++;
-      }
+          if (existente.length > 0) {
+            console.log('🔄 Atualizando produto existente:', existente[0].id);
+            await base44.asServiceRole.entities.ProdutoYampi.update(
+              existente[0].id,
+              produtoData
+            );
+            produtosAtualizados++;
+          } else {
+            console.log('➕ Criando novo produto');
+            await base44.asServiceRole.entities.ProdutoYampi.create(produtoData);
+            produtosNovos++;
+          }
+          
+          console.log('✅ Produto salvo com sucesso!');
+          
+        } catch (produtoError) {
+          console.error('❌ ERRO ao processar produto:', produto.id, produto.name);
+          console.error('Detalhes do erro:', produtoError.message);
+          console.error('Stack trace:', produtoError.stack);
+          console.error('Dados do produto que causou erro:', JSON.stringify(produto, null, 2));
+          throw produtoError;
+        }
 
       }
 
