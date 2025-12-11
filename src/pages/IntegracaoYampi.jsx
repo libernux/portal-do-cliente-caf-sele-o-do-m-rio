@@ -124,6 +124,10 @@ export default function IntegracaoYampi() {
         response = await base44.functions.invoke('syncYampiCategories', {});
       }
 
+      console.log('🔍 DEBUG - Response completa:', response);
+      console.log('🔍 DEBUG - Response.data:', response.data);
+      console.log('🔍 DEBUG - Response.status:', response.status);
+
       if (response.data.success) {
         setSyncResult({ type: previewTipo, ...response.data });
         await loadData();
@@ -131,10 +135,16 @@ export default function IntegracaoYampi() {
         setPreviewData(null);
         setPreviewTipo(null);
       } else {
-        setSyncResult({ type: previewTipo, error: response.data.error });
+        console.error('❌ DEBUG - Erro na resposta:', response.data.error);
+        console.error('❌ DEBUG - Detalhes completos:', JSON.stringify(response.data, null, 2));
+        setSyncResult({ type: previewTipo, error: response.data.error || 'Erro desconhecido' });
       }
     } catch (error) {
-      setSyncResult({ type: previewTipo, error: error.message });
+      console.error('❌ DEBUG - Erro capturado no catch:', error);
+      console.error('❌ DEBUG - Error.message:', error.message);
+      console.error('❌ DEBUG - Error.stack:', error.stack);
+      console.error('❌ DEBUG - Error completo:', JSON.stringify(error, null, 2));
+      setSyncResult({ type: previewTipo, error: error.message || 'Erro ao processar sincronização' });
     } finally {
       setIsImporting(false);
     }
