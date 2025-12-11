@@ -482,15 +482,50 @@ export default function IntegracaoYampi() {
                       </div>
                     </CardContent>
                   </Card>
-                ))}
-              </div>
+                  ))}
+                </div>
+
+                {/* Paginação Produtos */}
+                {totalPagesProdutos > 1 && (
+                  <Card className="border-[#E5DCC8]">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm text-[#8B7355]">
+                          Mostrando {((currentPageProdutos - 1) * itemsPerPage) + 1}-{Math.min(currentPageProdutos * itemsPerPage, produtosFiltrados.length)} de {produtosFiltrados.length}
+                        </p>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setCurrentPageProdutos(p => Math.max(1, p - 1))}
+                            disabled={currentPageProdutos === 1}
+                          >
+                            Anterior
+                          </Button>
+                          <span className="flex items-center px-3 text-sm">
+                            Página {currentPageProdutos} de {totalPagesProdutos}
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setCurrentPageProdutos(p => Math.min(totalPagesProdutos, p + 1))}
+                            disabled={currentPageProdutos === totalPagesProdutos}
+                          >
+                            Próxima
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </>
             ) : (
               <Card className="border-[#E5DCC8]">
                 <CardContent className="p-12 text-center">
                   <Package className="w-16 h-16 text-[#8B7355] mx-auto mb-4 opacity-30" />
                   <p className="text-[#8B7355]">Nenhum produto encontrado</p>
                   <Button
-                    onClick={() => handleSync('produtos')}
+                    onClick={() => handlePreviewSync('produtos')}
                     className="mt-4 bg-[#6B4423] hover:bg-[#5A3A1E]"
                   >
                     Sincronizar Produtos
@@ -549,7 +584,7 @@ export default function IntegracaoYampi() {
                   <FolderOpen className="w-16 h-16 text-[#8B7355] mx-auto mb-4 opacity-30" />
                   <p className="text-[#8B7355]">Nenhuma categoria encontrada</p>
                   <Button
-                    onClick={() => handleSync('categorias')}
+                    onClick={() => handlePreviewSync('categorias')}
                     className="mt-4 bg-[#6B4423] hover:bg-[#5A3A1E]"
                   >
                     Sincronizar Categorias
