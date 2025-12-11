@@ -32,6 +32,7 @@ import EditarProdutoModal from "../components/yampi/EditarProdutoModal";
 import CriarProdutoModal from "../components/yampi/CriarProdutoModal";
 import BuscarProdutoModal from "../components/yampi/BuscarProdutoModal";
 import LogsSincronizacao from "../components/yampi/LogsSincronizacao";
+import PedidoDetalhesModal from "../components/yampi/PedidoDetalhesModal";
 
 export default function IntegracaoYampi() {
   const [produtos, setProdutos] = useState([]);
@@ -46,6 +47,11 @@ export default function IntegracaoYampi() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showBuscarModal, setShowBuscarModal] = useState(false);
+  const [showPedidoModal, setShowPedidoModal] = useState(false);
+  const [selectedPedidoId, setSelectedPedidoId] = useState(null);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [dataInicio, setDataInicio] = useState("");
+  const [dataFim, setDataFim] = useState("");
 
   useEffect(() => {
     loadData();
@@ -140,11 +146,29 @@ export default function IntegracaoYampi() {
     p.sku?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const pedidosFiltrados = pedidos.filter(p =>
-    p.numero_pedido?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.cliente_nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.cliente_email?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const pedidosFiltrados = pedidos.filter(p => {
+    const matchesSearch = 
+      p.numero_pedido?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.cliente_nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.cliente_email?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = statusFilter === "all" || p.status?.toLowerCase().includes(statusFilter.toLowerCase());
+    
+    let matchesDate = true;
+    if (dataInicio || dataFim) {
+      const pedidoDate = new Date(p.data_pedido);
+      if (dataInicio) {
+        matchesDate = matchesDate && pedidoDate >= new Date(dataInicio);
+      }
+      if (dataFim) {
+        const fimDate = new Date(dataFim);
+        fimDate.setHours(23, 59, 59, 999);
+        matchesDate = matchesDate && pedidoDate <= fimDate;
+      }
+    }
+    
+    return matchesSearch && matchesStatus && matchesDate;
+  });
 
   const clientesFiltrados = clientes.filter(c =>
     c.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -475,28 +499,84 @@ export default function IntegracaoYampi() {
           <TabsContent value="pedidos" className="space-y-4">
             <Card className="border-[#E5DCC8]">
               <CardContent className="p-4">
-                <div className="flex flex-col md:flex-row gap-4">
-                  <div className="flex-1 relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#8B7355] w-5 h-5" />
-                    <Input
-                      placeholder="Buscar pedidos..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 border-[#E5DCC8]"
-                    />
+                <div className="space-y-4">
+                  <div className="flex flex-col md:flex-row gap-4">
+                    <div className="flex-1 relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#8B7355] w-5 h-5" />
+                      <Input
+                        placeholder="Buscar por número, cliente ou email..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10 border-[#E5DCC8]"
+                      />
+                    </div>
+                    <Button
+                      onClick={() => handleSync('pedidos')}
+                      disabled={isSyncing.pedidos}
+                      className="bg-[#6B4423] hover:bg-[#5A3A1E]"
+                    >
+                      {isSyncing.pedidos ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <RefreshCw className="w-4 h-4 mr-2" />
+                      )}
+                      Sincronizar
+                    </Button>
                   </div>
-                  <Button
-                    onClick={() => handleSync('pedidos')}
-                    disabled={isSyncing.pedidos}
-                    className="bg-[#6B4423] hover:bg-[#5A3A1E]"
-                  >
-                    {isSyncing.pedidos ? (
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    ) : (
-                      <RefreshCw className="w-4 h-4 mr-2" />
-                    )}
-                    Sincronizar
-                  </Button>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <Label className="text-xs text-[#8B7355] mb-1">Status</Label>
+                      <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="w-full p-2 border border-[#E5DCC8] rounded-md text-sm"
+                      >
+                        <option value="all">Todos os Status</option>
+                        <option value="aguardando">Aguardando</option>
+                        <option value="aprovado">Aprovado</option>
+                        <option value="separação">Em Separação</option>
+                        <option value="enviado">Enviado</option>
+                        <option value="entregue">Entregue</option>
+                        <option value="cancelado">Cancelado</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <Label className="text-xs text-[#8B7355] mb-1">Data Início</Label>
+                      <Input
+                        type="date"
+                        value={dataInicio}
+                        onChange={(e) => setDataInicio(e.target.value)}
+                        className="border-[#E5DCC8]"
+                      />
+                    </div>
+
+                    <div>
+                      <Label className="text-xs text-[#8B7355] mb-1">Data Fim</Label>
+                      <Input
+                        type="date"
+                        value={dataFim}
+                        onChange={(e) => setDataFim(e.target.value)}
+                        className="border-[#E5DCC8]"
+                      />
+                    </div>
+                  </div>
+
+                  {(statusFilter !== "all" || dataInicio || dataFim) && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setStatusFilter("all");
+                        setDataInicio("");
+                        setDataFim("");
+                      }}
+                      className="border-[#6B4423] text-[#6B4423]"
+                    >
+                      Limpar Filtros
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -509,7 +589,11 @@ export default function IntegracaoYampi() {
             ) : pedidosFiltrados.length > 0 ? (
               <div className="grid gap-4">
                 {pedidosFiltrados.map((pedido) => (
-                  <Card key={pedido.id} className="border-[#E5DCC8]">
+                  <Card 
+                    key={pedido.id} 
+                    className="border-[#E5DCC8] cursor-pointer hover:shadow-lg transition-shadow"
+                    onClick={() => handleViewPedido(pedido)}
+                  >
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between mb-4">
                         <div>
@@ -682,6 +766,16 @@ export default function IntegracaoYampi() {
         <BuscarProdutoModal
           open={showBuscarModal}
           onClose={() => setShowBuscarModal(false)}
+        />
+
+        <PedidoDetalhesModal
+          open={showPedidoModal}
+          onClose={() => {
+            setShowPedidoModal(false);
+            setSelectedPedidoId(null);
+          }}
+          pedidoId={selectedPedidoId}
+          onUpdate={handlePedidoUpdated}
         />
       </div>
     </div>
