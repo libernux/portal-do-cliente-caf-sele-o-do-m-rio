@@ -32,6 +32,8 @@ export default function IntegracaoYampi() {
   const [isSyncing, setIsSyncing] = useState({ produtos: false, pedidos: false, clientes: false });
   const [searchTerm, setSearchTerm] = useState("");
   const [syncResult, setSyncResult] = useState(null);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
     loadData();
