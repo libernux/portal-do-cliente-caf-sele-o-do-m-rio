@@ -416,12 +416,22 @@ export default function IntegracaoYampi() {
                 ) : (
                   <CheckCircle className="w-6 h-6 text-green-600" />
                 )}
-                <div>
+                <div className="flex-1">
                   <p className={`font-semibold ${syncResult.error ? 'text-red-800' : 'text-green-800'}`}>
                     {syncResult.error ? 'Erro na sincronização' : syncResult.mensagem}
                   </p>
                   {syncResult.error && (
-                    <p className="text-sm text-red-600">{syncResult.error}</p>
+                    <p className="text-sm text-red-600 mt-1">{syncResult.error}</p>
+                  )}
+                  {syncResult.erros > 0 && (
+                    <div className="mt-3 p-3 bg-red-100 rounded-lg border border-red-200">
+                      <p className="font-semibold text-red-800 mb-2">
+                        ⚠️ {syncResult.erros} erro(s) encontrado(s):
+                      </p>
+                      <pre className="text-xs text-red-700 whitespace-pre-wrap max-h-60 overflow-y-auto">
+                        {JSON.stringify(syncResult, null, 2)}
+                      </pre>
+                    </div>
                   )}
                 </div>
               </div>

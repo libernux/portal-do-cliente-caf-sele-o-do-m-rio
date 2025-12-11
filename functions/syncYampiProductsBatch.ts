@@ -24,6 +24,7 @@ Deno.serve(async (req) => {
     let produtosNovos = 0;
     let produtosAtualizados = 0;
     let produtosErro = 0;
+    let errosDetalhados = [];
     let currentPage = 1;
     let hasMorePages = true;
     let totalProdutos = 0;
@@ -169,7 +170,16 @@ Deno.serve(async (req) => {
           
         } catch (produtoError) {
           produtosErro++;
+          const errorDetail = {
+            produto_id: produto.id,
+            produto_nome: produto.name,
+            produto_sku: produto.sku,
+            erro: produtoError.message,
+            stack: produtoError.stack
+          };
+          errosDetalhados.push(errorDetail);
           console.error(`❌ Erro ao processar ${produto.name}:`, produtoError.message);
+          console.error('Stack:', produtoError.stack);
         }
       }
 
@@ -181,12 +191,17 @@ Deno.serve(async (req) => {
     console.log('✅ Sincronização concluída!');
     console.log(`📊 Novos: ${produtosNovos} | Atualizados: ${produtosAtualizados} | Erros: ${produtosErro}`);
 
+    if (errosDetalhados.length > 0) {
+      console.error('❌ Erros detalhados:', JSON.stringify(errosDetalhados, null, 2));
+    }
+
     return Response.json({
       success: true,
       total_produtos: totalProdutos,
       novos: produtosNovos,
       atualizados: produtosAtualizados,
       erros: produtosErro,
+      erros_detalhados: errosDetalhados,
       mensagem: `Sincronização concluída: ${produtosNovos} novos, ${produtosAtualizados} atualizados${produtosErro > 0 ? `, ${produtosErro} erros` : ''}`
     });
 
