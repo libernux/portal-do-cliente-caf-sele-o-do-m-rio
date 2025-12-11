@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { ProdutoYampi } from "@/entities/ProdutoYampi";
 import { PedidoYampi } from "@/entities/PedidoYampi";
 import { ClienteYampi } from "@/entities/ClienteYampi";
+import { CategoriaYampi } from "@/entities/CategoriaYampi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -20,22 +21,31 @@ import {
   CheckCircle,
   AlertCircle,
   Loader2,
-  Edit
+  Edit,
+  Plus,
+  FolderOpen,
+  FileText
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import EditarProdutoModal from "../components/yampi/EditarProdutoModal";
+import CriarProdutoModal from "../components/yampi/CriarProdutoModal";
+import BuscarProdutoModal from "../components/yampi/BuscarProdutoModal";
+import LogsSincronizacao from "../components/yampi/LogsSincronizacao";
 
 export default function IntegracaoYampi() {
   const [produtos, setProdutos] = useState([]);
   const [pedidos, setPedidos] = useState([]);
   const [clientes, setClientes] = useState([]);
+  const [categorias, setCategorias] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isSyncing, setIsSyncing] = useState({ produtos: false, pedidos: false, clientes: false });
+  const [isSyncing, setIsSyncing] = useState({ produtos: false, pedidos: false, clientes: false, categorias: false });
   const [searchTerm, setSearchTerm] = useState("");
   const [syncResult, setSyncResult] = useState(null);
   const [editingProduct, setEditingProduct] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showBuscarModal, setShowBuscarModal] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -43,14 +53,16 @@ export default function IntegracaoYampi() {
 
   const loadData = async () => {
     setIsLoading(true);
-    const [produtosData, pedidosData, clientesData] = await Promise.all([
+    const [produtosData, pedidosData, clientesData, categoriasData] = await Promise.all([
       ProdutoYampi.list("-ultima_sincronizacao"),
       PedidoYampi.list("-data_pedido"),
-      ClienteYampi.list("-ultima_sincronizacao")
+      ClienteYampi.list("-ultima_sincronizacao"),
+      CategoriaYampi.list("ordem")
     ]);
     setProdutos(produtosData);
     setPedidos(pedidosData);
     setClientes(clientesData);
+    setCategorias(categoriasData);
     setIsLoading(false);
   };
 
@@ -66,6 +78,8 @@ export default function IntegracaoYampi() {
         response = await base44.functions.invoke('syncYampiOrders', {});
       } else if (type === 'clientes') {
         response = await base44.functions.invoke('syncYampiCustomers', {});
+      } else if (type === 'categorias') {
+        response = await base44.functions.invoke('syncYampiCategories', {});
       }
 
       if (response.data.success) {
@@ -95,6 +109,23 @@ export default function IntegracaoYampi() {
 
       if (response.data.success) {
         setSyncResult({ type: 'produtos', mensagem: 'Produto atualizado com sucesso!' });
+        await loadData();
+      } else {
+        setSyncResult({ type: 'produtos', error: response.data.error });
+      }
+    } catch (error) {
+      setSyncResult({ type: 'produtos', error: error.message });
+    }
+  };
+
+  const handleCreateProduct = async (productData) => {
+    try {
+      const response = await base44.functions.invoke('createYampiProduct', {
+        productData
+      });
+
+      if (response.data.success) {
+        setSyncResult({ type: 'produtos', mensagem: 'Produto criado com sucesso!' });
         await loadData();
       } else {
         setSyncResult({ type: 'produtos', error: response.data.error });
@@ -233,6 +264,10 @@ export default function IntegracaoYampi() {
               <ShoppingBag className="w-4 h-4 mr-2" />
               Produtos ({stats.produtos})
             </TabsTrigger>
+            <TabsTrigger value="categorias" className="data-[state=active]:bg-[#6B4423] data-[state=active]:text-white">
+              <FolderOpen className="w-4 h-4 mr-2" />
+              Categorias ({categorias.length})
+            </TabsTrigger>
             <TabsTrigger value="pedidos" className="data-[state=active]:bg-[#6B4423] data-[state=active]:text-white">
               <ShoppingCart className="w-4 h-4 mr-2" />
               Pedidos ({stats.pedidos})
@@ -240,6 +275,10 @@ export default function IntegracaoYampi() {
             <TabsTrigger value="clientes" className="data-[state=active]:bg-[#6B4423] data-[state=active]:text-white">
               <Users className="w-4 h-4 mr-2" />
               Clientes ({stats.clientes})
+            </TabsTrigger>
+            <TabsTrigger value="logs" className="data-[state=active]:bg-[#6B4423] data-[state=active]:text-white">
+              <FileText className="w-4 h-4 mr-2" />
+              Logs
             </TabsTrigger>
           </TabsList>
 
@@ -257,6 +296,22 @@ export default function IntegracaoYampi() {
                       className="pl-10 border-[#E5DCC8]"
                     />
                   </div>
+                  <Button
+                    onClick={() => setShowBuscarModal(true)}
+                    variant="outline"
+                    className="border-[#6B4423] text-[#6B4423]"
+                  >
+                    <Search className="w-4 h-4 mr-2" />
+                    Buscar por ID
+                  </Button>
+                  <Button
+                    onClick={() => setShowCreateModal(true)}
+                    variant="outline"
+                    className="border-[#6B4423] text-[#6B4423]"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Criar Produto
+                  </Button>
                   <Button
                     onClick={() => handleSync('produtos')}
                     disabled={isSyncing.produtos}
@@ -351,6 +406,65 @@ export default function IntegracaoYampi() {
                     className="mt-4 bg-[#6B4423] hover:bg-[#5A3A1E]"
                   >
                     Sincronizar Produtos
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Tab Categorias */}
+          <TabsContent value="categorias" className="space-y-4">
+            <Card className="border-[#E5DCC8]">
+              <CardContent className="p-4">
+                <div className="flex justify-end">
+                  <Button
+                    onClick={() => handleSync('categorias')}
+                    disabled={isSyncing.categorias}
+                    className="bg-[#6B4423] hover:bg-[#5A3A1E]"
+                  >
+                    {isSyncing.categorias ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                    )}
+                    Sincronizar Categorias
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {categorias.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {categorias.map((categoria) => (
+                  <Card key={categoria.id} className="border-[#E5DCC8]">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-2">
+                        <h3 className="font-semibold text-[#6B4423]">{categoria.nome}</h3>
+                        <Badge variant={categoria.ativo ? "default" : "outline"}>
+                          {categoria.ativo ? "Ativa" : "Inativa"}
+                        </Badge>
+                      </div>
+                      {categoria.descricao && (
+                        <p className="text-sm text-[#8B7355] mb-2">{categoria.descricao}</p>
+                      )}
+                      <div className="text-xs text-[#A69483]">
+                        <p>Slug: {categoria.slug}</p>
+                        <p>Ordem: {categoria.ordem}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <Card className="border-[#E5DCC8]">
+                <CardContent className="p-12 text-center">
+                  <FolderOpen className="w-16 h-16 text-[#8B7355] mx-auto mb-4 opacity-30" />
+                  <p className="text-[#8B7355]">Nenhuma categoria encontrada</p>
+                  <Button
+                    onClick={() => handleSync('categorias')}
+                    className="mt-4 bg-[#6B4423] hover:bg-[#5A3A1E]"
+                  >
+                    Sincronizar Categorias
                   </Button>
                 </CardContent>
               </Card>
@@ -541,6 +655,11 @@ export default function IntegracaoYampi() {
               </Card>
             )}
           </TabsContent>
+
+          {/* Tab Logs */}
+          <TabsContent value="logs" className="space-y-4">
+            <LogsSincronizacao />
+          </TabsContent>
         </Tabs>
 
         <EditarProdutoModal
@@ -551,6 +670,18 @@ export default function IntegracaoYampi() {
           }}
           produto={editingProduct}
           onSave={handleSaveProduct}
+        />
+
+        <CriarProdutoModal
+          open={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          onSave={handleCreateProduct}
+          categorias={categorias}
+        />
+
+        <BuscarProdutoModal
+          open={showBuscarModal}
+          onClose={() => setShowBuscarModal(false)}
         />
       </div>
     </div>
