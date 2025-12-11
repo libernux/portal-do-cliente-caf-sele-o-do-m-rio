@@ -19,10 +19,12 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
-  Loader2
+  Loader2,
+  Edit
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import EditarProdutoModal from "../components/yampi/EditarProdutoModal";
 
 export default function IntegracaoYampi() {
   const [produtos, setProdutos] = useState([]);
@@ -76,6 +78,29 @@ export default function IntegracaoYampi() {
       setSyncResult({ type, error: error.message });
     } finally {
       setIsSyncing({ ...isSyncing, [type]: false });
+    }
+  };
+
+  const handleEditProduct = (produto) => {
+    setEditingProduct(produto);
+    setShowEditModal(true);
+  };
+
+  const handleSaveProduct = async (productData) => {
+    try {
+      const response = await base44.functions.invoke('updateYampiProduct', {
+        yampi_id: editingProduct.yampi_id,
+        productData
+      });
+
+      if (response.data.success) {
+        setSyncResult({ type: 'produtos', mensagem: 'Produto atualizado com sucesso!' });
+        await loadData();
+      } else {
+        setSyncResult({ type: 'produtos', error: response.data.error });
+      }
+    } catch (error) {
+      setSyncResult({ type: 'produtos', error: error.message });
     }
   };
 
@@ -273,6 +298,14 @@ export default function IntegracaoYampi() {
                               <p className="text-sm text-[#8B7355]">SKU: {produto.sku}</p>
                             </div>
                             <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleEditProduct(produto)}
+                                className="border-[#6B4423] text-[#6B4423] hover:bg-[#F5F1E8]"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
                               {produto.ativo ? (
                                 <Badge className="bg-green-100 text-green-800">Ativo</Badge>
                               ) : (
@@ -509,6 +542,16 @@ export default function IntegracaoYampi() {
             )}
           </TabsContent>
         </Tabs>
+
+        <EditarProdutoModal
+          open={showEditModal}
+          onClose={() => {
+            setShowEditModal(false);
+            setEditingProduct(null);
+          }}
+          produto={editingProduct}
+          onSave={handleSaveProduct}
+        />
       </div>
     </div>
   );
