@@ -108,78 +108,96 @@ export default function CafesPublico() {
                     )}
                   </div>
 
-                  <CardContent className="p-6 space-y-4">
-                    {/* Informações Principais */}
-                    <div className="space-y-2">
-                      {cafe.variedade && (
-                        <div className="flex justify-between text-sm">
-                          <span className="text-[#8B7355]">Variedade:</span>
-                          <span className="font-semibold text-[#6B4423]">{cafe.variedade}</span>
+                  <CardContent className="p-6 space-y-3">
+                    {/* Lista completa de informações */}
+                    <div className="space-y-2 text-sm">
+                      {cafe.tipo_grao && (
+                        <div className="flex justify-between border-b border-[#E5DCC8] pb-1">
+                          <span className="text-[#8B7355]">Tipo do Grão:</span>
+                          <span className="font-medium text-[#6B4423] text-right max-w-[60%]">{cafe.tipo_grao}</span>
                         </div>
                       )}
-                      {cafe.tipo_grao && (
-                        <div className="flex justify-between text-sm">
-                          <span className="text-[#8B7355]">Tipo:</span>
-                          <span className="font-semibold text-[#6B4423]">{cafe.tipo_grao}</span>
+                      {cafe.variedade && (
+                        <div className="flex justify-between border-b border-[#E5DCC8] pb-1">
+                          <span className="text-[#8B7355]">Variedade:</span>
+                          <span className="font-medium text-[#6B4423] text-right max-w-[60%]">{cafe.variedade}</span>
                         </div>
                       )}
                       {cafe.processamento && (
-                        <div className="flex justify-between text-sm">
+                        <div className="flex justify-between border-b border-[#E5DCC8] pb-1">
                           <span className="text-[#8B7355]">Processamento:</span>
-                          <span className="font-semibold text-[#6B4423]">{cafe.processamento}</span>
+                          <span className="font-medium text-[#6B4423] text-right max-w-[60%]">{cafe.processamento}</span>
+                        </div>
+                      )}
+                      {cafe.bebida && (
+                        <div className="flex justify-between border-b border-[#E5DCC8] pb-1">
+                          <span className="text-[#8B7355]">Bebida:</span>
+                          <span className="font-medium text-[#6B4423] text-right max-w-[60%]">{cafe.bebida}</span>
                         </div>
                       )}
                       {cafe.altitude && (
-                        <div className="flex justify-between text-sm">
+                        <div className="flex justify-between border-b border-[#E5DCC8] pb-1">
                           <span className="text-[#8B7355]">Altitude:</span>
-                          <span className="font-semibold text-[#6B4423]">{cafe.altitude}</span>
+                          <span className="font-medium text-[#6B4423] text-right max-w-[60%]">{cafe.altitude}m</span>
                         </div>
                       )}
-                    </div>
-
-                    {/* Características */}
-                    <div className="border-t border-[#E5DCC8] pt-4 space-y-3">
-                      {(cafe.docura || cafe.aroma || cafe.corpo) && (
-                        <div className="grid grid-cols-3 gap-2">
-                          {cafe.docura && (
-                            <div className="text-center">
-                              <p className="text-xs text-[#8B7355]">Doçura</p>
-                              <p className="text-sm font-bold text-[#6B4423]">{cafe.docura}</p>
-                            </div>
-                          )}
-                          {cafe.aroma && (
-                            <div className="text-center">
-                              <p className="text-xs text-[#8B7355]">Aroma</p>
-                              <p className="text-sm font-bold text-[#6B4423]">{cafe.aroma}</p>
-                            </div>
-                          )}
-                          {cafe.corpo && (
-                            <div className="text-center">
-                              <p className="text-xs text-[#8B7355]">Corpo</p>
-                              <p className="text-sm font-bold text-[#6B4423]">{cafe.corpo}</p>
-                            </div>
-                          )}
+                      {cafe.torra && (
+                        <div className="flex justify-between border-b border-[#E5DCC8] pb-1">
+                          <span className="text-[#8B7355]">Torra:</span>
+                          <span className="font-medium text-[#6B4423] text-right max-w-[60%]">{cafe.torra}</span>
                         </div>
                       )}
-
+                      {cafe.moagem && (
+                        <div className="flex justify-between border-b border-[#E5DCC8] pb-1">
+                          <span className="text-[#8B7355]">Moagem:</span>
+                          <span className="font-medium text-[#6B4423] text-right max-w-[60%]">{cafe.moagem}</span>
+                        </div>
+                      )}
+                      {cafe.docura && (
+                        <div className="flex justify-between border-b border-[#E5DCC8] pb-1">
+                          <span className="text-[#8B7355]">Doçura:</span>
+                          <span className="font-medium text-[#6B4423] text-right max-w-[60%]">{cafe.docura}</span>
+                        </div>
+                      )}
+                      {cafe.aroma && (
+                        <div className="flex justify-between border-b border-[#E5DCC8] pb-1">
+                          <span className="text-[#8B7355]">Aroma:</span>
+                          <span className="font-medium text-[#6B4423] text-right max-w-[60%]">{cafe.aroma}</span>
+                        </div>
+                      )}
+                      {cafe.corpo && (
+                        <div className="flex justify-between border-b border-[#E5DCC8] pb-1">
+                          <span className="text-[#8B7355]">Corpo:</span>
+                          <span className="font-medium text-[#6B4423] text-right max-w-[60%]">{cafe.corpo}</span>
+                        </div>
+                      )}
+                      {cafe.acidez_tipo && (
+                        <div className="flex justify-between border-b border-[#E5DCC8] pb-1">
+                          <span className="text-[#8B7355]">Acidez (Tipo):</span>
+                          <span className="font-medium text-[#6B4423] text-right max-w-[60%]">{cafe.acidez_tipo}</span>
+                        </div>
+                      )}
+                      {cafe.acidez_intensidade && (
+                        <div className="flex justify-between border-b border-[#E5DCC8] pb-1">
+                          <span className="text-[#8B7355]">Acidez (Intensidade):</span>
+                          <span className="font-medium text-[#6B4423] text-right max-w-[60%]">{cafe.acidez_intensidade}</span>
+                        </div>
+                      )}
                       {cafe.escala_intensidade && (
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-[#8B7355]">Intensidade:</span>
-                          <div className="flex gap-1">
-                            {Array.from({ length: 10 }).map((_, i) => (
-                              <div
-                                key={i}
-                                className={`w-2 h-4 rounded ${
-                                  i < cafe.escala_intensidade 
-                                    ? 'bg-[#6B4423]' 
-                                    : 'bg-[#E5DCC8]'
-                                }`}
-                              />
-                            ))}
-                          </div>
+                        <div className="flex justify-between border-b border-[#E5DCC8] pb-1">
+                          <span className="text-[#8B7355]">Intensidade:</span>
+                          <span className="font-medium text-[#6B4423]">{cafe.escala_intensidade}/10</span>
                         </div>
                       )}
                     </div>
+
+                    {/* Sabor e Notas Sensoriais */}
+                    {cafe.sabor_notas_sensoriais && (
+                      <div className="bg-[#F5F1E8] border border-[#E5DCC8] rounded-lg p-3">
+                        <p className="text-xs text-[#8B7355] font-semibold mb-1">Sabor / Notas Sensoriais</p>
+                        <p className="text-sm text-[#5A4A3A]">{cafe.sabor_notas_sensoriais}</p>
+                      </div>
+                    )}
 
                     {/* Notas de Degustação */}
                     {cafe.notas_degustacao && (
@@ -192,22 +210,41 @@ export default function CafesPublico() {
                       </div>
                     )}
 
-                    {/* Sabor e Notas Sensoriais */}
-                    {cafe.sabor_notas_sensoriais && (
-                      <div className="bg-[#F5F1E8] border border-[#E5DCC8] rounded-lg p-3">
-                        <p className="text-xs text-[#8B7355] font-semibold mb-1">Perfil Sensorial</p>
-                        <p className="text-sm text-[#5A4A3A]">{cafe.sabor_notas_sensoriais}</p>
+                    {/* Métodos de Preparo */}
+                    {cafe.metodos_preparo && (
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                        <p className="text-xs text-blue-700 font-semibold mb-1">Métodos de Preparo</p>
+                        <p className="text-sm text-blue-900">{cafe.metodos_preparo}</p>
+                      </div>
+                    )}
+
+                    {/* Modo de Conservação */}
+                    {cafe.modo_conservacao && (
+                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                        <p className="text-xs text-gray-600 font-semibold mb-1">Conservação</p>
+                        <p className="text-sm text-gray-800">{cafe.modo_conservacao}</p>
+                      </div>
+                    )}
+
+                    {/* Observações */}
+                    {cafe.observacoes && (
+                      <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                        <p className="text-xs text-purple-700 font-semibold mb-1">Observações</p>
+                        <p className="text-sm text-purple-900">{cafe.observacoes}</p>
                       </div>
                     )}
 
                     {/* Certificações */}
                     {cafe.certificacoes && (
-                      <div className="flex flex-wrap gap-2">
-                        {cafe.certificacoes.split(',').map((cert, idx) => (
-                          <Badge key={idx} variant="outline" className="bg-green-50 text-green-800 border-green-300">
-                            {cert.trim()}
-                          </Badge>
-                        ))}
+                      <div className="pt-2">
+                        <p className="text-xs text-[#8B7355] font-semibold mb-2">Certificações</p>
+                        <div className="flex flex-wrap gap-2">
+                          {cafe.certificacoes.split(',').map((cert, idx) => (
+                            <Badge key={idx} variant="outline" className="bg-green-50 text-green-800 border-green-300">
+                              {cert.trim()}
+                            </Badge>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </CardContent>
