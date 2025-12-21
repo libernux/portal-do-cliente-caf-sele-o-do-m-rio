@@ -18,9 +18,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Eye, Trash2, Coffee } from "lucide-react";
+import { Search, Eye, Trash2, Coffee, Edit } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import EditarSubmissaoModal from "../components/submissoes/EditarSubmissaoModal";
 
 export default function GerenciarSubmissoes() {
   const [submissoes, setSubmissoes] = useState([]);
@@ -29,6 +30,7 @@ export default function GerenciarSubmissoes() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedSubmissao, setSelectedSubmissao] = useState(null);
   const [showDetalhes, setShowDetalhes] = useState(false);
+  const [showEditar, setShowEditar] = useState(false);
   const [notasAdmin, setNotasAdmin] = useState("");
 
   useEffect(() => {
@@ -63,6 +65,17 @@ export default function GerenciarSubmissoes() {
     setSelectedSubmissao(submissao);
     setNotasAdmin(submissao.notas_admin || "");
     setShowDetalhes(true);
+  };
+
+  const handleEditar = (submissao) => {
+    setSelectedSubmissao(submissao);
+    setShowEditar(true);
+  };
+
+  const handleSaveEdit = async (formData) => {
+    await SubmissaoProdutor.update(selectedSubmissao.id, formData);
+    await loadSubmissoes();
+    setShowEditar(false);
   };
 
   const filteredSubmissoes = submissoes.filter(sub => {
@@ -187,7 +200,16 @@ export default function GerenciarSubmissoes() {
                       <Button
                         variant="outline"
                         size="icon"
+                        onClick={() => handleEditar(sub)}
+                        title="Editar"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
                         onClick={() => handleVerDetalhes(sub)}
+                        title="Ver detalhes"
                       >
                         <Eye className="w-4 h-4" />
                       </Button>
@@ -196,6 +218,7 @@ export default function GerenciarSubmissoes() {
                         size="icon"
                         onClick={() => handleDelete(sub.id)}
                         className="hover:bg-red-50"
+                        title="Excluir"
                       >
                         <Trash2 className="w-4 h-4 text-red-600" />
                       </Button>
@@ -345,6 +368,13 @@ export default function GerenciarSubmissoes() {
                   )}
                 </div>
 
+                {selectedSubmissao.pontuacao && (
+                  <div className="bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-200 p-4 rounded-lg mt-3">
+                    <p className="text-xs text-amber-700 mb-1">Pontuação do Café</p>
+                    <p className="text-3xl font-bold text-amber-600">{selectedSubmissao.pontuacao}/100</p>
+                  </div>
+                )}
+
                 {selectedSubmissao.modo_conservacao && (
                   <div className="bg-white border border-[#E5DCC8] p-3 rounded-lg mt-3">
                     <p className="text-xs text-[#8B7355] mb-1">Modo de Conservação</p>
@@ -417,6 +447,14 @@ export default function GerenciarSubmissoes() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Modal de Edição */}
+      <EditarSubmissaoModal
+        open={showEditar}
+        onClose={() => setShowEditar(false)}
+        submissao={selectedSubmissao}
+        onSave={handleSaveEdit}
+      />
     </div>
   );
 }
