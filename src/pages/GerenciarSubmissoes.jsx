@@ -78,6 +78,14 @@ export default function GerenciarSubmissoes() {
     setShowEditar(false);
   };
 
+  const handleSavePontuacao = async (id, pontuacao) => {
+    const submissao = submissoes.find(s => s.id === id);
+    if (submissao) {
+      await SubmissaoProdutor.update(id, { ...submissao, pontuacao: parseFloat(pontuacao) });
+      await loadSubmissoes();
+    }
+  };
+
   const filteredSubmissoes = submissoes.filter(sub => {
     const matchSearch = sub.nome_cafe?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                        sub.origem?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -188,12 +196,45 @@ export default function GerenciarSubmissoes() {
                         <Badge variant="outline" className={statusConfig[sub.status]}>
                           {sub.status}
                         </Badge>
+                        {sub.pontuacao && (
+                          <Badge className="bg-amber-100 text-amber-800 border-amber-300">
+                            ⭐ {sub.pontuacao}/100
+                          </Badge>
+                        )}
                       </div>
-                      <div className="grid md:grid-cols-2 gap-2 text-sm text-[#8B7355]">
+                      <div className="grid md:grid-cols-2 gap-2 text-sm text-[#8B7355] mb-4">
                         <p><strong>Cadastrado em:</strong> {format(new Date(sub.created_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
                         {sub.origem && <p><strong>Origem:</strong> {sub.origem}</p>}
                         {sub.variedade && <p><strong>Variedade:</strong> {sub.variedade}</p>}
                         {sub.tipo_grao && <p><strong>Tipo:</strong> {sub.tipo_grao}</p>}
+                      </div>
+                      
+                      {/* Campo de Pontuação Rápida */}
+                      <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg p-3">
+                        <label className="text-sm font-medium text-amber-800 whitespace-nowrap">
+                          Pontuação:
+                        </label>
+                        <Input
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="0.1"
+                          defaultValue={sub.pontuacao || ""}
+                          placeholder="0-100"
+                          className="w-24 h-8 text-center border-amber-300"
+                          onBlur={(e) => {
+                            if (e.target.value && e.target.value !== String(sub.pontuacao)) {
+                              handleSavePontuacao(sub.id, e.target.value);
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              handleSavePontuacao(sub.id, e.target.value);
+                              e.target.blur();
+                            }
+                          }}
+                        />
+                        <span className="text-sm text-amber-700">/100</span>
                       </div>
                     </div>
                     <div className="flex gap-2">
