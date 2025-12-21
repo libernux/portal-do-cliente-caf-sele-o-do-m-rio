@@ -17,11 +17,10 @@ export default function CafesPublico() {
   const loadCafes = async () => {
     setIsLoading(true);
     try {
-      const data = await base44.asServiceRole.entities.SubmissaoProdutor.filter(
-        { status: "Aprovado" },
-        "-pontuacao,-created_date"
-      );
-      setCafes(data);
+      const response = await base44.functions.invoke('getCafesPublicos', {});
+      if (response.data.success) {
+        setCafes(response.data.cafes);
+      }
     } catch (error) {
       console.error("Erro ao carregar cafés:", error);
     }
