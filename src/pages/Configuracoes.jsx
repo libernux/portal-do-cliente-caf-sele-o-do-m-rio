@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Responsavel } from "@/entities/Responsavel";
 import { ConfiguracaoNotificacao } from "@/entities/ConfiguracaoNotificacao";
@@ -23,7 +22,7 @@ import { base44 } from "@/api/base44Client"; // Added
 
 export default function Configuracoes() {
   const [responsaveis, setResponsaveis] = useState([]);
-  const [configuracoes, setConfiguracoes] = useState(false);
+  const [configuracoes, setConfiguracoes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [whatsappUrl, setWhatsappUrl] = useState(""); // Added
