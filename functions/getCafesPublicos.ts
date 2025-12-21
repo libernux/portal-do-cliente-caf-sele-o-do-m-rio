@@ -7,7 +7,7 @@ Deno.serve(async (req) => {
     // Buscar apenas cafés aprovados
     const cafes = await base44.asServiceRole.entities.SubmissaoProdutor.filter(
       { status: "Aprovado" },
-      "-pontuacao,-created_date"
+      "-created_date"
     );
 
     return Response.json({
