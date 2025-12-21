@@ -28,7 +28,6 @@ import MinhaAssinatura from './pages/MinhaAssinatura';
 import CotacaoFrete from './pages/CotacaoFrete';
 import IntegracaoYampi from './pages/IntegracaoYampi';
 import ContratosRPA from './pages/ContratosRPA';
-import CatalogoCafes from './pages/CatalogoCafes';
 import __Layout from './Layout.jsx';
 
 
@@ -63,7 +62,6 @@ export const PAGES = {
     "CotacaoFrete": CotacaoFrete,
     "IntegracaoYampi": IntegracaoYampi,
     "ContratosRPA": ContratosRPA,
-    "CatalogoCafes": CatalogoCafes,
 }
 
 export const pagesConfig = {
