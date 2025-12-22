@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Coffee, Building2, User, MapPin, Phone, Mail, CheckCircle2, Loader2 } from "lucide-react";
+import { Coffee, Building2, User, MapPin, Phone, Mail, CheckCircle2, Loader2, CheckSquare } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export default function CadastroPermuta() {
   const [isLoading, setIsLoading] = useState(false);
@@ -21,7 +23,8 @@ export default function CadastroPermuta() {
     contato_nome: "",
     contato_telefone: "",
     contato_email: "",
-    observacoes: ""
+    forma_cafe: "",
+    aceite_cobranca: false
   });
 
   const formatCNPJ = (value) => {
@@ -114,7 +117,8 @@ export default function CadastroPermuta() {
                   contato_nome: "",
                   contato_telefone: "",
                   contato_email: "",
-                  observacoes: ""
+                  forma_cafe: "",
+                  aceite_cobranca: false
                 });
               }}
               className="bg-[#6B4423] hover:bg-[#5A3A1E]"
@@ -308,26 +312,58 @@ export default function CadastroPermuta() {
             </CardContent>
           </Card>
 
-          {/* Observações */}
+          {/* Preferência de Café */}
           <Card className="border-[#E5DCC8] shadow-lg mb-8">
+            <CardHeader className="border-b border-[#E5DCC8] bg-[#F5F1E8]/50">
+              <CardTitle className="text-[#6B4423] flex items-center gap-2">
+                <Coffee className="w-5 h-5" />
+                Preferência de Café
+              </CardTitle>
+            </CardHeader>
             <CardContent className="p-6">
-              <Label htmlFor="observacoes">Observações</Label>
-              <Textarea
-                id="observacoes"
-                value={formData.observacoes}
-                onChange={(e) => handleChange("observacoes", e.target.value)}
-                placeholder="Informações adicionais, preferências de entrega, etc."
-                rows={3}
-                className="border-[#E5DCC8] mt-1"
-              />
+              <Label className="mb-3 block">Como deseja receber seus cafés? *</Label>
+              <RadioGroup
+                value={formData.forma_cafe}
+                onValueChange={(value) => setFormData({ ...formData, forma_cafe: value })}
+                className="flex gap-6"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="Moído" id="moido" />
+                  <Label htmlFor="moido" className="cursor-pointer font-normal">Moído</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="Grãos" id="graos" />
+                  <Label htmlFor="graos" className="cursor-pointer font-normal">Em Grãos</Label>
+                </div>
+              </RadioGroup>
+            </CardContent>
+          </Card>
+
+          {/* Aceite da Cobrança */}
+          <Card className="border-[#C9A961] shadow-lg mb-8 bg-amber-50/50">
+            <CardContent className="p-6">
+              <div className="flex items-start space-x-3">
+                <Checkbox
+                  id="aceite_cobranca"
+                  checked={formData.aceite_cobranca}
+                  onCheckedChange={(checked) => setFormData({ ...formData, aceite_cobranca: checked })}
+                  className="mt-1"
+                  required
+                />
+                <Label htmlFor="aceite_cobranca" className="cursor-pointer text-[#6B4423] leading-relaxed">
+                  Estou ciente que será enviada uma cobrança via Clube de Permuta no valor de{" "}
+                  <strong className="text-[#6B4423]">Pz$ 2.640,00</strong> equivalente a 1 ano de assinatura de 5 cafés 
+                  (Cítrico, Frutado, Amendoado, Chocolate e + Intenso).
+                </Label>
+              </div>
             </CardContent>
           </Card>
 
           {/* Botão de Enviar */}
           <Button
             type="submit"
-            disabled={isLoading}
-            className="w-full h-14 text-lg bg-[#6B4423] hover:bg-[#5A3A1E] shadow-lg"
+            disabled={isLoading || !formData.aceite_cobranca || !formData.forma_cafe}
+            className="w-full h-14 text-lg bg-[#6B4423] hover:bg-[#5A3A1E] shadow-lg disabled:opacity-50"
           >
             {isLoading ? (
               <>
