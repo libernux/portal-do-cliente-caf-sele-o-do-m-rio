@@ -94,11 +94,11 @@ export default function CadastroPermuta() {
               <CheckCircle2 className="w-10 h-10 text-green-600" />
             </div>
             <h2 className="text-2xl font-bold text-[#6B4423] mb-4">
-              Cadastro Enviado com Sucesso!
+              Dados Enviados com Sucesso!
             </h2>
             <p className="text-[#8B7355] mb-6">
-              Sua empresa foi cadastrada no Clube de Permuta. 
-              Entraremos em contato em breve para confirmar os dados.
+              Os dados da sua empresa foram recebidos. 
+              Entraremos em contato em breve para confirmar seu cadastro no sistema de assinatura.
             </p>
             <Button
               onClick={() => {
@@ -137,9 +137,9 @@ export default function CadastroPermuta() {
               <Coffee className="w-8 h-8" />
             </div>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold mb-3">Clube de Permuta</h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-3">Cadastro de Empresa</h1>
           <p className="text-white/90 text-lg">
-            Cadastre sua empresa para participar do nosso Clube de Permuta
+            Envie os dados da sua empresa cadastrada no Clube de Permuta para nosso sistema de assinatura
           </p>
         </div>
       </div>
