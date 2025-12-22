@@ -144,7 +144,7 @@ const navigationItems = [
 ];
 
 // Páginas públicas que não precisam de autenticação
-const publicPages = ["PortalCliente", "ReservaPublica", "SolicitarPatrocinio", "TabelaPrivateLabel", "Privacy", "Support", "FormularioProdutor", "InfoCafePublico", "MinhaAssinatura", "CafesPublico"];
+const publicPages = ["PortalCliente", "ReservaPublica", "SolicitarPatrocinio", "TabelaPrivateLabel", "Privacy", "Support", "FormularioProdutor", "InfoCafePublico", "MinhaAssinatura", "CafesPublico", "CadastroPermuta"];
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
