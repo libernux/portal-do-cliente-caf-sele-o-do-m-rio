@@ -33,7 +33,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { User } from "@/entities/User";
+import { base44 } from "@/api/base44Client";
 
 const navigationItems = [
   {
@@ -155,7 +155,7 @@ export default function Layout({ children, currentPageName }) {
   React.useEffect(() => {
     const loadUser = async () => {
       try {
-        const currentUser = await User.me();
+        const currentUser = await base44.auth.me();
         setUser(currentUser);
         setIsAuthenticated(true);
       } catch (error) {
@@ -163,7 +163,7 @@ export default function Layout({ children, currentPageName }) {
         
         // Se não está autenticado e não é página pública, redirecionar para login
         if (!publicPages.includes(currentPageName)) {
-          await User.loginWithRedirect(window.location.href);
+          base44.auth.redirectToLogin(window.location.href);
         }
       }
       setIsLoading(false);
@@ -173,7 +173,7 @@ export default function Layout({ children, currentPageName }) {
   }, [currentPageName]);
 
   const handleLogout = async () => {
-    await User.logout();
+    await base44.auth.logout();
   };
 
   // Se for página pública, não mostrar o menu
