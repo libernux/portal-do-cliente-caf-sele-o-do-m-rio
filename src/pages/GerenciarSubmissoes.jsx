@@ -18,10 +18,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Eye, Trash2, Coffee, Edit } from "lucide-react";
+import { Search, Eye, Trash2, Coffee, Edit, ExternalLink } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import EditarSubmissaoModal from "../components/submissoes/EditarSubmissaoModal";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 
 export default function GerenciarSubmissoes() {
   const [submissoes, setSubmissoes] = useState([]);
@@ -109,10 +111,19 @@ export default function GerenciarSubmissoes() {
     <div className="min-h-screen bg-gradient-to-br from-[#F5F1E8] to-white p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-[#6B4423]">Gerenciar Cadastros de Cafés</h1>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-[#6B4423]">Gerenciar Cadastros de Cafés</h1>
           <p className="text-[#8B7355]">Visualize e gerencie as informações cadastradas dos cafés</p>
-        </div>
+          </div>
+          <Link 
+          to={createPageUrl("CafesPublico")}
+          target="_blank"
+          className="flex items-center gap-2 px-4 py-2 bg-[#6B4423] hover:bg-[#5A3A1E] text-white rounded-lg transition-colors"
+          >
+          <ExternalLink className="w-4 h-4" />
+          Ver Página Pública
+          </Link>
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
