@@ -1,8 +1,7 @@
-
 import React, { useState } from "react";
 import { Problema } from "@/entities/Problema";
 import { AtualizacaoProblema } from "@/entities/AtualizacaoProblema";
-import { User } from "@/entities/User";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
