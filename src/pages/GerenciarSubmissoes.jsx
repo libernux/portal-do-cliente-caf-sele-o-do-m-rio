@@ -114,16 +114,17 @@ export default function GerenciarSubmissoes() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-[#6B4423]">Gerenciar Cadastros de Cafés</h1>
-          <p className="text-[#8B7355]">Visualize e gerencie as informações cadastradas dos cafés</p>
+            <p className="text-[#8B7355]">Visualize e gerencie as informações cadastradas dos cafés</p>
           </div>
           <Link 
-          to={createPageUrl("CafesPublico")}
-          target="_blank"
-          className="flex items-center gap-2 px-4 py-2 bg-[#6B4423] hover:bg-[#5A3A1E] text-white rounded-lg transition-colors"
+            to={createPageUrl("CafesPublico")}
+            target="_blank"
+            className="flex items-center gap-2 px-4 py-2 bg-[#6B4423] hover:bg-[#5A3A1E] text-white rounded-lg transition-colors"
           >
-          <ExternalLink className="w-4 h-4" />
-          Ver Página Pública
+            <ExternalLink className="w-4 h-4" />
+            Ver Página Pública
           </Link>
+        </div>
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
