@@ -18,12 +18,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Eye, Trash2, Coffee, Edit, ExternalLink } from "lucide-react";
+import { Search, Eye, Trash2, Coffee, Edit, ExternalLink, Copy, ClipboardList, Check } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import EditarSubmissaoModal from "../components/submissoes/EditarSubmissaoModal";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { toast } from "sonner";
 
 export default function GerenciarSubmissoes() {
   const [submissoes, setSubmissoes] = useState([]);
@@ -107,6 +108,62 @@ export default function GerenciarSubmissoes() {
   const statsAnalise = submissoes.filter(s => s.status === "Em Análise").length;
   const statsAprovado = submissoes.filter(s => s.status === "Aprovado").length;
 
+  // Função para formatar dados de um café para texto
+  const formatarCafeTexto = (cafe) => {
+    let texto = `📦 ${cafe.nome_cafe}\n`;
+    if (cafe.pontuacao) texto += `⭐ Pontuação: ${cafe.pontuacao}/100\n`;
+    if (cafe.origem) texto += `📍 Origem: ${cafe.origem}\n`;
+    texto += '\n';
+    
+    if (cafe.tipo_grao) texto += `Tipo do Grão: ${cafe.tipo_grao}\n`;
+    if (cafe.variedade) texto += `Variedade: ${cafe.variedade}\n`;
+    if (cafe.processamento) texto += `Processamento: ${cafe.processamento}\n`;
+    if (cafe.bebida) texto += `Bebida: ${cafe.bebida}\n`;
+    if (cafe.altitude) texto += `Altitude: ${cafe.altitude}\n`;
+    if (cafe.torra) texto += `Torra: ${cafe.torra}\n`;
+    if (cafe.moagem) texto += `Moagem: ${cafe.moagem}\n`;
+    if (cafe.docura) texto += `Doçura: ${cafe.docura}\n`;
+    if (cafe.aroma) texto += `Aroma: ${cafe.aroma}\n`;
+    if (cafe.corpo) texto += `Corpo: ${cafe.corpo}\n`;
+    if (cafe.acidez_tipo) texto += `Acidez (Tipo): ${cafe.acidez_tipo}\n`;
+    if (cafe.acidez_intensidade) texto += `Acidez (Intensidade): ${cafe.acidez_intensidade}\n`;
+    if (cafe.escala_intensidade) texto += `Intensidade: ${cafe.escala_intensidade}/10\n`;
+    
+    if (cafe.sabor_notas_sensoriais) texto += `\nSabor / Notas Sensoriais:\n${cafe.sabor_notas_sensoriais}\n`;
+    if (cafe.notas_degustacao) texto += `\nNotas de Degustação:\n${cafe.notas_degustacao}\n`;
+    if (cafe.metodos_preparo) texto += `\nMétodos de Preparo:\n${cafe.metodos_preparo}\n`;
+    if (cafe.modo_conservacao) texto += `\nConservação:\n${cafe.modo_conservacao}\n`;
+    if (cafe.observacoes) texto += `\nObservações:\n${cafe.observacoes}\n`;
+    if (cafe.certificacoes) texto += `\nCertificações: ${cafe.certificacoes}\n`;
+    
+    return texto;
+  };
+
+  // Copiar dados de um café individual
+  const copiarCafeIndividual = (cafe) => {
+    const texto = formatarCafeTexto(cafe);
+    navigator.clipboard.writeText(texto);
+    toast.success(`Dados de "${cafe.nome_cafe}" copiados!`);
+  };
+
+  // Copiar todos os cafés aprovados
+  const copiarTodosCafes = () => {
+    const cafesAprovados = submissoes.filter(s => s.status === "Aprovado");
+    if (cafesAprovados.length === 0) {
+      toast.error("Nenhum café aprovado para copiar");
+      return;
+    }
+    
+    const textoCompleto = cafesAprovados.map((cafe, index) => {
+      return `${'═'.repeat(50)}\n${index + 1}. ${formatarCafeTexto(cafe)}`;
+    }).join('\n\n');
+    
+    const header = `☕ CATÁLOGO DE CAFÉS ESPECIAIS\n📅 ${new Date().toLocaleDateString('pt-BR')}\n📦 Total: ${cafesAprovados.length} cafés\n\n`;
+    
+    navigator.clipboard.writeText(header + textoCompleto);
+    toast.success(`${cafesAprovados.length} cafés copiados!`);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F5F1E8] to-white p-6">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -116,14 +173,24 @@ export default function GerenciarSubmissoes() {
             <h1 className="text-3xl font-bold text-[#6B4423]">Gerenciar Cadastros de Cafés</h1>
             <p className="text-[#8B7355]">Visualize e gerencie as informações cadastradas dos cafés</p>
           </div>
-          <Link 
-            to={createPageUrl("CafesPublico")}
-            target="_blank"
-            className="flex items-center gap-2 px-4 py-2 bg-[#6B4423] hover:bg-[#5A3A1E] text-white rounded-lg transition-colors"
-          >
-            <ExternalLink className="w-4 h-4" />
-            Ver Página Pública
-          </Link>
+          <div className="flex gap-2">
+            <Button
+              onClick={copiarTodosCafes}
+              variant="outline"
+              className="border-[#6B4423] text-[#6B4423] hover:bg-[#6B4423]/10"
+            >
+              <ClipboardList className="w-4 h-4 mr-2" />
+              Copiar Todos ({statsAprovado})
+            </Button>
+            <Link 
+              to={createPageUrl("CafesPublico")}
+              target="_blank"
+              className="flex items-center gap-2 px-4 py-2 bg-[#6B4423] hover:bg-[#5A3A1E] text-white rounded-lg transition-colors"
+            >
+              <ExternalLink className="w-4 h-4" />
+              Ver Página Pública
+            </Link>
+          </div>
         </div>
 
         {/* Stats */}
@@ -250,6 +317,15 @@ export default function GerenciarSubmissoes() {
                       </div>
                     </div>
                     <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => copiarCafeIndividual(sub)}
+                        title="Copiar dados"
+                        className="hover:bg-green-50"
+                      >
+                        <Copy className="w-4 h-4 text-green-600" />
+                      </Button>
                       <Button
                         variant="outline"
                         size="icon"

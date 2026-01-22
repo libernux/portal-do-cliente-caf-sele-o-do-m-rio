@@ -1,5 +1,6 @@
 import AReceber from './pages/AReceber';
 import Agenda from './pages/Agenda';
+import CadastroPermuta from './pages/CadastroPermuta';
 import CafesPublico from './pages/CafesPublico';
 import CalculadoraAgridrones from './pages/CalculadoraAgridrones';
 import CalculadoraEventos from './pages/CalculadoraEventos';
@@ -30,13 +31,13 @@ import Support from './pages/Support';
 import TabelaPrivateLabel from './pages/TabelaPrivateLabel';
 import Tarefas from './pages/Tarefas';
 import Usuarios from './pages/Usuarios';
-import CadastroPermuta from './pages/CadastroPermuta';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AReceber": AReceber,
     "Agenda": Agenda,
+    "CadastroPermuta": CadastroPermuta,
     "CafesPublico": CafesPublico,
     "CalculadoraAgridrones": CalculadoraAgridrones,
     "CalculadoraEventos": CalculadoraEventos,
@@ -67,7 +68,6 @@ export const PAGES = {
     "TabelaPrivateLabel": TabelaPrivateLabel,
     "Tarefas": Tarefas,
     "Usuarios": Usuarios,
-    "CadastroPermuta": CadastroPermuta,
 }
 
 export const pagesConfig = {
