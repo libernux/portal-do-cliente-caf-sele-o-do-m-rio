@@ -141,7 +141,12 @@ const navigationItems = [
     url: createPageUrl("Configuracoes"),
     icon: Settings,
   },
-];
+  {
+    title: "Exportar Dados",
+    url: createPageUrl("ExportarDados"),
+    icon: FileText,
+  },
+  ];
 
 // Páginas públicas que não precisam de autenticação
 const publicPages = ["PortalCliente", "ReservaPublica", "SolicitarPatrocinio", "TabelaPrivateLabel", "Privacy", "Support", "FormularioProdutor", "InfoCafePublico", "MinhaAssinatura", "CafesPublico", "CadastroPermuta"];
