@@ -11,6 +11,7 @@ import RecentActivity from "../components/dashboard/RecentActivity";
 import NotificationPanel from "../components/dashboard/NotificationPanel";
 import SolicitacoesEventos from "../components/dashboard/SolicitacoesEventos";
 import ApiConsultaCard from "../components/dashboard/ApiConsultaCard";
+import ExportarDadosCard from "../components/dashboard/ExportarDadosCard";
 
 export default function Dashboard() {
   const [caixas, setCaixas] = useState([]);
@@ -137,6 +138,7 @@ export default function Dashboard() {
           </div>
           <div className="space-y-6">
             <NotificationPanel />
+            <ExportarDadosCard />
             <ApiConsultaCard />
           </div>
         </div>
