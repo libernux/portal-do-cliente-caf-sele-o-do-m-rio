@@ -32,28 +32,65 @@ export default function ApiConsultaCard() {
   const exemplos = [
     {
       titulo: "Listar Entidades",
-      descricao: "Lista todas as entidades disponíveis",
+      descricao: "Lista todas as entidades e documentação",
       body: JSON.stringify({ acao: "listar_entidades" }, null, 2)
     },
     {
-      titulo: "Consultar Entidade",
-      descricao: "Consulta registros de uma entidade",
-      body: JSON.stringify({ acao: "consultar", entidade: "Cafe", limite: 50 }, null, 2)
+      titulo: "Consultar com Paginação",
+      descricao: "Consulta registros com filtros e paginação",
+      body: JSON.stringify({ 
+        acao: "consultar", 
+        entidade: "Cafe", 
+        pagina: 1, 
+        por_pagina: 50,
+        ordenar: "-created_date",
+        filtros: { status: "Ativo" },
+        campos: ["nome", "forma", "localizacao"]
+      }, null, 2)
     },
     {
-      titulo: "Exportar Completo",
-      descricao: "Exporta todos os dados do sistema",
-      body: JSON.stringify({ acao: "exportar_completo" }, null, 2)
+      titulo: "Consultar por Data",
+      descricao: "Filtra registros por período",
+      body: JSON.stringify({ 
+        acao: "consultar", 
+        entidade: "Problema", 
+        data_inicio: "2024-01-01",
+        data_fim: "2024-12-31",
+        campo_data: "created_date"
+      }, null, 2)
+    },
+    {
+      titulo: "Detalhe de Registro",
+      descricao: "Busca detalhes completos de um item",
+      body: JSON.stringify({ 
+        acao: "detalhe", 
+        entidade: "Cafe", 
+        id: "ID_DO_REGISTRO" 
+      }, null, 2)
+    },
+    {
+      titulo: "Exportar Paginado",
+      descricao: "Exporta dados com paginação",
+      body: JSON.stringify({ 
+        acao: "exportar_completo",
+        pagina: 1,
+        por_pagina: 1000,
+        entidades: ["Cafe", "Cliente"]
+      }, null, 2)
+    },
+    {
+      titulo: "Busca Otimizada",
+      descricao: "Busca retornando apenas IDs e resumos",
+      body: JSON.stringify({ 
+        acao: "buscar", 
+        termo: "exemplo",
+        limite: 20
+      }, null, 2)
     },
     {
       titulo: "Estatísticas",
       descricao: "Retorna contagem de registros",
       body: JSON.stringify({ acao: "estatisticas" }, null, 2)
-    },
-    {
-      titulo: "Buscar Termo",
-      descricao: "Busca em todas as entidades",
-      body: JSON.stringify({ acao: "buscar", termo: "exemplo" }, null, 2)
     }
   ];
 

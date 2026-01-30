@@ -40,15 +40,38 @@ const ENTIDADES_SISTEMA = [
   "ConfiguracaoNotificacao",
 ];
 
+// Campos de resumo por entidade (para busca otimizada)
+const CAMPOS_RESUMO = {
+  Cafe: ["nome", "forma", "localizacao"],
+  Cliente: ["nome", "email", "telefone"],
+  Problema: ["nome_cliente", "tipo", "status", "prioridade"],
+  Tarefa: ["titulo", "status", "prioridade", "responsavel"],
+  Agendamento: ["titulo", "tipo", "status", "data_inicio"],
+  Caixa: ["numero_identificacao", "origem", "destino", "status"],
+  SubmissaoProdutor: ["nome_cafe", "origem", "status"],
+  PedidoYampi: ["numero_pedido", "cliente_nome", "status", "valor_total"],
+  AssinanteClube: ["nome", "email", "plano", "status"],
+  default: ["id", "created_date"]
+};
+
+// Campos de data por entidade
+const CAMPOS_DATA = {
+  default: ["created_date", "updated_date"],
+  Agendamento: ["data_inicio", "data_fim", "created_date"],
+  Tarefa: ["prazo", "data_inicio", "data_conclusao", "created_date"],
+  Problema: ["data_abertura", "data_resolucao", "created_date"],
+  Caixa: ["data_envio", "data_entrega_prevista", "data_entrega_real", "created_date"],
+  PedidoYampi: ["data_pedido", "data_atualizacao", "created_date"],
+  EntregaClube: ["data_prevista", "data_envio", "data_entrega", "created_date"]
+};
+
 Deno.serve(async (req) => {
-  // CORS headers
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   };
 
-  // Handle preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -57,7 +80,6 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
 
-    // Verificar se é admin
     if (!user || user.role !== 'admin') {
       return Response.json(
         { error: 'Acesso negado. Apenas administradores podem acessar esta API.' },
@@ -68,33 +90,64 @@ Deno.serve(async (req) => {
     const url = new URL(req.url);
     const body = req.method === 'POST' ? await req.json().catch(() => ({})) : {};
 
-    // Parâmetros de consulta
+    // Parâmetros comuns
     const acao = body.acao || url.searchParams.get('acao') || 'listar_entidades';
     const entidade = body.entidade || url.searchParams.get('entidade');
-    const filtro = body.filtro || {};
-    const limite = parseInt(body.limite || url.searchParams.get('limite') || '100');
+    
+    // Paginação
+    const pagina = parseInt(body.pagina || url.searchParams.get('pagina') || '1');
+    const porPagina = Math.min(parseInt(body.por_pagina || url.searchParams.get('por_pagina') || '50'), 500);
+    const offset = (pagina - 1) * porPagina;
+    
+    // Ordenação
     const ordenar = body.ordenar || url.searchParams.get('ordenar') || '-created_date';
-    const exportarTudo = body.exportar_tudo === true;
+    
+    // Filtros de data
+    const dataInicio = body.data_inicio || url.searchParams.get('data_inicio');
+    const dataFim = body.data_fim || url.searchParams.get('data_fim');
+    const campoData = body.campo_data || url.searchParams.get('campo_data') || 'created_date';
+    
+    // Filtros de campos específicos
+    const filtros = body.filtros || {};
+    const campos = body.campos || null; // Campos específicos para retornar
 
-    // Ações disponíveis
     switch (acao) {
       case 'listar_entidades': {
-        // Lista todas as entidades disponíveis
         return Response.json({
           success: true,
-          entidades: ENTIDADES_SISTEMA,
+          entidades: ENTIDADES_SISTEMA.map(e => ({
+            nome: e,
+            campos_data: CAMPOS_DATA[e] || CAMPOS_DATA.default,
+            campos_resumo: CAMPOS_RESUMO[e] || CAMPOS_RESUMO.default
+          })),
           total: ENTIDADES_SISTEMA.length,
-          uso: {
-            listar_entidades: 'Lista todas as entidades disponíveis',
-            consultar: 'Consulta registros de uma entidade específica',
-            exportar_completo: 'Exporta todos os dados de todas as entidades',
-            estatisticas: 'Retorna estatísticas de todas as entidades'
+          documentacao: {
+            acoes: {
+              listar_entidades: 'Lista todas as entidades disponíveis',
+              consultar: 'Consulta registros com paginação e filtros',
+              detalhe: 'Busca detalhes completos de um registro específico',
+              exportar_completo: 'Exporta todos os dados com paginação',
+              estatisticas: 'Retorna estatísticas de todas as entidades',
+              buscar: 'Busca otimizada retornando IDs e resumos'
+            },
+            paginacao: {
+              pagina: 'Número da página (padrão: 1)',
+              por_pagina: 'Registros por página (padrão: 50, máximo: 500)'
+            },
+            filtros_data: {
+              data_inicio: 'Data inicial (ISO 8601)',
+              data_fim: 'Data final (ISO 8601)',
+              campo_data: 'Campo de data para filtrar (padrão: created_date)'
+            },
+            filtros_campos: {
+              filtros: 'Objeto com filtros por campo (ex: {"status": "Ativo"})',
+              campos: 'Array de campos específicos para retornar'
+            }
           }
         }, { headers: corsHeaders });
       }
 
       case 'consultar': {
-        // Consulta uma entidade específica
         if (!entidade) {
           return Response.json(
             { error: 'Parâmetro "entidade" é obrigatório' },
@@ -104,54 +157,161 @@ Deno.serve(async (req) => {
 
         if (!ENTIDADES_SISTEMA.includes(entidade)) {
           return Response.json(
-            { error: `Entidade "${entidade}" não encontrada`, entidades_disponiveis: ENTIDADES_SISTEMA },
+            { error: `Entidade "${entidade}" não encontrada` },
             { status: 404, headers: corsHeaders }
           );
         }
 
+        // Construir filtro combinado
+        const filtroCompleto = { ...filtros };
+        
+        // Adicionar filtro de data se especificado
+        if (dataInicio || dataFim) {
+          filtroCompleto[campoData] = {};
+          if (dataInicio) filtroCompleto[campoData].$gte = dataInicio;
+          if (dataFim) filtroCompleto[campoData].$lte = dataFim;
+        }
+
+        // Buscar dados
         let dados;
-        if (Object.keys(filtro).length > 0) {
-          dados = await base44.asServiceRole.entities[entidade].filter(filtro, ordenar, limite);
+        const limite = porPagina + offset + 1; // +1 para verificar se há próxima página
+        
+        if (Object.keys(filtroCompleto).length > 0) {
+          dados = await base44.asServiceRole.entities[entidade].filter(filtroCompleto, ordenar, limite);
         } else {
           dados = await base44.asServiceRole.entities[entidade].list(ordenar, limite);
+        }
+
+        // Aplicar paginação
+        const temProximaPagina = dados.length > offset + porPagina;
+        const dadosPaginados = dados.slice(offset, offset + porPagina);
+
+        // Filtrar campos se especificado
+        const dadosFinais = campos 
+          ? dadosPaginados.map(item => {
+              const itemFiltrado = { id: item.id };
+              campos.forEach(campo => {
+                if (item[campo] !== undefined) itemFiltrado[campo] = item[campo];
+              });
+              return itemFiltrado;
+            })
+          : dadosPaginados;
+
+        return Response.json({
+          success: true,
+          entidade,
+          paginacao: {
+            pagina,
+            por_pagina: porPagina,
+            total_pagina: dadosFinais.length,
+            tem_proxima: temProximaPagina,
+            tem_anterior: pagina > 1
+          },
+          filtros_aplicados: {
+            ordenacao: ordenar,
+            data_inicio: dataInicio,
+            data_fim: dataFim,
+            campo_data: campoData,
+            filtros: Object.keys(filtros).length > 0 ? filtros : null,
+            campos: campos
+          },
+          dados: dadosFinais
+        }, { headers: corsHeaders });
+      }
+
+      case 'detalhe': {
+        if (!entidade) {
+          return Response.json(
+            { error: 'Parâmetro "entidade" é obrigatório' },
+            { status: 400, headers: corsHeaders }
+          );
+        }
+
+        const id = body.id || url.searchParams.get('id');
+        if (!id) {
+          return Response.json(
+            { error: 'Parâmetro "id" é obrigatório' },
+            { status: 400, headers: corsHeaders }
+          );
+        }
+
+        if (!ENTIDADES_SISTEMA.includes(entidade)) {
+          return Response.json(
+            { error: `Entidade "${entidade}" não encontrada` },
+            { status: 404, headers: corsHeaders }
+          );
+        }
+
+        const registros = await base44.asServiceRole.entities[entidade].filter({ id });
+        
+        if (!registros || registros.length === 0) {
+          return Response.json(
+            { error: `Registro com id "${id}" não encontrado` },
+            { status: 404, headers: corsHeaders }
+          );
         }
 
         return Response.json({
           success: true,
           entidade,
-          total: dados.length,
-          limite,
-          ordenacao: ordenar,
-          filtro: Object.keys(filtro).length > 0 ? filtro : null,
-          dados
+          dados: registros[0]
         }, { headers: corsHeaders });
       }
 
       case 'exportar_completo': {
-        // Exporta todos os dados de todas as entidades
+        const entidadesExportar = body.entidades || ENTIDADES_SISTEMA;
+        const paginaExport = parseInt(body.pagina || '1');
+        const porPaginaExport = Math.min(parseInt(body.por_pagina || '1000'), 5000);
+        const offsetExport = (paginaExport - 1) * porPaginaExport;
+
         const dadosExportados = {
           metadata: {
-            versao: "1.0",
+            versao: "2.0",
             dataExportacao: new Date().toISOString(),
             sistema: "Cafe Selecao do Mario",
             exportadoPor: user.email,
-            totalEntidades: ENTIDADES_SISTEMA.length
+            paginacao: {
+              pagina: paginaExport,
+              por_pagina: porPaginaExport
+            }
           },
           dados: {},
-          estatisticas: {}
+          estatisticas: {},
+          paginacao_entidades: {}
         };
 
         let totalRegistros = 0;
 
-        for (const ent of ENTIDADES_SISTEMA) {
+        for (const ent of entidadesExportar) {
+          if (!ENTIDADES_SISTEMA.includes(ent)) continue;
+          
           try {
-            const dados = await base44.asServiceRole.entities[ent].list('-created_date', 10000);
-            dadosExportados.dados[ent] = dados;
-            dadosExportados.estatisticas[ent] = dados.length;
-            totalRegistros += dados.length;
+            // Construir filtro de data se especificado
+            let dados;
+            if (dataInicio || dataFim) {
+              const filtroData = {};
+              filtroData[campoData] = {};
+              if (dataInicio) filtroData[campoData].$gte = dataInicio;
+              if (dataFim) filtroData[campoData].$lte = dataFim;
+              dados = await base44.asServiceRole.entities[ent].filter(filtroData, ordenar, porPaginaExport + offsetExport + 1);
+            } else {
+              dados = await base44.asServiceRole.entities[ent].list(ordenar, porPaginaExport + offsetExport + 1);
+            }
+
+            const temProxima = dados.length > offsetExport + porPaginaExport;
+            const dadosPaginados = dados.slice(offsetExport, offsetExport + porPaginaExport);
+
+            dadosExportados.dados[ent] = dadosPaginados;
+            dadosExportados.estatisticas[ent] = dadosPaginados.length;
+            dadosExportados.paginacao_entidades[ent] = {
+              exportados: dadosPaginados.length,
+              tem_mais: temProxima
+            };
+            totalRegistros += dadosPaginados.length;
           } catch (error) {
             dadosExportados.dados[ent] = [];
             dadosExportados.estatisticas[ent] = 0;
+            dadosExportados.paginacao_entidades[ent] = { erro: error.message };
           }
         }
 
@@ -164,23 +324,27 @@ Deno.serve(async (req) => {
       }
 
       case 'estatisticas': {
-        // Retorna estatísticas de todas as entidades
         const estatisticas = {
           dataConsulta: new Date().toISOString(),
           entidades: {},
           totalGeral: 0
         };
 
-        for (const ent of ENTIDADES_SISTEMA) {
+        // Processar em paralelo para melhor performance
+        const promises = ENTIDADES_SISTEMA.map(async (ent) => {
           try {
-            const dados = await base44.asServiceRole.entities[ent].list('-created_date', 1);
-            // Fazer uma contagem real
-            const todosRegistros = await base44.asServiceRole.entities[ent].list('-created_date', 10000);
-            estatisticas.entidades[ent] = todosRegistros.length;
-            estatisticas.totalGeral += todosRegistros.length;
+            const dados = await base44.asServiceRole.entities[ent].list('-created_date', 10000);
+            return { entidade: ent, count: dados.length };
           } catch (error) {
-            estatisticas.entidades[ent] = 0;
+            return { entidade: ent, count: 0 };
           }
+        });
+
+        const resultados = await Promise.all(promises);
+        
+        for (const { entidade, count } of resultados) {
+          estatisticas.entidades[entidade] = count;
+          estatisticas.totalGeral += count;
         }
 
         return Response.json({
@@ -190,9 +354,9 @@ Deno.serve(async (req) => {
       }
 
       case 'buscar': {
-        // Busca em múltiplas entidades
         const termo = body.termo || url.searchParams.get('termo');
         const entidadesBusca = body.entidades || ENTIDADES_SISTEMA;
+        const limiteBusca = Math.min(parseInt(body.limite || '20'), 100);
 
         if (!termo) {
           return Response.json(
@@ -203,13 +367,14 @@ Deno.serve(async (req) => {
 
         const resultados = {};
         let totalEncontrados = 0;
+        const termoLower = termo.toLowerCase();
 
-        for (const ent of entidadesBusca) {
-          if (!ENTIDADES_SISTEMA.includes(ent)) continue;
+        // Processar em paralelo
+        const promises = entidadesBusca.map(async (ent) => {
+          if (!ENTIDADES_SISTEMA.includes(ent)) return null;
           
           try {
             const dados = await base44.asServiceRole.entities[ent].list('-created_date', 1000);
-            const termoLower = termo.toLowerCase();
             
             const encontrados = dados.filter(item => {
               return Object.values(item).some(valor => {
@@ -218,14 +383,50 @@ Deno.serve(async (req) => {
                 }
                 return false;
               });
-            });
+            }).slice(0, limiteBusca);
 
             if (encontrados.length > 0) {
-              resultados[ent] = encontrados;
-              totalEncontrados += encontrados.length;
+              // Retornar apenas resumo
+              const camposResumo = CAMPOS_RESUMO[ent] || CAMPOS_RESUMO.default;
+              const resumos = encontrados.map(item => {
+                const resumo = { 
+                  id: item.id, 
+                  created_date: item.created_date,
+                  _match_fields: []
+                };
+                
+                // Adicionar campos de resumo
+                camposResumo.forEach(campo => {
+                  if (item[campo] !== undefined) resumo[campo] = item[campo];
+                });
+
+                // Identificar campos que deram match
+                Object.entries(item).forEach(([key, valor]) => {
+                  if (typeof valor === 'string' && valor.toLowerCase().includes(termoLower)) {
+                    resumo._match_fields.push(key);
+                  }
+                });
+
+                return resumo;
+              });
+
+              return { entidade: ent, resultados: resumos, total: encontrados.length };
             }
+            return null;
           } catch (error) {
-            // Ignorar erros
+            return null;
+          }
+        });
+
+        const resultadosPromises = await Promise.all(promises);
+        
+        for (const resultado of resultadosPromises) {
+          if (resultado) {
+            resultados[resultado.entidade] = {
+              resumos: resultado.resultados,
+              total: resultado.total
+            };
+            totalEncontrados += resultado.total;
           }
         }
 
@@ -233,6 +434,8 @@ Deno.serve(async (req) => {
           success: true,
           termo,
           totalEncontrados,
+          entidadesPesquisadas: entidadesBusca.filter(e => ENTIDADES_SISTEMA.includes(e)).length,
+          instrucao: 'Use a ação "detalhe" com entidade e id para obter o registro completo',
           resultados
         }, { headers: corsHeaders });
       }
@@ -241,7 +444,7 @@ Deno.serve(async (req) => {
         return Response.json(
           { 
             error: `Ação "${acao}" não reconhecida`,
-            acoes_disponiveis: ['listar_entidades', 'consultar', 'exportar_completo', 'estatisticas', 'buscar']
+            acoes_disponiveis: ['listar_entidades', 'consultar', 'detalhe', 'exportar_completo', 'estatisticas', 'buscar']
           },
           { status: 400, headers: corsHeaders }
         );
