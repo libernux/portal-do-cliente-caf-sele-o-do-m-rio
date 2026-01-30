@@ -19,8 +19,9 @@ export default function ApiConsultaCard() {
   const [showExamples, setShowExamples] = useState(false);
   const [copiedField, setCopiedField] = useState(null);
 
-  // URL base da API (será a URL do backend function)
-  const apiBaseUrl = `${window.location.origin}/api/apiConsultaDados`;
+  // URL base da API - obtida do ambiente Base44
+  const appId = window.location.hostname.split('.')[0];
+  const apiBaseUrl = `https://app.base44.com/api/v1/apps/${appId}/functions/apiConsultaDados`;
 
   const copyToClipboard = (text, field) => {
     navigator.clipboard.writeText(text);
