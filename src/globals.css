@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Safe Area Insets para dispositivos móveis */
+:root {
+  --sat: env(safe-area-inset-top, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  
+  /* Cores do tema café */
+  --cafe-brown: #6B4423;
+  --cafe-green: #2D5016;
+  --cafe-gold: #C9A961;
+  --cafe-cream: #F5F1E8;
+}
+
+/* Classe para padding seguro no topo */
+.pt-safe {
+  padding-top: var(--sat);
+}
+
+/* Classe para padding seguro na base */
+.pb-safe {
+  padding-bottom: var(--sab);
+}
+
+/* Classe para padding lateral seguro */
+.px-safe {
+  padding-left: var(--sal);
+  padding-right: var(--sar);
+}
+
+/* Classe para todos os paddings seguros */
+.p-safe {
+  padding-top: var(--sat);
+  padding-right: var(--sar);
+  padding-bottom: var(--sab);
+  padding-left: var(--sal);
+}
+
+/* Dark Mode */
+.dark {
+  color-scheme: dark;
+}
+
+.dark body {
+  background-color: #1a1a1a;
+  color: #e5e5e5;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #C9A961;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6B4423;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #4a3a2a;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #6B4423;
+}
+
+/* Transição suave para mudança de tema */
+* {
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Fix para bottom tabs não sobrepor conteúdo no mobile */
+@media (max-width: 768px) {
+  .main-content-with-bottom-tabs {
+    padding-bottom: calc(4rem + var(--sab));
+  }
+}
+
+/* Prevenir scroll bounce no iOS */
+html {
+  overscroll-behavior: none;
+}
+
+/* Viewport height fix para mobile browsers */
+.min-h-screen-safe {
+  min-height: 100vh;
+  min-height: 100dvh;
+}

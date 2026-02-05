@@ -8,7 +8,6 @@ import {
   AlertCircle,
   Calendar,
   Users,
-  Bell,
   Menu,
   LogOut,
   Settings,
@@ -34,121 +33,34 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { base44 } from "@/api/base44Client";
+import MobileBottomTabs from "@/components/layout/MobileBottomTabs";
+import ThemeToggle from "@/components/layout/ThemeToggle";
 
 const navigationItems = [
-  {
-    title: "Dashboard",
-    url: createPageUrl("Dashboard"),
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Tarefas",
-    url: createPageUrl("Tarefas"),
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Logística",
-    url: createPageUrl("Logistica"),
-    icon: Package,
-  },
-  {
-    title: "Estoque",
-    url: createPageUrl("Estoque"),
-    icon: Coffee,
-  },
-  {
-    title: "A Receber",
-    url: createPageUrl("AReceber"),
-    icon: DollarSign,
-  },
-  {
-    title: "Links Clientes",
-    url: createPageUrl("LinksClientes"),
-    icon: LinkIcon,
-  },
-  {
-    title: "Informações Cafés",
-    url: createPageUrl("GerenciarInfosCafe"),
-    icon: Info,
-  },
-  {
-    title: "Submissões Produtores",
-    url: createPageUrl("GerenciarSubmissoes"),
-    icon: Coffee,
-  },
-  {
-    title: "Solicitações Café",
-    url: createPageUrl("SolicitacoesCafe"),
-    icon: FileText,
-  },
-  {
-    title: "Calculadora Eventos",
-    url: createPageUrl("CalculadoraEventos"),
-    icon: Coffee,
-  },
-  {
-    title: "Calculadora Agridrones",
-    url: createPageUrl("CalculadoraAgridrones"),
-    icon: Calculator,
-  },
-  {
-    title: "Calculadora Fornecedores",
-    url: createPageUrl("CalculadoraFornecedores"),
-    icon: Calculator,
-  },
-  {
-    title: "Clube Assinatura",
-    url: createPageUrl("ClubeAssinatura"),
-    icon: Users,
-  },
-  {
-    title: "Cotação de Frete",
-    url: createPageUrl("CotacaoFrete"),
-    icon: Package,
-  },
-  {
-    title: "Integração Yampi",
-    url: createPageUrl("IntegracaoYampi"),
-    icon: ShoppingBag,
-  },
-  {
-    title: "Contratos RPA",
-    url: createPageUrl("ContratosRPA"),
-    icon: FileText,
-  },
-  {
-    title: "Chamados",
-    url: createPageUrl("Problemas"),
-    icon: AlertCircle,
-  },
-  {
-    title: "Agenda",
-    url: createPageUrl("Agenda"),
-    icon: Calendar,
-  },
-  {
-    title: "Relatórios",
-    url: createPageUrl("Relatorios"),
-    icon: FileText,
-  },
-  {
-    title: "Usuários",
-    url: createPageUrl("Usuarios"),
-    icon: Users,
-  },
-  {
-    title: "Configurações",
-    url: createPageUrl("Configuracoes"),
-    icon: Settings,
-  },
-  {
-    title: "Exportar Dados",
-    url: createPageUrl("ExportarDados"),
-    icon: FileText,
-  },
-  ];
+  { title: "Dashboard", url: createPageUrl("Dashboard"), icon: LayoutDashboard },
+  { title: "Tarefas", url: createPageUrl("Tarefas"), icon: LayoutDashboard },
+  { title: "Logística", url: createPageUrl("Logistica"), icon: Package },
+  { title: "Estoque", url: createPageUrl("Estoque"), icon: Coffee },
+  { title: "A Receber", url: createPageUrl("AReceber"), icon: DollarSign },
+  { title: "Links Clientes", url: createPageUrl("LinksClientes"), icon: LinkIcon },
+  { title: "Informações Cafés", url: createPageUrl("GerenciarInfosCafe"), icon: Info },
+  { title: "Submissões Produtores", url: createPageUrl("GerenciarSubmissoes"), icon: Coffee },
+  { title: "Solicitações Café", url: createPageUrl("SolicitacoesCafe"), icon: FileText },
+  { title: "Calculadora Eventos", url: createPageUrl("CalculadoraEventos"), icon: Coffee },
+  { title: "Calculadora Agridrones", url: createPageUrl("CalculadoraAgridrones"), icon: Calculator },
+  { title: "Calculadora Fornecedores", url: createPageUrl("CalculadoraFornecedores"), icon: Calculator },
+  { title: "Clube Assinatura", url: createPageUrl("ClubeAssinatura"), icon: Users },
+  { title: "Cotação de Frete", url: createPageUrl("CotacaoFrete"), icon: Package },
+  { title: "Integração Yampi", url: createPageUrl("IntegracaoYampi"), icon: ShoppingBag },
+  { title: "Contratos RPA", url: createPageUrl("ContratosRPA"), icon: FileText },
+  { title: "Chamados", url: createPageUrl("Problemas"), icon: AlertCircle },
+  { title: "Agenda", url: createPageUrl("Agenda"), icon: Calendar },
+  { title: "Relatórios", url: createPageUrl("Relatorios"), icon: FileText },
+  { title: "Usuários", url: createPageUrl("Usuarios"), icon: Users },
+  { title: "Configurações", url: createPageUrl("Configuracoes"), icon: Settings },
+  { title: "Exportar Dados", url: createPageUrl("ExportarDados"), icon: FileText },
+];
 
-// Páginas públicas que não precisam de autenticação
 const publicPages = ["PortalCliente", "ReservaPublica", "SolicitarPatrocinio", "TabelaPrivateLabel", "Privacy", "Support", "FormularioProdutor", "InfoCafePublico", "MinhaAssinatura", "CafesPublico", "CadastroPermuta"];
 
 export default function Layout({ children, currentPageName }) {
@@ -165,15 +77,12 @@ export default function Layout({ children, currentPageName }) {
         setIsAuthenticated(true);
       } catch (error) {
         setIsAuthenticated(false);
-        
-        // Se não está autenticado e não é página pública, redirecionar para login
         if (!publicPages.includes(currentPageName)) {
           base44.auth.redirectToLogin(window.location.href);
         }
       }
       setIsLoading(false);
     };
-
     loadUser();
   }, [currentPageName]);
 
@@ -181,68 +90,52 @@ export default function Layout({ children, currentPageName }) {
     await base44.auth.logout();
   };
 
-  // Se for página pública, não mostrar o menu
+  // Página pública
   if (publicPages.includes(currentPageName)) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#F5F1E8] to-white">
-        <style>{`
-          :root {
-            --cafe-brown: #6B4423;
-            --cafe-green: #2D5016;
-            --cafe-gold: #C9A961;
-            --cafe-cream: #F5F1E8;
-          }
-        `}</style>
+      <div className="min-h-screen-safe bg-gradient-to-br from-[#F5F1E8] to-white dark:from-gray-900 dark:to-gray-800 pt-safe">
         {children}
       </div>
     );
   }
 
-  // Se está carregando, mostrar loader
+  // Loading
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#F5F1E8] to-white flex items-center justify-center">
+      <div className="min-h-screen-safe bg-gradient-to-br from-[#F5F1E8] to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center pt-safe">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6B4423] mx-auto mb-4"></div>
-          <p className="text-[#8B7355]">Carregando...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6B4423] dark:border-[#C9A961] mx-auto mb-4"></div>
+          <p className="text-[#8B7355] dark:text-gray-400">Carregando...</p>
         </div>
       </div>
     );
   }
 
-  // Se não está autenticado (e já tentou carregar), não renderizar nada
-  // pois o useEffect já redirecionou para login
+  // Não autenticado
   if (!isAuthenticated) {
     return null;
   }
 
   return (
     <SidebarProvider>
-      <style>{`
-        :root {
-          --cafe-brown: #6B4423;
-          --cafe-green: #2D5016;
-          --cafe-gold: #C9A961;
-          --cafe-cream: #F5F1E8;
-        }
-      `}</style>
-      <div className="min-h-screen flex w-full bg-gradient-to-br from-[#F5F1E8] to-white">
-        <Sidebar className="border-r border-[#E5DCC8]">
-          <SidebarHeader className="border-b border-[#E5DCC8] p-6">
+      <div className="min-h-screen-safe flex w-full bg-gradient-to-br from-[#F5F1E8] to-white dark:from-gray-900 dark:to-gray-800">
+        {/* Sidebar - apenas desktop */}
+        <Sidebar className="border-r border-[#E5DCC8] dark:border-gray-700 hidden md:flex">
+          <SidebarHeader className="border-b border-[#E5DCC8] dark:border-gray-700 p-6">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-br from-[#6B4423] to-[#8B5A2B] rounded-xl flex items-center justify-center shadow-md">
                 <Coffee className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h2 className="font-bold text-lg text-[#6B4423]">Café Seleção</h2>
-                <p className="text-xs text-[#8B7355]">do Mário</p>
+                <h2 className="font-bold text-lg text-[#6B4423] dark:text-[#C9A961]">Café Seleção</h2>
+                <p className="text-xs text-[#8B7355] dark:text-gray-400">do Mário</p>
               </div>
             </div>
           </SidebarHeader>
           
           <SidebarContent className="p-3">
             <SidebarGroup>
-              <SidebarGroupLabel className="text-xs font-semibold text-[#8B7355] uppercase tracking-wider px-3 py-2">
+              <SidebarGroupLabel className="text-xs font-semibold text-[#8B7355] dark:text-gray-400 uppercase tracking-wider px-3 py-2">
                 Navegação
               </SidebarGroupLabel>
               <SidebarGroupContent>
@@ -251,10 +144,10 @@ export default function Layout({ children, currentPageName }) {
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton 
                         asChild 
-                        className={`hover:bg-[#6B4423]/10 hover:text-[#6B4423] transition-all duration-200 rounded-lg mb-1 ${
+                        className={`hover:bg-[#6B4423]/10 dark:hover:bg-gray-700 hover:text-[#6B4423] dark:hover:text-[#C9A961] transition-all duration-200 rounded-lg mb-1 ${
                           location.pathname === item.url 
-                            ? 'bg-[#6B4423]/15 text-[#6B4423] font-semibold shadow-sm' 
-                            : 'text-[#5A4A3A]'
+                            ? 'bg-[#6B4423]/15 dark:bg-gray-700 text-[#6B4423] dark:text-[#C9A961] font-semibold shadow-sm' 
+                            : 'text-[#5A4A3A] dark:text-gray-300'
                         }`}
                       >
                         <Link to={item.url} className="flex items-center gap-3 px-3 py-2.5">
@@ -269,7 +162,7 @@ export default function Layout({ children, currentPageName }) {
             </SidebarGroup>
           </SidebarContent>
 
-          <SidebarFooter className="border-t border-[#E5DCC8] p-4">
+          <SidebarFooter className="border-t border-[#E5DCC8] dark:border-gray-700 p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 bg-gradient-to-br from-[#C9A961] to-[#B8935A] rounded-full flex items-center justify-center shadow-sm">
@@ -278,42 +171,57 @@ export default function Layout({ children, currentPageName }) {
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm text-[#6B4423] truncate">
+                  <p className="font-medium text-sm text-[#6B4423] dark:text-[#C9A961] truncate">
                     {user?.full_name || 'Usuário'}
                   </p>
-                  <p className="text-xs text-[#8B7355] truncate">
+                  <p className="text-xs text-[#8B7355] dark:text-gray-400 truncate">
                     {user?.email || 'Carregando...'}
                   </p>
                 </div>
               </div>
-              <button
-                onClick={handleLogout}
-                className="p-2 hover:bg-[#6B4423]/10 rounded-lg transition-colors"
-                title="Sair"
-              >
-                <LogOut className="w-4 h-4 text-[#8B7355]" />
-              </button>
+              <div className="flex items-center gap-1">
+                <ThemeToggle />
+                <button
+                  onClick={handleLogout}
+                  className="p-2 hover:bg-[#6B4423]/10 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  title="Sair"
+                >
+                  <LogOut className="w-4 h-4 text-[#8B7355] dark:text-gray-400" />
+                </button>
+              </div>
             </div>
           </SidebarFooter>
         </Sidebar>
 
         <main className="flex-1 flex flex-col">
-          <header className="bg-white/80 backdrop-blur-sm border-b border-[#E5DCC8] px-6 py-4 md:hidden">
-            <div className="flex items-center gap-4">
-              <SidebarTrigger className="hover:bg-[#6B4423]/10 p-2 rounded-lg transition-colors">
-                <Menu className="w-5 h-5 text-[#6B4423]" />
-              </SidebarTrigger>
+          {/* Header mobile com safe area */}
+          <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-[#E5DCC8] dark:border-gray-700 px-4 py-3 md:hidden pt-safe">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Coffee className="w-5 h-5 text-[#6B4423] dark:text-[#C9A961]" />
+                <h1 className="text-base font-bold text-[#6B4423] dark:text-[#C9A961]">Café Seleção</h1>
+              </div>
               <div className="flex items-center gap-2">
-                <Coffee className="w-5 h-5 text-[#6B4423]" />
-                <h1 className="text-lg font-bold text-[#6B4423]">Café Seleção do Mário</h1>
+                <ThemeToggle />
+                <button
+                  onClick={handleLogout}
+                  className="p-2 hover:bg-[#6B4423]/10 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  title="Sair"
+                >
+                  <LogOut className="w-4 h-4 text-[#8B7355] dark:text-gray-400" />
+                </button>
               </div>
             </div>
           </header>
 
-          <div className="flex-1 overflow-auto">
+          {/* Conteúdo principal com padding para bottom tabs no mobile */}
+          <div className="flex-1 overflow-auto pb-20 md:pb-0">
             {children}
           </div>
         </main>
+
+        {/* Bottom Tabs - apenas mobile */}
+        <MobileBottomTabs />
       </div>
     </SidebarProvider>
   );
