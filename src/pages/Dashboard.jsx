@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Caixa } from "@/entities/Caixa";
 import { Cafe } from "@/entities/Cafe";
 import { Problema } from "@/entities/Problema";
@@ -12,6 +12,7 @@ import NotificationPanel from "../components/dashboard/NotificationPanel";
 import SolicitacoesEventos from "../components/dashboard/SolicitacoesEventos";
 import ApiConsultaCard from "../components/dashboard/ApiConsultaCard";
 import ExportarDadosCard from "../components/dashboard/ExportarDadosCard";
+import PullToRefresh from "../components/layout/PullToRefresh";
 
 export default function Dashboard() {
   const [caixas, setCaixas] = useState([]);
@@ -21,11 +22,7 @@ export default function Dashboard() {
   const [solicitacoes, setSolicitacoes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
       const [caixasData, cafesData, problemasData, agendamentosData, solicitacoesData] = await Promise.all([
@@ -45,7 +42,20 @@ export default function Dashboard() {
       console.error("Erro ao carregar dados:", error);
     }
     setIsLoading(false);
-  };
+  }, []);
+
+  useEffect(() => {
+    loadData();
+    
+    // Listener para tab-refresh
+    const handleTabRefresh = (e) => {
+      if (e.detail === "Home") {
+        loadData();
+      }
+    };
+    window.addEventListener('tab-refresh', handleTabRefresh);
+    return () => window.removeEventListener('tab-refresh', handleTabRefresh);
+  }, [loadData]);
 
   const getPesoEmbalagem = (embalagem) => {
     const pesos = {
@@ -76,8 +86,9 @@ export default function Dashboard() {
   ).length;
 
   return (
-    <div className="min-h-screen p-6 md:p-8">
-      <div className="max-w-7xl mx-auto">
+    <PullToRefresh onRefresh={loadData} className="min-h-screen">
+      <div className="p-6 md:p-8">
+        <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-[#6B4423] mb-2">
@@ -142,7 +153,8 @@ export default function Dashboard() {
             <ApiConsultaCard />
           </div>
         </div>
+        </div>
       </div>
-    </div>
+    </PullToRefresh>
   );
 }

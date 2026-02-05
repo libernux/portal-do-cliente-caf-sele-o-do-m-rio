@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Cafe } from "@/entities/Cafe";
 import { Cliente } from "@/entities/Cliente";
 import { ReservaCafe } from "@/entities/ReservaCafe";
@@ -16,6 +15,7 @@ import ReservasModal from "../components/estoque/ReservasModal";
 import ReservaEditModal from "../components/estoque/ReservaEditModal";
 import ReservasTab from "../components/estoque/ReservasTab";
 import AdicionarEstoqueModal from "../components/estoque/AdicionarEstoqueModal";
+import PullToRefresh from "../components/layout/PullToRefresh";
 
 export default function Estoque() {
   const [cafes, setCafes] = useState([]);
@@ -37,9 +37,31 @@ export default function Estoque() {
   const [showAdicionarEstoque, setShowAdicionarEstoque] = useState(false);
   const [cafeParaAdicionar, setCafeParaAdicionar] = useState(null);
 
+  const loadData = useCallback(async () => {
+    setIsLoading(true);
+    const [cafesData, clientesData, reservasData] = await Promise.all([
+      Cafe.list("-created_date"),
+      Cliente.list("-created_date"),
+      ReservaCafe.list("-created_date")
+    ]);
+    setCafes(cafesData);
+    setClientes(clientesData);
+    setReservas(reservasData);
+    setIsLoading(false);
+  }, []);
+
   useEffect(() => {
     loadData();
-  }, []);
+    
+    // Listener para tab-refresh
+    const handleTabRefresh = (e) => {
+      if (e.detail === "Estoque") {
+        loadData();
+      }
+    };
+    window.addEventListener('tab-refresh', handleTabRefresh);
+    return () => window.removeEventListener('tab-refresh', handleTabRefresh);
+  }, [loadData]);
 
   useEffect(() => {
     let filtered = cafes;
@@ -58,27 +80,23 @@ export default function Estoque() {
     setFilteredCafes(filtered);
   }, [cafes, searchTerm, formaFilter]);
 
-  const loadData = async () => {
-    setIsLoading(true);
-    const [cafesData, clientesData, reservasData] = await Promise.all([
-      Cafe.list("-created_date"),
-      Cliente.list("-created_date"),
-      ReservaCafe.list("-created_date") // Fetch all reservations to allow filtering by status later
-    ]);
-    setCafes(cafesData);
-    setClientes(clientesData);
-    setReservas(reservasData);
-    setIsLoading(false);
-  };
-
   const handleSave = async (data) => {
+    // Optimistic UI update
+    if (selectedCafe) {
+      setCafes(prev => prev.map(c => c.id === selectedCafe.id ? { ...c, ...data } : c));
+    } else {
+      const tempId = `temp-${Date.now()}`;
+      setCafes(prev => [{ id: tempId, ...data }, ...prev]);
+    }
+    setShowForm(false);
+    setSelectedCafe(null);
+    
+    // Persistir no backend
     if (selectedCafe) {
       await Cafe.update(selectedCafe.id, data);
     } else {
       await Cafe.create(data);
     }
-    setShowForm(false);
-    setSelectedCafe(null);
     loadData();
   };
 
@@ -396,8 +414,9 @@ export default function Estoque() {
   };
 
   return (
-    <div className="min-h-screen p-6 md:p-8">
-      <div className="max-w-7xl mx-auto">
+    <PullToRefresh onRefresh={loadData} className="min-h-screen">
+      <div className="p-6 md:p-8">
+        <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-[#6B4423] mb-2">
@@ -580,7 +599,8 @@ export default function Estoque() {
           cafe={cafeParaAdicionar}
           onSave={handleSalvarEstoque}
         />
+        </div>
       </div>
-    </div>
+    </PullToRefresh>
   );
 }
