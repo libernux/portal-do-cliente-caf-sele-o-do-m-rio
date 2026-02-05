@@ -47,15 +47,15 @@ export default function MobileBottomTabs() {
   const isMoreActive = moreItems.some(item => location.pathname === item.url);
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white dark:bg-gray-900 border-t border-[#E5DCC8] dark:border-gray-700 pb-safe">
-      <div className="flex items-center justify-around h-16">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white dark:bg-gray-900 border-t border-[#E5DCC8] dark:border-gray-700 pb-safe select-none">
+      <div className="flex items-center justify-around h-16 select-none">
         {mainTabItems.map((item) => {
           const isActive = location.pathname === item.url;
           return (
             <Link
               key={item.title}
               to={item.url}
-              className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
+              className={`flex flex-col items-center justify-center flex-1 h-full transition-colors select-none ${
                 isActive 
                   ? 'text-[#6B4423] dark:text-[#C9A961]' 
                   : 'text-[#8B7355] dark:text-gray-400'
@@ -74,7 +74,7 @@ export default function MobileBottomTabs() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
-              className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
+              className={`flex flex-col items-center justify-center flex-1 h-full transition-colors select-none ${
                 isMoreActive 
                   ? 'text-[#6B4423] dark:text-[#C9A961]' 
                   : 'text-[#8B7355] dark:text-gray-400'

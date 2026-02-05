@@ -99,3 +99,17 @@ html {
   min-height: 100vh;
   min-height: 100dvh;
 }
+
+/* Desabilitar seleção de texto em elementos de navegação */
+nav, button, .select-none {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Desabilitar highlight de tap em elementos interativos no mobile */
+a, button, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+}

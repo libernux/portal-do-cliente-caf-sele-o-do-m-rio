@@ -16,16 +16,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom"; // Added
-import { createPageUrl } from "@/utils"; // Added
-import { base44 } from "@/api/base44Client"; // Added
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
+import { base44 } from "@/api/base44Client";
+import DeleteAccountSection from "@/components/configuracoes/DeleteAccountSection";
 
 export default function Configuracoes() {
   const [responsaveis, setResponsaveis] = useState([]);
   const [configuracoes, setConfiguracoes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [whatsappUrl, setWhatsappUrl] = useState(""); // Added
+  const [whatsappUrl, setWhatsappUrl] = useState("");
+  const [currentUser, setCurrentUser] = useState(null);
   const [formData, setFormData] = useState({
     nome: "",
     email: "",
@@ -103,6 +105,12 @@ export default function Configuracoes() {
       // Gerar URL do WhatsApp
       const url = base44.agents.getWhatsAppConnectURL('notificacoes_whatsapp');
       setWhatsappUrl(url);
+
+      // Carregar usuário atual
+      try {
+        const user = await base44.auth.me();
+        setCurrentUser(user);
+      } catch (e) {}
 
       setIsLoading(false);
     };
@@ -183,9 +191,13 @@ export default function Configuracoes() {
               <Bell className="w-4 h-4" />
               Notificações
             </TabsTrigger>
-            <TabsTrigger value="whatsapp" className="gap-2"> {/* Added */}
+            <TabsTrigger value="whatsapp" className="gap-2">
               <MessageSquare className="w-4 h-4" />
               WhatsApp
+            </TabsTrigger>
+            <TabsTrigger value="conta" className="gap-2">
+              <User className="w-4 h-4" />
+              Conta
             </TabsTrigger>
           </TabsList>
 
@@ -688,6 +700,40 @@ export default function Configuracoes() {
                 </Card>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Tab Conta */}
+          <TabsContent value="conta" className="space-y-6">
+            <Card className="border-[#E5DCC8]">
+              <CardHeader className="border-b border-[#E5DCC8]">
+                <CardTitle className="text-[#6B4423] flex items-center gap-2">
+                  <User className="w-5 h-5" />
+                  Informações da Conta
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-[#8B7355]">Nome</Label>
+                    <p className="text-[#6B4423] font-medium">{currentUser?.full_name || '-'}</p>
+                  </div>
+                  <div>
+                    <Label className="text-[#8B7355]">Email</Label>
+                    <p className="text-[#6B4423] font-medium">{currentUser?.email || '-'}</p>
+                  </div>
+                  <div>
+                    <Label className="text-[#8B7355]">Função</Label>
+                    <p className="text-[#6B4423] font-medium capitalize">{currentUser?.role || '-'}</p>
+                  </div>
+                  <div>
+                    <Label className="text-[#8B7355]">Cargo</Label>
+                    <p className="text-[#6B4423] font-medium">{currentUser?.cargo || '-'}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <DeleteAccountSection user={currentUser} />
           </TabsContent>
         </Tabs>
       </div>

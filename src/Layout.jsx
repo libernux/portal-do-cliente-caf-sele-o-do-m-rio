@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
   LayoutDashboard,
@@ -16,7 +16,8 @@ import {
   Calculator,
   DollarSign,
   Info,
-  ShoppingBag
+  ShoppingBag,
+  ChevronLeft
 } from "lucide-react";
 import {
   Sidebar,
@@ -63,11 +64,18 @@ const navigationItems = [
 
 const publicPages = ["PortalCliente", "ReservaPublica", "SolicitarPatrocinio", "TabelaPrivateLabel", "Privacy", "Support", "FormularioProdutor", "InfoCafePublico", "MinhaAssinatura", "CafesPublico", "CadastroPermuta"];
 
+// Telas raiz (não mostram botão voltar)
+const rootScreens = ["Dashboard", "Logistica", "Estoque", "Problemas"];
+
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const [user, setUser] = React.useState(null);
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
+
+  const isRootScreen = rootScreens.includes(currentPageName);
+  const canGoBack = !isRootScreen && window.history.length > 1;
 
   React.useEffect(() => {
     const loadUser = async () => {
@@ -194,10 +202,19 @@ export default function Layout({ children, currentPageName }) {
         </Sidebar>
 
         <main className="flex-1 flex flex-col">
-          {/* Header mobile com safe area */}
-          <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-[#E5DCC8] dark:border-gray-700 px-4 py-3 md:hidden pt-safe">
+          {/* Header mobile com safe area e botão voltar */}
+          <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-[#E5DCC8] dark:border-gray-700 px-4 py-3 md:hidden pt-safe select-none">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                {canGoBack && (
+                  <button
+                    onClick={() => navigate(-1)}
+                    className="p-2 -ml-2 hover:bg-[#6B4423]/10 dark:hover:bg-gray-700 rounded-lg transition-colors select-none"
+                    title="Voltar"
+                  >
+                    <ChevronLeft className="w-5 h-5 text-[#6B4423] dark:text-[#C9A961]" />
+                  </button>
+                )}
                 <Coffee className="w-5 h-5 text-[#6B4423] dark:text-[#C9A961]" />
                 <h1 className="text-base font-bold text-[#6B4423] dark:text-[#C9A961]">Café Seleção</h1>
               </div>
@@ -205,7 +222,7 @@ export default function Layout({ children, currentPageName }) {
                 <ThemeToggle />
                 <button
                   onClick={handleLogout}
-                  className="p-2 hover:bg-[#6B4423]/10 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className="p-2 hover:bg-[#6B4423]/10 dark:hover:bg-gray-700 rounded-lg transition-colors select-none"
                   title="Sair"
                 >
                   <LogOut className="w-4 h-4 text-[#8B7355] dark:text-gray-400" />
