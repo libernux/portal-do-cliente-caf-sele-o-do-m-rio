@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
   LayoutDashboard,
@@ -43,8 +43,20 @@ const moreItems = [
 
 export default function MobileBottomTabs() {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const isMoreActive = moreItems.some(item => location.pathname === item.url);
+
+  // Handler para tap em tab ativa - volta para raiz
+  const handleTabClick = (e, item, isActive) => {
+    if (isActive) {
+      e.preventDefault();
+      // Se já está na tab, força reload da página (volta ao estado inicial)
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Dispara evento customizado para refresh
+      window.dispatchEvent(new CustomEvent('tab-refresh', { detail: item.title }));
+    }
+  };
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white dark:bg-gray-900 border-t border-[#E5DCC8] dark:border-gray-700 pb-safe select-none">
@@ -55,6 +67,7 @@ export default function MobileBottomTabs() {
             <Link
               key={item.title}
               to={item.url}
+              onClick={(e) => handleTabClick(e, item, isActive)}
               className={`flex flex-col items-center justify-center flex-1 h-full transition-colors select-none ${
                 isActive 
                   ? 'text-[#6B4423] dark:text-[#C9A961]' 
