@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Problema } from "@/entities/Problema";
 import { EtiquetaProblema } from "@/entities/EtiquetaProblema";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import ProblemaStats from "../components/problemas/ProblemaStats";
 import ProblemaKanban from "../components/problemas/ProblemaKanban";
 import EtiquetasManager from "../components/problemas/EtiquetasManager";
 import ProblemaDetalhesModal from "../components/problemas/ProblemaDetalhesModal";
+import PullToRefresh from "../components/layout/PullToRefresh";
 
 export default function Problemas() {
   const [problemas, setProblemas] = useState([]);
@@ -28,9 +29,29 @@ export default function Problemas() {
   const [showDetalhes, setShowDetalhes] = useState(false);
   const [problemaDetalhes, setProblemaDetalhes] = useState(null);
 
+  const loadData = useCallback(async () => {
+    setIsLoading(true);
+    const [problemasData, etiquetasData] = await Promise.all([
+      Problema.list("-created_date"),
+      EtiquetaProblema.list()
+    ]);
+    setProblemas(problemasData);
+    setEtiquetas(etiquetasData);
+    setIsLoading(false);
+  }, []);
+
   useEffect(() => {
     loadData();
-  }, []);
+    
+    // Listener para tab-refresh
+    const handleTabRefresh = (e) => {
+      if (e.detail === "Chamados") {
+        loadData();
+      }
+    };
+    window.addEventListener('tab-refresh', handleTabRefresh);
+    return () => window.removeEventListener('tab-refresh', handleTabRefresh);
+  }, [loadData]);
 
   useEffect(() => {
     let filtered = problemas;
@@ -60,24 +81,18 @@ export default function Problemas() {
     setFilteredProblemas(filtered);
   }, [problemas, searchTerm, statusFilter, viewMode, etiquetas]);
 
-  const loadData = async () => {
-    setIsLoading(true);
-    const [problemasData, etiquetasData] = await Promise.all([
-      Problema.list("-created_date"),
-      EtiquetaProblema.list()
-    ]);
-    setProblemas(problemasData);
-    setEtiquetas(etiquetasData);
-    setIsLoading(false);
-  };
-
   const handleSave = async (data) => {
     let problemaSalvo;
     
+    // Optimistic UI update
     if (selectedProblema) {
+      setProblemas(prev => prev.map(p => p.id === selectedProblema.id ? { ...p, ...data } : p));
       await Problema.update(selectedProblema.id, data);
       problemaSalvo = { ...selectedProblema, ...data };
     } else {
+      const tempId = `temp-${Date.now()}`;
+      const tempProblema = { id: tempId, ...data, created_date: new Date().toISOString() };
+      setProblemas(prev => [tempProblema, ...prev]);
       problemaSalvo = await Problema.create(data);
     }
     
@@ -146,8 +161,9 @@ export default function Problemas() {
   };
 
   return (
-    <div className="min-h-screen p-6 md:p-8">
-      <div className="max-w-7xl mx-auto">
+    <PullToRefresh onRefresh={loadData} className="min-h-screen">
+      <div className="p-6 md:p-8">
+        <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-[#6B4423] mb-2">
@@ -342,7 +358,8 @@ export default function Problemas() {
           }}
           onUpdate={loadData}
         />
+        </div>
       </div>
-    </div>
+    </PullToRefresh>
   );
 }

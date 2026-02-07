@@ -120,4 +120,35 @@ a, button, [role="button"] {
   .grid-cols-2 {
     grid-template-columns: 1fr !important;
   }
+  
+  /* Garantir padding mínimo em telas pequenas */
+  .p-6 {
+    padding: 1rem !important;
+  }
+  
+  /* Fonte menor em telas muito pequenas */
+  .text-3xl, .text-4xl {
+    font-size: 1.5rem !important;
+  }
+}
+
+/* Touch targets mínimos de 44px para acessibilidade */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Checkbox com área de toque adequada */
+input[type="checkbox"] {
+  min-width: 20px;
+  min-height: 20px;
+}
+
+/* Links e itens de lista com padding adequado */
+@media (max-width: 768px) {
+  .list-item-touch {
+    min-height: 48px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
 }

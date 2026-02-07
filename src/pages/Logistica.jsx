@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Caixa } from "@/entities/Caixa";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +9,7 @@ import CaixaCard from "../components/logistica/CaixaCard";
 import CaixaFormModal from "../components/logistica/CaixaFormModal";
 import ScanLabelModal from "../components/logistica/ScanLabelModal";
 import BatchImageUploadModal from "../components/logistica/BatchImageUploadModal";
+import PullToRefresh from "../components/layout/PullToRefresh";
 
 export default function Logistica() {
   const [caixas, setCaixas] = useState([]);
@@ -24,9 +24,25 @@ export default function Logistica() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedIds, setSelectedIds] = useState([]);
 
+  const loadCaixas = useCallback(async () => {
+    setIsLoading(true);
+    const data = await Caixa.list("-created_date");
+    setCaixas(data);
+    setIsLoading(false);
+  }, []);
+
   useEffect(() => {
     loadCaixas();
-  }, []);
+    
+    // Listener para tab-refresh
+    const handleTabRefresh = (e) => {
+      if (e.detail === "Logística") {
+        loadCaixas();
+      }
+    };
+    window.addEventListener('tab-refresh', handleTabRefresh);
+    return () => window.removeEventListener('tab-refresh', handleTabRefresh);
+  }, [loadCaixas]);
 
   useEffect(() => {
     let filtered = caixas;
@@ -46,22 +62,24 @@ export default function Logistica() {
     setFilteredCaixas(filtered);
   }, [caixas, searchTerm, statusFilter]);
 
-  const loadCaixas = async () => {
-    setIsLoading(true);
-    const data = await Caixa.list("-created_date");
-    setCaixas(data);
-    setIsLoading(false);
-  };
-
   const handleSave = async (data) => {
+    // Optimistic UI update
+    if (selectedCaixa) {
+      setCaixas(prev => prev.map(c => c.id === selectedCaixa.id ? { ...c, ...data } : c));
+    } else {
+      const tempId = `temp-${Date.now()}`;
+      setCaixas(prev => [{ id: tempId, ...data }, ...prev]);
+    }
+    setShowForm(false);
+    setSelectedCaixa(null);
+    setScannedData(null);
+    
+    // Persistir no backend
     if (selectedCaixa) {
       await Caixa.update(selectedCaixa.id, data);
     } else {
       await Caixa.create(data);
     }
-    setShowForm(false);
-    setSelectedCaixa(null);
-    setScannedData(null);
     loadCaixas();
   };
 
@@ -117,8 +135,9 @@ export default function Logistica() {
   };
 
   return (
-    <div className="min-h-screen p-6 md:p-8">
-      <div className="max-w-7xl mx-auto">
+    <PullToRefresh onRefresh={loadCaixas} className="min-h-screen">
+      <div className="p-6 md:p-8">
+        <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-[#6B4423] mb-2">
@@ -282,7 +301,8 @@ export default function Logistica() {
           onSave={handleSave}
           caixa={selectedCaixa || scannedData}
         />
+        </div>
       </div>
-    </div>
+    </PullToRefresh>
   );
 }

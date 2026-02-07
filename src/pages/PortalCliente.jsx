@@ -194,9 +194,9 @@ export default function PortalCliente() {
   const novasInteracoesCount = problemas.filter(p => p.tem_novas_atualizacoes).length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F5F1E8] to-white">
+    <div className="min-h-screen-safe bg-gradient-to-br from-[#F5F1E8] to-white dark:from-gray-900 dark:to-gray-800">
       {/* Header Público */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-[#E5DCC8] px-6 py-4 mb-8">
+      <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-[#E5DCC8] dark:border-gray-700 px-6 py-4 mb-8 pt-safe">
         <div className="max-w-5xl mx-auto flex items-center justify-center">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-[#6B4423] to-[#8B5A2B] rounded-xl flex items-center justify-center shadow-md">
@@ -661,17 +661,17 @@ export default function PortalCliente() {
       </div>
 
       {/* Footer com Links Obrigatórios */}
-      <footer className="bg-white border-t border-[#E5DCC8] py-6 mt-12">
+      <footer className="bg-white dark:bg-gray-900 border-t border-[#E5DCC8] dark:border-gray-700 py-6 mt-12 pb-safe">
         <div className="max-w-7xl mx-auto px-6 text-center">
-          <div className="flex flex-wrap justify-center items-center gap-4 text-sm text-[#8B7355]">
-            <a href="/Privacy" className="hover:text-[#6B4423] hover:underline font-medium">
+          <div className="flex flex-wrap justify-center items-center gap-4 text-sm text-[#8B7355] dark:text-gray-400">
+            <a href="/Privacy" className="hover:text-[#6B4423] dark:hover:text-[#C9A961] hover:underline font-medium min-h-[44px] flex items-center">
               Política de Privacidade
             </a>
-            <span>•</span>
-            <a href="/Support" className="hover:text-[#6B4423] hover:underline font-medium">
+            <span className="hidden sm:inline">•</span>
+            <a href="/Support" className="hover:text-[#6B4423] dark:hover:text-[#C9A961] hover:underline font-medium min-h-[44px] flex items-center">
               Suporte
             </a>
-            <span>•</span>
+            <span className="hidden sm:inline">•</span>
             <span>© {new Date().getFullYear()} Café Seleção do Mário</span>
           </div>
         </div>
