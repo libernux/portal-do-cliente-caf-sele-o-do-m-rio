@@ -113,3 +113,11 @@ nav, button, .select-none {
 a, button, [role="button"] {
   -webkit-tap-highlight-color: transparent;
 }
+
+/* Grids responsivos para telas muito pequenas (<360px) */
+@media (max-width: 359px) {
+  .grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-4,
+  .grid-cols-2 {
+    grid-template-columns: 1fr !important;
+  }
+}
