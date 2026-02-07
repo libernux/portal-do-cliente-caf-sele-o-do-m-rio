@@ -4,9 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Privacy() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F5F1E8] to-white">
+    <div className="min-h-screen-safe bg-gradient-to-br from-[#F5F1E8] to-white dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
-      <header className="bg-gradient-to-r from-[#6B4423] to-[#8B5A2B] text-white py-8 shadow-lg">
+      <header className="bg-gradient-to-r from-[#6B4423] to-[#8B5A2B] text-white py-8 shadow-lg pt-safe">
         <div className="max-w-4xl mx-auto px-6">
           <div className="flex items-center gap-4 mb-4">
             <div className="w-14 h-14 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center">
@@ -210,17 +210,17 @@ export default function Privacy() {
         </Card>
 
         {/* Footer Links */}
-        <div className="text-center space-y-3">
+        <div className="text-center space-y-3 pb-safe">
           <a 
             href="/" 
-            className="text-[#6B4423] hover:underline font-medium"
+            className="text-[#6B4423] dark:text-[#C9A961] hover:underline font-medium min-h-[44px] inline-flex items-center"
           >
             ← Voltar para a página inicial
           </a>
-          <div className="text-sm text-[#8B7355]">
-            <a href="/Support" className="hover:underline">Suporte</a>
-            {" • "}
-            <a href="/Privacy" className="hover:underline">Privacidade</a>
+          <div className="text-sm text-[#8B7355] dark:text-gray-400 flex flex-wrap justify-center items-center gap-2">
+            <a href="/Support" className="hover:underline min-h-[44px] flex items-center">Suporte</a>
+            <span className="hidden sm:inline">•</span>
+            <a href="/Privacy" className="hover:underline min-h-[44px] flex items-center">Privacidade</a>
           </div>
         </div>
       </div>
