@@ -12,93 +12,151 @@ import {
 
 const dadosExemplo = {
   cafes: [
-    { nome: "Alma Gourmet", forma: "Moído", localizacao: "Vila Velha", origem: "Alto Caxixe - Venda Nova do Imigrante", torra: "Média", estoque_por_embalagem: { "250g": 0, "500g": 0, "1kg": 0 }, is_private_label: true, precos_private_label: { "250g": 25, "500g": 50, "1kg": 100 } },
-    { nome: "Intenso", forma: "Grão", localizacao: "Vila Velha", origem: "Alto Caxixe - Venda Nova do Imigrante", torra: "Média", estoque_por_embalagem: { "250g": 0 }, is_private_label: true, precos_private_label: { "250g": 35 } },
-    { nome: "Chocolate", forma: "Grão", localizacao: "Vila Velha", estoque_por_embalagem: { "250g": 0 }, is_private_label: true, precos_private_label: { "250g": 35 } },
-    { nome: "Amendoado", forma: "Grão", localizacao: "Vila Velha" }
+    { nome: "Alma Gourmet", forma: "Moído", localizacao: "Vila Velha", origem: "Alto Caxixe - Venda Nova do Imigrante", torra: "Média", estoque_por_embalagem: { "10g": 0, "18g": 0, "100g": 0, "250g": 0, "500g": 0, "1kg": 0 }, embalagens_disponiveis: ["500g", "1kg", "250g"], is_private_label: true, precos_private_label: { "10g": 0, "18g": 0, "100g": 0, "250g": 25, "500g": 50, "1kg": 100 } },
+    { nome: "Intenso", forma: "Grão", localizacao: "Vila Velha", origem: "Alto Caxixe - Venda Nova do Imigrante", torra: "Média", estoque_por_embalagem: { "250g": 0 }, embalagens_disponiveis: ["250g"], is_private_label: true, precos_private_label: { "250g": 35 } },
+    { nome: "Chocolate", forma: "Grão", localizacao: "Vila Velha", estoque_por_embalagem: { "250g": 0 }, embalagens_disponiveis: ["250g"], is_private_label: true, precos_private_label: { "250g": 35 } },
+    { nome: "Cítrico", forma: "Grão", localizacao: "Vila Velha", torra: "Média", estoque_por_embalagem: { "250g": 0 }, embalagens_disponiveis: ["250g"], is_private_label: true, precos_private_label: { "250g": 35 } },
+    { nome: "Bourbon Amarelo", forma: "Grão", localizacao: "Vila Velha", estoque_por_embalagem: { "250g": 0 }, embalagens_disponiveis: ["250g"] },
+    { nome: "Frutado", forma: "Grão", localizacao: "Vila Velha", estoque_por_embalagem: { "250g": 0 }, embalagens_disponiveis: ["250g"], is_private_label: true, precos_private_label: { "250g": 35 } },
+    { nome: "Amendoado", forma: "Grão", localizacao: "Vila Velha", quantidade_pacotes: 116, estoque_por_embalagem: { "250g": 0, "500g": 58 }, embalagens_disponiveis: ["250g", "500g"], is_private_label: true, precos_private_label: { "250g": 35, "500g": 60 } },
+    { nome: "Melaço de Cana", forma: "Grão", localizacao: "Vila Velha", quantidade_pacotes: 78, estoque_por_embalagem: { "250g": 0, "500g": 2 }, embalagens_disponiveis: ["250g", "500g"], is_private_label: true, precos_private_label: { "250g": 40, "500g": 75 } }
   ],
   problemas: [
-    { nome_cliente: "Henery Garção", email_cliente: "hgarcao@yahoo.com.br", telefone_cliente: "27992035992", descricao: "Atraso na entrega da remessa referente ao mês de JANEIRO...", tipo: "Logística", prioridade: "Média", status: "Aberto", data_abertura: "2026-01-28" },
-    { nome_cliente: "Keylla Cunha", email_cliente: "keyllafcunha@gmail.com", telefone_cliente: "27998377920", descricao: "Compra dia 08/10 entregue em endereço errado...", tipo: "Logística", prioridade: "Urgente", status: "Aberto", data_abertura: "2025-11-12" }
+    { nome_cliente: "Henery Garção", email_cliente: "hgarcao@yahoo.com.br", telefone_cliente: "27992035992", descricao: "Reforço as tentativas de contato anteriores sobre o atraso na entrega da remessa referente ao mês de JANEIRO, conforme contrato de prestação de serviços/assinatura.", tipo: "Logística", prioridade: "Média", status: "Aberto", data_abertura: "2026-01-28" },
+    { nome_cliente: "Keylla Cunha", email_cliente: "keyllafcunha@gmail.com", telefone_cliente: "27998377920", descricao: "Fiz minha compra pelo site no dia 08/10 e até hoje 12/11 não recebi a compra pois foi entregue em um endereço errado.", tipo: "Logística", prioridade: "Urgente", status: "Aberto", data_abertura: "2025-11-12" },
+    { nome_cliente: "Keylla", email_cliente: "keyllafcunha@gmail.com", descricao: "Fiz minha compra dia 08/10 e no dia 14/10 foi entregue no endereço errado, um endereço antigo meu.", tipo: "Logística", prioridade: "Urgente", status: "Aberto", data_abertura: "2025-11-07" },
+    { nome_cliente: "Henery", email_cliente: "hgarcao@yahoo.com.br", telefone_cliente: "27992035992", descricao: "Reforço as tentativas de contato anteriores sobre o atraso na entrega da remessa referente ao mês de OUTUBRO.", tipo: "Logística", prioridade: "Alta", status: "Aberto", data_abertura: "2025-11-07" },
+    { nome_cliente: "Weslley Aguiar", email_cliente: "libernux@gmail.com", telefone_cliente: "27988946322", descricao: "Teste de chamado interno.", tipo: "Outro", prioridade: "Média", status: "Aberto", data_abertura: "2025-11-07" }
   ],
   tarefas: [
-    { titulo: "Pedido Findes", descricao: "Acompanhar email para o 2 pedido da findes, falar com daiane", status: "Em Revisão", prioridade: "Urgente", responsavel: "Weslley", tipo: "Atendimento", prazo: "2025-10-12", tempo_estimado: 48 }
+    { titulo: "Pedido Findes", descricao: "Acompanhar email para o 2 pedido da findes, falar com daiane", status: "Em Revisão", prioridade: "Urgente", responsavel: "Weslley", tipo: "Atendimento", prazo: "2025-10-12", data_conclusao: "2025-10-06", tempo_estimado: 48 }
   ],
   agendamentos: [
-    { titulo: "Reunião com cliente Gourmet Express", descricao: "Apresentação de novos produtos e renovação de contrato", data_inicio: "2025-01-22T14:00:00", data_fim: "2025-01-22T16:00:00", local: "Escritório do cliente", tipo: "Visita Cliente", participantes: ["Mário"], status: "Confirmado" },
-    { titulo: "Degustação com novo fornecedor", descricao: "Avaliar novos lotes de café especial da região de Caparaó", data_inicio: "2025-01-25T10:00:00", data_fim: "2025-01-25T12:00:00", local: "Vila Velha - Sala de Degustação", tipo: "Degustação", participantes: ["Mário", "Fernando"], status: "Agendado" }
+    { titulo: "Reunião com cliente Gourmet Express", descricao: "Apresentação de novos produtos e renovação de contrato", data_inicio: "2025-01-22T14:00:00", data_fim: "2025-01-22T16:00:00", local: "Escritório do cliente", tipo: "Visita Cliente", participantes: ["Mário"], notificar_participantes: true, status: "Confirmado" },
+    { titulo: "Degustação com novo fornecedor", descricao: "Avaliar novos lotes de café especial da região de Caparaó", data_inicio: "2025-01-25T10:00:00", data_fim: "2025-01-25T12:00:00", local: "Vila Velha - Sala de Degustação", tipo: "Degustação", participantes: ["Mário", "Fernando"], notificar_participantes: true, status: "Agendado" }
   ],
   clientes: [
     { nome: "Aurélio", localizacao: "Vila Velha", ativo: true },
     { nome: "Dani Pimenta", localizacao: "Vila Velha", ativo: true },
     { nome: "Águia Branca", localizacao: "Vila Velha", ativo: true },
+    { nome: "Findes", localizacao: "Vila Velha", ativo: true },
+    { nome: "Lu Barista", localizacao: "Vila Velha", ativo: true },
+    { nome: "Perfil Café", localizacao: "Vila Velha", ativo: true },
     { nome: "Sicoob Central", localizacao: "Vila Velha", ativo: true }
   ],
   reservas: [
     { cliente_nome: "Sicoob Central", cafe_nome: "Amendoado", cafe_forma: "Grão", embalagem: "500g", quantidade_pacotes: 30, data_reserva: "2025-11-14", status: "Ativa", observacoes: "Evento dia 19" },
     { cliente_nome: "Sicoob Central", cafe_nome: "Amendoado", cafe_forma: "Grão", embalagem: "500g", quantidade_pacotes: 12, data_reserva: "2025-11-14", status: "Ativa", observacoes: "Faturamento vai ser por outra associação" },
-    { cliente_nome: "Sicoob Central", cafe_nome: "Amendoado", cafe_forma: "Grão", embalagem: "500g", quantidade_pacotes: 16, data_reserva: "2025-11-05", status: "Entregue" }
+    { cliente_nome: "Sicoob Central", cafe_nome: "Amendoado", cafe_forma: "Grão", embalagem: "500g", quantidade_pacotes: 16, data_reserva: "2025-11-05", data_entrega: "2025-11-05", status: "Entregue" },
+    { cliente_nome: "Perfil Café", cafe_nome: "Amendoado", cafe_forma: "Grão", embalagem: "500g", quantidade_pacotes: 10, data_reserva: "2025-11-11", data_entrega: "2025-11-11", status: "Entregue" },
+    { cliente_nome: "Lu Barista", cafe_nome: "Melaço de Cana", cafe_forma: "Grão", embalagem: "500g", quantidade_pacotes: 20, data_reserva: "2025-10-28", data_entrega: "2025-10-28", status: "Entregue" },
+    { cliente_nome: "Dani Pimenta", cafe_nome: "Amendoado", cafe_forma: "Grão", embalagem: "500g", quantidade_pacotes: 32, data_reserva: "2025-10-17", data_entrega: "2025-10-20", status: "Entregue" },
+    { cliente_nome: "Aurélio", cafe_nome: "Amendoado", cafe_forma: "Grão", embalagem: "500g", quantidade_pacotes: 6, data_reserva: "2025-10-17", data_entrega: "2025-10-17", status: "Entregue" },
+    { cliente_nome: "Aurélio", cafe_nome: "Melaço de Cana", cafe_forma: "Grão", embalagem: "500g", quantidade_pacotes: 5, data_reserva: "2025-10-17", data_entrega: "2025-10-17", status: "Entregue" },
+    { cliente_nome: "Findes", cafe_nome: "Alma Gourmet", cafe_forma: "Moído", embalagem: "500g", quantidade_pacotes: 160, data_reserva: "2025-10-09", data_entrega: "2025-10-09", status: "Entregue" },
+    { cliente_nome: "Águia Branca", cafe_nome: "Alma Gourmet", cafe_forma: "Moído", embalagem: "1kg", quantidade_pacotes: 30, data_reserva: "2025-10-09", data_entrega: "2025-10-09", status: "Entregue" }
   ],
-  caixas: [
-    { numero_identificacao: "CX-001", origem: "Venda Nova", destino: "Vila Velha", status: "Aguardando Envio", responsavel: "Fernando", conteudo: "Pacotes de café 250g" },
-    { numero_identificacao: "CX-002", origem: "Vila Velha", destino: "Venda Nova", status: "Em Trânsito", responsavel: "Cláudio", conteudo: "Amostras para degustação" }
-  ],
-  etiquetasProblema: [
-    { nome: "Urgente", cor: "#DC2626", descricao: "Problemas que precisam de atenção imediata" },
-    { nome: "Logística", cor: "#2563EB", descricao: "Problemas relacionados a entregas e transportes" },
-    { nome: "Estoque", cor: "#16A34A", descricao: "Problemas de estoque e inventário" }
-  ],
-  responsaveis: [
-    { nome: "Mário", email: "mario@cafeselecao.com", cargo: "Diretor", area: "Geral", receber_problemas: true, receber_estoque: true, ativo: true },
-    { nome: "Fernando", email: "fernando@cafeselecao.com", cargo: "Logística", area: "Logística", receber_logistica: true, ativo: true }
-  ],
+  caixas: [],
+  etiquetasProblema: [],
+  responsaveis: [],
   clienteSlugs: [
-    { cliente_nome: "Sicoob Central", slug: "sicoob-central", ativo: true, mostrar_precos: true },
-    { cliente_nome: "Águia Branca", slug: "aguia-branca", ativo: true, mostrar_precos: false }
+    { cliente_nome: "Dani Pimenta", slug: "dani-pimenta", ativo: true, mostrar_precos: false },
+    { cliente_nome: "Sicoob Central", slug: "sicoob-central", ativo: true }
   ],
   solicitacoesEvento: [
-    { tipo_solicitacao: "Evento", cliente_nome: "Empresa ABC", email_cliente: "contato@abc.com", data_evento: "2025-03-15", local_evento: "Centro de Convenções", publico_total: 500, taxa_adesao: 30, dias_evento: 2, kg_total_calculado: 15, status: "Pendente" }
+    { tipo_solicitacao: "Evento", cliente_nome: "Sicoob Central", data_evento: "2025-11-12", local_evento: "VITORIA MALL", publico_total: 4000, taxa_adesao: 70, dias_evento: 4, horas_por_dia: 8, ml_por_copo: 70, fator_perdas: 10, consumidores_esperados: 2800, kg_total_calculado: 21.56, pacotes_totais_calculados: 87, cafes_selecionados: [{ cafe_nome: "Amendoado", cafe_forma: "Grão", embalagem: "500g", quantidade_pacotes: 4 }], status: "Pendente" },
+    { tipo_solicitacao: "Evento", cliente_nome: "Sicoob Central", data_evento: "2025-10-28", local_evento: "centro de convencoes", publico_total: 4000, taxa_adesao: 70, dias_evento: 2, horas_por_dia: 8, kg_total_calculado: 21.56, status: "Pendente" },
+    { tipo_solicitacao: "Evento", cliente_nome: "Sicoob Central", data_evento: "2025-10-12", local_evento: "centro", publico_total: 12000, taxa_adesao: 80, dias_evento: 4, horas_por_dia: 8, kg_total_calculado: 73.92, status: "Cancelada" }
   ],
-  infoCafes: [
-    { nome_display: "Café Especial Caparaó", origem_detalhada: "Fazenda Alto da Serra, Caparaó - ES", altitude: "1200m", variedade: "Catuaí Amarelo", processamento: "Natural", torra: "Média", notas_sensoriais: ["Chocolate", "Caramelo", "Frutas Vermelhas"], publicado: true }
-  ],
+  infoCafes: [],
   submissoesProdutores: [
-    { nome_cafe: "Café da Montanha", origem: "Venda Nova do Imigrante", tipo_grao: "Arábica", variedade: "Bourbon", processamento: "Lavado", pontuacao: 85, status: "Pendente" }
+    { nome_cafe: "Cardamomo Imperial", origem: "Montanhas Capixabas", tipo_grao: "100% Arábica", variedade: "Catucai 785", processamento: "Cereja Descascado", bebida: "Filtrados e coador", sabor_notas_sensoriais: "Cardamomo, Mel, frutas vermelhas, Melaço, caramelo", docura: "Alta", aroma: "Floral, mel", acidez_tipo: "Cítrica", acidez_intensidade: "Alta", corpo: "Encorpado", torra: "Clara", moagem: "Média", escala_intensidade: 9, pontuacao: 90, altitude: "1.100", certificacoes: "Sem Agrotoxicos", status: "Aprovado" },
+    { nome_cafe: "Burbom Amarelo", origem: "Montanhas Capixabas", tipo_grao: "100% arabica", variedade: "Burbom", processamento: "Cereja Descascado", sabor_notas_sensoriais: "Frutas amarelas, Manga, Maracujá, Laranja", docura: "Média", aroma: "Frutado cítrico", acidez_tipo: "Cítrica", corpo: "Encorpado", torra: "Clara", pontuacao: 88, altitude: "1.100", status: "Aprovado" },
+    { nome_cafe: "DESCAFEINADO - AMENDOADO", origem: "Montanhas Capixabas", tipo_grao: "100% ARABICA", variedade: "BURBOM AMARELO", processamento: "CEREJA DESCASCADO", sabor_notas_sensoriais: "AMENDOAS", docura: "MEDIA", aroma: "CACAU E CHOCOLATE", corpo: "ENCORPADO", torra: "MEDIA", pontuacao: 86, altitude: "1100", status: "Aprovado" },
+    { nome_cafe: "ZARDO - BLEND", origem: "Montanhas Capixabas", tipo_grao: "50% ARABICA + 50% CONILON", processamento: "CEREJA DESCASCADO", bebida: "EXPRESSO", sabor_notas_sensoriais: "CARAMELO, CHOCOLATE", corpo: "ENCORPADO", torra: "MEDIA", pontuacao: 86, altitude: "600", status: "Aprovado" },
+    { nome_cafe: "SALADA DE FRUTAS", origem: "Montanhas Capixabas", tipo_grao: "100% ARABICA", variedade: "CATUCAI 785 VERMELHO", processamento: "CEREJA NATURAL", sabor_notas_sensoriais: "FRUTAS AMARELAS E VERMELHAS", docura: "ALTA", aroma: "FLORAL E FRUTADAS", corpo: "ENCORPADO", torra: "CLARA", pontuacao: 88, status: "Aprovado" },
+    { nome_cafe: "PRE TREINO 4X MAIS ENERGIA", origem: "Montanhas Capixabas", tipo_grao: "100% ROBUSTA", variedade: "CONILON ESPECIAL", processamento: "CEREJA DESCASCADO", sabor_notas_sensoriais: "PISTACHE, NOZES, PIPOCA DOCE", aroma: "CACAU E CHOCOLATE", corpo: "ENCORPADO", torra: "MEDIA", pontuacao: 85, altitude: "500", status: "Aprovado" },
+    { nome_cafe: "MELAÇO DE CANA", origem: "Montanhas Capixabas", tipo_grao: "100% ARABICA", variedade: "CATUCAI 785 VERMELHO", processamento: "CEREJA DESCASCADO", sabor_notas_sensoriais: "MELAÇO DE CANA, RAPADURA, AÇUCAR MASCAVO, MEL", docura: "ALTA", corpo: "ENCORPADO", torra: "CLARA", pontuacao: 89, altitude: "1100", status: "Aprovado" },
+    { nome_cafe: "COFFEE TERAPIA - LAVANDA", origem: "Montanhas Capixabas", tipo_grao: "100% ARABICA", variedade: "CATUCAI 785 VERMELHO", processamento: "CEREJA DESCASCADO", sabor_notas_sensoriais: "FLORAL, CITRICA, DOCE, HERBAL", aroma: "FLORAL E FRUTADAS", corpo: "ENCORPADO", torra: "CLARA", pontuacao: 87, altitude: "1100", status: "Aprovado" },
+    { nome_cafe: "ALTO DA ROTA", origem: "Montanhas Capixabas", tipo_grao: "100% ARABICA", variedade: "CATUCAI 785 VERMELHO", processamento: "CEREJA DESCASCADO", sabor_notas_sensoriais: "FRUTAS VERMELHAS E VINHO", aroma: "FLORAL E FRUTADAS", corpo: "ENCORPADO", torra: "CLARA", pontuacao: 88, altitude: "1100", status: "Aprovado" }
   ],
   precoCafe: [
-    { cliente_nome: "Sicoob Central", cafe_nome: "Amendoado", preco_por_pacote: 28.50, ativo: true },
-    { cliente_nome: "Águia Branca", cafe_nome: "Alma Gourmet", preco_por_pacote: 25.00, ativo: true }
+    { cliente_nome: "Sicoob Central", cafe_nome: "Alma Gourmet", preco_por_pacote: 22.5, ativo: true },
+    { cliente_nome: "Dani Pimenta", cafe_nome: "Melaço de Cana", preco_por_pacote: 40, ativo: true },
+    { cliente_nome: "Dani Pimenta", cafe_nome: "Amendoado", preco_por_pacote: 30, ativo: true },
+    { cliente_nome: "Dani Pimenta", cafe_nome: "Frutado", preco_por_pacote: 30, ativo: true },
+    { cliente_nome: "Dani Pimenta", cafe_nome: "Cítrico", preco_por_pacote: 30, ativo: true },
+    { cliente_nome: "Dani Pimenta", cafe_nome: "Chocolate", preco_por_pacote: 30, ativo: true },
+    { cliente_nome: "Dani Pimenta", cafe_nome: "Intenso", preco_por_pacote: 30, ativo: true },
+    { cliente_nome: "Lu Barista", cafe_nome: "Melaço de Cana", preco_por_pacote: 40, ativo: true },
+    { cliente_nome: "Lu Barista", cafe_nome: "Amendoado", preco_por_pacote: 25, ativo: true },
+    { cliente_nome: "Lu Barista", cafe_nome: "Frutado", preco_por_pacote: 25, ativo: true },
+    { cliente_nome: "Lu Barista", cafe_nome: "Bourbon Amarelo", preco_por_pacote: 40, ativo: true },
+    { cliente_nome: "Lu Barista", cafe_nome: "Chocolate", preco_por_pacote: 25, ativo: true },
+    { cliente_nome: "Lu Barista", cafe_nome: "Intenso", preco_por_pacote: 25, ativo: true },
+    { cliente_nome: "Sicoob Central", cafe_nome: "Melaço de Cana", preco_por_pacote: 37.5, ativo: true },
+    { cliente_nome: "Sicoob Central", cafe_nome: "Amendoado", preco_por_pacote: 30, ativo: true },
+    { cliente_nome: "Sicoob Central", cafe_nome: "Frutado", preco_por_pacote: 30, ativo: true }
   ],
-  itemChecklist: [
-    { nome: "NF Gerada", ordem: 1, ativo: true },
-    { nome: "Boleto Enviado", ordem: 2, ativo: true },
-    { nome: "Pagamento Confirmado", ordem: 3, ativo: true },
-    { nome: "Entrega Realizada", ordem: 4, ativo: true }
-  ],
+  itemChecklist: [],
   demandaExterna: [
-    { descricao: "Consultoria de Qualidade", valor: 5000, status: "Pendente", cliente_nome: "Fazenda Boa Vista", prazo: "2025-02-28" }
+    { cliente_nome: "Rodrigo Elite Coffe - 4/4", descricao: "Renegociado", valor: 549, data_vencimento: "2026-01-05", status: "Pendente" },
+    { cliente_nome: "Rodrigo Elite Coffe - 3/4", descricao: "Renegociado", valor: 549, data_vencimento: "2025-12-22", status: "Pendente" },
+    { cliente_nome: "Rodrigo Elite Coffe - 2/4", descricao: "Renegociado", valor: 549, data_vencimento: "2025-12-08", status: "Pendente" },
+    { cliente_nome: "Perfil Coffe", descricao: "NF 6525", valor: 1190, data_vencimento: "2025-12-03", status: "Pendente" },
+    { cliente_nome: "Ivaneide Henkel", descricao: "Cliente Mario", valor: 892.77, data_vencimento: "2025-12-11", status: "Pendente" },
+    { cliente_nome: "Espaço Do Barista", descricao: "Nf 6525", valor: 2000, data_vencimento: "2025-12-23", status: "Pendente" },
+    { cliente_nome: "Perfil Coffe", descricao: "NF 6470", valor: 500, data_vencimento: "2025-11-28", status: "Pendente" }
   ],
-  assinantesClube: [
-    { nome: "João Silva", email: "joao@email.com", telefone: "27999999999", endereco: "Rua das Flores, 123", cep: "29100-000", cidade: "Vila Velha", estado: "ES", plano: "Premium", forma_cafe: "Moído", status: "Ativo" }
-  ],
-  entregasClube: [
-    { assinante_nome: "João Silva", mes_referencia: "2025-02", cafes_enviados: [{ cafe_nome: "Amendoado", embalagem: "250g", quantidade: 2 }], status: "Pendente" }
-  ],
+  assinantesClube: [],
+  entregasClube: [],
   solicitacoesPatrocinio: [
-    { nome_organizador: "Associação Cultural", email_contato: "contato@assoc.org", nome_evento: "Festival de Inverno", tipo_evento: "Cultural", data_evento: "2025-07-15", local_evento: "Praça Central", publico_esperado: 2000, tipo_solicitacao: "Patrocínio", proposta_patrocinio: "Fornecimento de café para o evento", contrapartidas_oferecidas: "Logo em materiais de divulgação", beneficios_visibilidade: "Alcance de 10.000 pessoas nas redes sociais", alcance_estimado: "15.000 pessoas", status: "Nova" }
+    { nome_organizador: "Lorenzo / Faesa", email_contato: "lls@alumni.usp.br", telefone_contato: "27999518612", nome_evento: "JCC Faesa - Semana da Arquitetura", tipo_evento: "Corporativo", data_evento: "2025-10-13", local_evento: "Vitória ES", publico_esperado: 200, duracao_dias: 5, tipo_solicitacao: "Patrocínio", descricao_evento: "Semana da arquitetura e urbanismo da faesa, da Jornada Científica. Comemoração dos 15 anos de curso.", proposta_patrocinio: "Ao todo são 20 profissionais envolvidos. Vários mini eventos e 4 palestras no auditório central.", contrapartidas_oferecidas: "Exposição orgânica da marca nas mídias sociais, banner na entrada e espaço para degustação.", beneficios_visibilidade: "Banner na entrada, no espaço do coffe e exposição orgânica da marca no Instagram da FAESA - 41k seguidores.", alcance_estimado: "Estima-se alcance de pelo menos 600 pessoas presencialmente.", exclusividade_categoria: "sim", cafe_necessario_kg: 25, status: "Nova", decisao_final: "Pendente" }
   ],
   contratosRPA: [
-    { prestador_nome: "Carlos Oliveira", prestador_cpf: "123.456.789-00", prestador_email: "carlos@email.com", valor: 3500, descricao_servico: "Consultoria em torrefação", status: "Rascunho" }
+    { numero_contrato: "RPA-1765395044468", tipo_servico: "Consultoria", contratante_nome: "Vanice Lari", contratante_cpf: "36859993898", contratante_email: "va_nice@hotmail.com", contratada_nome: "Imobiliaria Emery Lari", descricao_servico: "Consultoria", valor_contrato: 12000, forma_pagamento: "Boleto", data_inicio: "2025-12-26", data_termino: "2025-12-31", status: "Aguardando Assinatura" },
+    { numero_contrato: "RPA-1765384610825", tipo_servico: "Suporte", contratante_nome: "Weslley Aguiar", contratante_cpf: "11102865702", contratante_email: "libernux@gmail.com", contratada_nome: "Easysuite", descricao_servico: "teste", valor_contrato: 10000, forma_pagamento: "Pix", data_inicio: "2025-12-11", prazo_meses: 12, status: "Aguardando Assinatura" },
+    { numero_contrato: "RPA-1765377436776", tipo_servico: "Consultoria", contratante_nome: "Weslley Aguiar", contratante_cpf: "11102865702", contratante_email: "libernux@gmail.com", contratada_nome: "Café Seleção do Mário", contratada_cnpj: "14.869.080/0001-20", descricao_servico: "teste", valor_contrato: 1000, forma_pagamento: "Pix", data_inicio: "2025-12-10", data_termino: "2026-01-10", prazo_meses: 1, status: "Aguardando Assinatura" }
   ],
-  configuracaoNotificacao: [
-    { chave: "notificar_equipe_novo_problema", valor: true, categoria: "Problemas", descricao: "Notificar equipe ao criar novo chamado" },
-    { chave: "alertar_estoque_baixo", valor: true, categoria: "Estoque", descricao: "Alertar quando estoque estiver baixo" }
-  ],
+  configuracaoNotificacao: [],
   produtosAgridrones: [
-    { nome: "Moedor Tipo 1", tipo: "Moedor", valor_compra: 850, valor_venda_sugerido: 1200, margem_padrao: 40, ativo: true }
+    { nome: "Moedor Intermediario", tipo: "Moedor", valor_compra: 398, valor_venda_sugerido: 569.14, margem_padrao: 43, ativo: true },
+    { nome: "Moedor Top", tipo: "Moedor", valor_compra: 586, valor_venda_sugerido: 837.98, margem_padrao: 43, ativo: true },
+    { nome: "Moedor Manual Portátil", tipo: "Moedor", valor_compra: 355, valor_venda_sugerido: 507.65, margem_padrao: 43, ativo: true }
   ],
   configuracaoFrete: [
-    { cep_origem: "29101-000", valor_base: 15, valor_por_kg: 2.5, frete_gratis_acima: 300 }
+    { cep_origem: "29101-115", peso_padrao: 0.5, altura_padrao: 2, largura_padrao: 12, comprimento_padrao: 17, valor_declarado_padrao: 100, ativo: true }
+  ],
+  empresaPermuta: [
+    { nome_empresa: "Ecos Engenharia de Comunicação e Segurança", cnpj: "01.887.130/0001-50", endereco_entrega: "Av. Luciano das Neves 2283", cep: "29107-015", cidade: "Vila Velha", estado: "ES", telefone_empresa: "(27) 98116-4444", contato_nome: "CARLOS HENRIQUE VELOSO DE CARVALHO", contato_email: "carlos@ecos.srv.br", forma_cafe: "Moído", aceite_cobranca: true, status: "Pendente" },
+    { nome_empresa: "Ótica Mania de Óculos", cnpj: "16.505.197/0001-50", endereco_entrega: "Av. Perimetral 1078 loja 12 Open Mall de Itaparica", cep: "29102-345", cidade: "Vila Velha", estado: "ES", telefone_empresa: "(27) 99876-9374", contato_nome: "João Victor", contato_email: "omaniadeoculos@gmail.com", forma_cafe: "Moído", aceite_cobranca: true, status: "Pendente" },
+    { nome_empresa: "TRADE TECH", cnpj: "41.071.367/0001-83", endereco_entrega: "Av estudante José Júlio de souza, 2040, Praia de Itaparica, AP1306 ED MAR DOURADO", cep: "29102-010", cidade: "Vila Velha", telefone_empresa: "(27) 99279-6166", contato_nome: "Tales Aquino", contato_email: "talesan2013@gmail.com", forma_cafe: "Moído", aceite_cobranca: true, status: "Pendente" }
+  ],
+  cotacaoAgridrones: [
+    { cliente_nome: "Vitor Escocard", produtos: [{ produto_nome: "Moedor Manual Portátil", quantidade: 1, valor_compra: 355, margem_aplicada: 41, valor_venda: 500.55 }, { produto_nome: "Moedor Intermediario", quantidade: 1, valor_compra: 398, margem_aplicada: 41, valor_venda: 561.18 }, { produto_nome: "Moedor Top", quantidade: 1, valor_compra: 586, margem_aplicada: 30, valor_venda: 761.80 }], valor_total: 1823.53, custo_total: 1339, lucro_total: 484.53, margem_geral: 36.19, status: "Rascunho" }
+  ],
+  signatariosContrato: [
+    { nome: "Vanice Lari", email: "va_nice@hotmail.com", cpf: "12212343212", tipo: "Contratada", ordem_assinatura: 1, status_assinatura: "Pendente" },
+    { nome: "Weslley Aguiar", email: "weslleyaguiardias@gmail.com", cpf: "11102865702", tipo: "Contratada", ordem_assinatura: 1, status_assinatura: "Pendente" },
+    { nome: "Weslley Aguiar", email: "libernux@gmail.com", cpf: "11102865702", tipo: "Contratante", ordem_assinatura: 1, status_assinatura: "Pendente" }
+  ],
+  historicosDemanda: [
+    { tipo_alteracao: "Criação", valor_novo: 549, data_nova: "2026-01-05", status_novo: "Pendente", descricao: "Demanda criada", autor: "Weslley Aguiar Dias" },
+    { tipo_alteracao: "Criação", valor_novo: 549, data_nova: "2025-12-22", status_novo: "Pendente", descricao: "Demanda criada", autor: "Weslley Aguiar Dias" },
+    { tipo_alteracao: "Criação", valor_novo: 1190, data_nova: "2025-12-03", status_novo: "Pendente", descricao: "Demanda criada", autor: "Weslley Aguiar Dias" },
+    { tipo_alteracao: "Criação", valor_novo: 892.77, data_nova: "2025-12-11", status_novo: "Pendente", descricao: "Demanda criada", autor: "Weslley Aguiar Dias" },
+    { tipo_alteracao: "Criação", valor_novo: 2000, data_nova: "2025-12-23", status_novo: "Pendente", descricao: "Demanda criada", autor: "Weslley Aguiar Dias" },
+    { tipo_alteracao: "Criação", valor_novo: 500, data_nova: "2025-11-28", status_novo: "Pendente", descricao: "Demanda criada", autor: "Weslley Aguiar Dias" }
+  ],
+  atualizacoesProblema: [
+    { tipo: "Comentário", mensagem: "resolvido", autor: "Weslley Aguiar Dias", visivel_cliente: true },
+    { tipo: "Comentário", mensagem: "fechei a compra", autor: "Flávio", visivel_cliente: true },
+    { tipo: "Comentário", mensagem: "Estarei Verificando e te darei a resposta através desse Whatsapp cadastrado no chamado.", autor: "Weslley Aguiar Dias", visivel_cliente: true, notificar_cliente: true }
+  ],
+  atualizacoesSolicitacao: [
+    { tipo: "Mudança Status", status_anterior: "Pendente", status_novo: "Cancelada", comentario: "aa", autor: "Weslley Aguiar Dias" },
+    { tipo: "Mudança Status", status_anterior: "Pendente", status_novo: "Em Análise", comentario: "Ndndnd", autor: "Weslley Aguiar Dias" },
+    { tipo: "Mudança Status", status_anterior: "Em Análise", status_novo: "Cancelada", comentario: "teste", autor: "Weslley Aguiar Dias" }
   ]
 };
 
