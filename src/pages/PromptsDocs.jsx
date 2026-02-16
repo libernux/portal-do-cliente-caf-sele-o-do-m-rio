@@ -388,7 +388,12 @@ const [tarefasData, etiquetasData, responsaveisData] = await Promise.all([
 - Cards com sombra suave, arredondamento
 - Indicador visual de arrasto
 - Animações suaves de transição
-- Badges coloridos por prioridade/tipo`,
+- Badges coloridos por prioridade/tipo
+
+## DADOS DE EXEMPLO (REAIS DO SISTEMA)
+
+### Tarefas:
+- "Pedido Findes" - Status: Em Revisão - Prioridade: Urgente - Responsável: Weslley - Tipo: Atendimento - Prazo: 12/10/2025`,
     entidades: ["Tarefa", "EtiquetaProblema", "Responsavel"],
     componentes: ["TarefaKanban", "TarefaFormModal", "TarefaStats"]
   },
