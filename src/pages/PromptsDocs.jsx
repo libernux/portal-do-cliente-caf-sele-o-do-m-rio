@@ -214,21 +214,35 @@ const [caixas, cafes, problemas, agendamentos, solicitacoes] = await Promise.all
 ]);
 \`\`\`
 
-## DADOS DE EXEMPLO (REAIS DO SISTEMA)
+## DADOS INICIAIS (INSERIR APÓS ESTRUTURAÇÃO)
 
-### Cafés Cadastrados:
-- Alma Gourmet (Moído) - Vila Velha - R$25/250g, R$50/500g, R$100/1kg
-- Intenso (Grão) - Vila Velha - R$35/250g
-- Chocolate (Grão) - Vila Velha - R$35/250g
-- Amendoado (Grão) - Vila Velha
+⚠️ **IMPORTANTE**: Após criar todas as entidades e a estrutura do sistema, insira os dados abaixo como registros iniciais para popular o banco de dados.
 
-### Problemas/Chamados Recentes:
-- Henery Garção (hgarcao@yahoo.com.br) - Logística - Média - Aberto
-- Keylla Cunha (keyllafcunha@gmail.com) - Logística - Urgente - Aberto
+### Inserir na Entidade "Cafe":
+\`\`\`json
+[
+  { "nome": "Alma Gourmet", "forma": "Moído", "localizacao": "Vila Velha", "origem": "Alto Caxixe - Venda Nova do Imigrante", "torra": "Média", "is_private_label": true, "precos_private_label": { "250g": 25, "500g": 50, "1kg": 100 } },
+  { "nome": "Intenso", "forma": "Grão", "localizacao": "Vila Velha", "origem": "Alto Caxixe - Venda Nova do Imigrante", "torra": "Média", "is_private_label": true, "precos_private_label": { "250g": 35 } },
+  { "nome": "Chocolate", "forma": "Grão", "localizacao": "Vila Velha", "is_private_label": true, "precos_private_label": { "250g": 35 } },
+  { "nome": "Amendoado", "forma": "Grão", "localizacao": "Vila Velha" }
+]
+\`\`\`
 
-### Agendamentos:
-- "Reunião com cliente Gourmet Express" - Visita Cliente - 22/01/2025 14h-16h
-- "Degustação com novo fornecedor" - Degustação - 25/01/2025 10h-12h`,
+### Inserir na Entidade "Problema":
+\`\`\`json
+[
+  { "nome_cliente": "Henery Garção", "email_cliente": "hgarcao@yahoo.com.br", "telefone_cliente": "27992035992", "descricao": "Atraso na entrega da remessa referente ao mês de JANEIRO", "tipo": "Logística", "prioridade": "Média", "status": "Aberto", "data_abertura": "2026-01-28" },
+  { "nome_cliente": "Keylla Cunha", "email_cliente": "keyllafcunha@gmail.com", "telefone_cliente": "27998377920", "descricao": "Compra dia 08/10 entregue em endereço errado", "tipo": "Logística", "prioridade": "Urgente", "status": "Aberto", "data_abertura": "2025-11-12" }
+]
+\`\`\`
+
+### Inserir na Entidade "Agendamento":
+\`\`\`json
+[
+  { "titulo": "Reunião com cliente Gourmet Express", "descricao": "Apresentação de novos produtos e renovação de contrato", "data_inicio": "2025-01-22T14:00:00", "data_fim": "2025-01-22T16:00:00", "local": "Escritório do cliente", "tipo": "Visita Cliente", "participantes": ["Mário"], "status": "Confirmado" },
+  { "titulo": "Degustação com novo fornecedor", "descricao": "Avaliar novos lotes de café especial da região de Caparaó", "data_inicio": "2025-01-25T10:00:00", "data_fim": "2025-01-25T12:00:00", "local": "Vila Velha - Sala de Degustação", "tipo": "Degustação", "participantes": ["Mário", "Fernando"], "status": "Agendado" }
+]
+\`\`\``,
     entidades: ["Caixa", "Cafe", "Problema", "Agendamento", "SolicitacaoEvento"],
     componentes: ["StatsCard", "RecentActivity", "NotificationPanel", "SolicitacoesEventos", "ApiConsultaCard", "ExportarDadosCard", "PullToRefresh"]
   },
