@@ -3192,6 +3192,20 @@ export default function PromptsDocs() {
                   </TabsContent>
 
                   <TabsContent value="reservas" className="mt-4">
+                    <div className="flex justify-end mb-2">
+                      <Button
+                        onClick={() => copyToClipboard(JSON.stringify(dadosExemplo.reservas, null, 2), "reservas-json")}
+                        variant="outline"
+                        size="sm"
+                        className="text-xs"
+                      >
+                        {copiedSection === "reservas-json" ? (
+                          <><Check className="w-3 h-3 mr-1" /> Copiado!</>
+                        ) : (
+                          <><Copy className="w-3 h-3 mr-1" /> Copiar JSON</>
+                        )}
+                      </Button>
+                    </div>
                     <div className="space-y-2 max-h-48 overflow-auto">
                       {dadosExemplo.reservas.map((reserva, i) => (
                         <div key={i} className="p-3 bg-[#F5F1E8] dark:bg-gray-800 rounded-lg text-sm">
