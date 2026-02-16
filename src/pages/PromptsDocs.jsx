@@ -3248,19 +3248,35 @@ export default function PromptsDocs() {
             {/* Dados de Exemplo do Sistema */}
             <Card className="border-[#E5DCC8] dark:border-gray-700">
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg text-[#6B4423] dark:text-[#C9A961]">
-                  📊 Dados Cadastrados no Sistema (Exemplos Reais)
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg text-[#6B4423] dark:text-[#C9A961]">
+                    📊 Dados Cadastrados no Sistema (Exemplos Reais)
+                  </CardTitle>
+                  <Button
+                    onClick={() => copyToClipboard(JSON.stringify(dadosExemplo, null, 2), "todos-dados")}
+                    variant="outline"
+                    size="sm"
+                    className="border-[#6B4423] text-[#6B4423] hover:bg-[#6B4423] hover:text-white"
+                  >
+                    {copiedSection === "todos-dados" ? (
+                      <><Check className="w-4 h-4 mr-2" /> Copiado!</>
+                    ) : (
+                      <><Download className="w-4 h-4 mr-2" /> Copiar Todos os Dados</>
+                    )}
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 <Tabs defaultValue="cafes" className="w-full">
-                  <TabsList className="bg-[#F5F1E8] dark:bg-gray-800 flex-wrap h-auto">
+                  <TabsList className="bg-[#F5F1E8] dark:bg-gray-800 flex-wrap h-auto gap-1">
                     <TabsTrigger value="cafes" className="text-xs">Cafés</TabsTrigger>
                     <TabsTrigger value="clientes" className="text-xs">Clientes</TabsTrigger>
                     <TabsTrigger value="reservas" className="text-xs">Reservas</TabsTrigger>
                     <TabsTrigger value="problemas" className="text-xs">Chamados</TabsTrigger>
                     <TabsTrigger value="tarefas" className="text-xs">Tarefas</TabsTrigger>
                     <TabsTrigger value="agendamentos" className="text-xs">Agendamentos</TabsTrigger>
+                    <TabsTrigger value="caixas" className="text-xs">Caixas</TabsTrigger>
+                    <TabsTrigger value="outros" className="text-xs">+Outros</TabsTrigger>
                   </TabsList>
                   
                   <TabsContent value="cafes" className="mt-4">
