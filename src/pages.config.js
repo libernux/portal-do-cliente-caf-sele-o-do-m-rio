@@ -82,6 +82,7 @@ import TabelaPrivateLabel from './pages/TabelaPrivateLabel';
 import Tarefas from './pages/Tarefas';
 import Usuarios from './pages/Usuarios';
 import DocumentacaoTecnica from './pages/DocumentacaoTecnica';
+import README from './pages/README';
 import __Layout from './Layout.jsx';
 
 
@@ -121,6 +122,7 @@ export const PAGES = {
     "Tarefas": Tarefas,
     "Usuarios": Usuarios,
     "DocumentacaoTecnica": DocumentacaoTecnica,
+    "README": README,
 }
 
 export const pagesConfig = {
