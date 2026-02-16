@@ -569,8 +569,16 @@ const response = await base44.integrations.Core.InvokeLLM({
 - Entregue: Verde
 - Problema: Vermelho
 
-## DADOS DE EXEMPLO (REAIS DO SISTEMA)
-- Nenhuma caixa cadastrada no momento (sistema aguardando movimentações)`,
+## DADOS INICIAIS (INSERIR APÓS ESTRUTURAÇÃO)
+
+⚠️ **IMPORTANTE**: A entidade Caixa pode começar vazia. Dados serão inseridos conforme movimentações reais de logística.
+
+### Exemplo de Inserção na Entidade "Caixa":
+\`\`\`json
+[
+  { "numero_identificacao": "CX-001", "origem": "Venda Nova", "destino": "Vila Velha", "status": "Aguardando Envio", "responsavel": "Fernando", "conteudo": "Pacotes de café 250g", "data_envio": "2026-02-15" }
+]
+\`\`\``,
     entidades: ["Caixa"],
     componentes: ["CaixaCard", "CaixaFormModal", "ScanLabelModal", "BatchImageUploadModal", "PullToRefresh"]
   },
