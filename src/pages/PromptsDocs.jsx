@@ -1178,22 +1178,37 @@ const datesWithEvents = agendamentos.map(a => new Date(a.data_inicio));
 - Cards com cores por tipo de compromisso
 - Layout responsivo: sidebar calendário em desktop, empilhado em mobile
 
-## DADOS DE EXEMPLO (REAIS DO SISTEMA)
+## DADOS INICIAIS (INSERIR APÓS ESTRUTURAÇÃO)
 
-### Agendamentos Cadastrados:
-1. **Reunião com cliente Gourmet Express**
-   - Tipo: Visita Cliente | Status: Confirmado
-   - Data: 22/01/2025 14:00 - 16:00
-   - Local: Escritório do cliente
-   - Participantes: Mário
-   - Descrição: Apresentação de novos produtos e renovação de contrato
+⚠️ **IMPORTANTE**: Após criar a entidade Agendamento, insira os dados abaixo:
 
-2. **Degustação com novo fornecedor**
-   - Tipo: Degustação | Status: Agendado
-   - Data: 25/01/2025 10:00 - 12:00
-   - Local: Vila Velha - Sala de Degustação
-   - Participantes: Mário, Fernando
-   - Descrição: Avaliar novos lotes de café especial da região de Caparaó`,
+### Inserir na Entidade "Agendamento":
+\`\`\`json
+[
+  { 
+    "titulo": "Reunião com cliente Gourmet Express", 
+    "descricao": "Apresentação de novos produtos e renovação de contrato", 
+    "data_inicio": "2025-01-22T14:00:00", 
+    "data_fim": "2025-01-22T16:00:00", 
+    "local": "Escritório do cliente", 
+    "tipo": "Visita Cliente", 
+    "participantes": ["Mário"], 
+    "status": "Confirmado",
+    "notificar_participantes": true
+  },
+  { 
+    "titulo": "Degustação com novo fornecedor", 
+    "descricao": "Avaliar novos lotes de café especial da região de Caparaó", 
+    "data_inicio": "2025-01-25T10:00:00", 
+    "data_fim": "2025-01-25T12:00:00", 
+    "local": "Vila Velha - Sala de Degustação", 
+    "tipo": "Degustação", 
+    "participantes": ["Mário", "Fernando"], 
+    "status": "Agendado",
+    "notificar_participantes": true
+  }
+]
+\`\`\``,
     entidades: ["Agendamento"],
     componentes: ["AgendamentoCard", "AgendamentoFormModal"]
   },
