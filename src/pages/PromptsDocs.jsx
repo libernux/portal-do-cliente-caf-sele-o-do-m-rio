@@ -212,7 +212,23 @@ const [caixas, cafes, problemas, agendamentos, solicitacoes] = await Promise.all
   Agendamento.list("-data_inicio"),
   SolicitacaoEvento.list("-created_date")
 ]);
-\`\`\``,
+\`\`\`
+
+## DADOS DE EXEMPLO (REAIS DO SISTEMA)
+
+### Cafés Cadastrados:
+- Alma Gourmet (Moído) - Vila Velha - R$25/250g, R$50/500g, R$100/1kg
+- Intenso (Grão) - Vila Velha - R$35/250g
+- Chocolate (Grão) - Vila Velha - R$35/250g
+- Amendoado (Grão) - Vila Velha
+
+### Problemas/Chamados Recentes:
+- Henery Garção (hgarcao@yahoo.com.br) - Logística - Média - Aberto
+- Keylla Cunha (keyllafcunha@gmail.com) - Logística - Urgente - Aberto
+
+### Agendamentos:
+- "Reunião com cliente Gourmet Express" - Visita Cliente - 22/01/2025 14h-16h
+- "Degustação com novo fornecedor" - Degustação - 25/01/2025 10h-12h`,
     entidades: ["Caixa", "Cafe", "Problema", "Agendamento", "SolicitacaoEvento"],
     componentes: ["StatsCard", "RecentActivity", "NotificationPanel", "SolicitacoesEventos", "ApiConsultaCard", "ExportarDadosCard", "PullToRefresh"]
   },
