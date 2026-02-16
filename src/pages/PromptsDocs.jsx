@@ -971,7 +971,18 @@ Props: atualizacoes
    - Em Andamento: Azul
    - Aguardando: Amarelo
    - Resolvido: Verde
-   - Cancelado: Cinza`,
+   - Cancelado: Cinza
+
+## DADOS DE EXEMPLO (REAIS DO SISTEMA)
+
+### Chamados Abertos:
+1. **Henery Garção** (hgarcao@yahoo.com.br | 27992035992)
+   - Tipo: Logística | Prioridade: Média | Data: 28/01/2026
+   - Descrição: "Atraso na entrega da remessa referente ao mês de JANEIRO..."
+
+2. **Keylla Cunha** (keyllafcunha@gmail.com | 27998377920)
+   - Tipo: Logística | Prioridade: Urgente | Data: 12/11/2025
+   - Descrição: "Compra dia 08/10 entregue em endereço errado..."`,
     entidades: ["Problema", "EtiquetaProblema", "AtualizacaoProblema", "Responsavel", "ConfiguracaoNotificacao"],
     componentes: ["ProblemaCard", "ProblemaStats", "ProblemaKanban", "ProblemaFormModal", "ProblemaDetalhesModal", "EtiquetasManager", "AtualizacoesTimeline", "PullToRefresh"]
   },
