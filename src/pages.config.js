@@ -74,6 +74,7 @@ import MinhaAssinatura from './pages/MinhaAssinatura';
 import PortalCliente from './pages/PortalCliente';
 import Privacy from './pages/Privacy';
 import Problemas from './pages/Problemas';
+import PromptsDocs from './pages/PromptsDocs';
 import README from './pages/README';
 import Relatorios from './pages/Relatorios';
 import ReservaPublica from './pages/ReservaPublica';
@@ -83,7 +84,6 @@ import Support from './pages/Support';
 import TabelaPrivateLabel from './pages/TabelaPrivateLabel';
 import Tarefas from './pages/Tarefas';
 import Usuarios from './pages/Usuarios';
-import PromptsDocs from './pages/PromptsDocs';
 import __Layout from './Layout.jsx';
 
 
@@ -115,6 +115,7 @@ export const PAGES = {
     "PortalCliente": PortalCliente,
     "Privacy": Privacy,
     "Problemas": Problemas,
+    "PromptsDocs": PromptsDocs,
     "README": README,
     "Relatorios": Relatorios,
     "ReservaPublica": ReservaPublica,
@@ -124,7 +125,6 @@ export const PAGES = {
     "TabelaPrivateLabel": TabelaPrivateLabel,
     "Tarefas": Tarefas,
     "Usuarios": Usuarios,
-    "PromptsDocs": PromptsDocs,
 }
 
 export const pagesConfig = {
