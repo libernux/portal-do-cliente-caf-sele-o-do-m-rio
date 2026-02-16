@@ -763,7 +763,28 @@ const calcularDisponivel = (cafe) => {
 2. Selecionar café(s)
 3. Para cada café: escolher embalagem e quantidade
 4. Salvar reserva (não altera estoque)
-5. Quando entregar: marcar como entregue (altera estoque)`,
+5. Quando entregar: marcar como entregue (altera estoque)
+
+## DADOS DE EXEMPLO (REAIS DO SISTEMA)
+
+### Cafés Cadastrados:
+- **Alma Gourmet** (Moído) - Vila Velha - Origem: Alto Caxixe - Torra: Média - Preços: R$25/250g, R$50/500g, R$100/1kg
+- **Intenso** (Grão) - Vila Velha - Origem: Alto Caxixe - Torra: Média - Preço: R$35/250g
+- **Chocolate** (Grão) - Vila Velha - Preço: R$35/250g
+- **Amendoado** (Grão) - Vila Velha
+
+### Clientes:
+- Aurélio (Vila Velha)
+- Dani Pimenta (Vila Velha)
+- Águia Branca (Vila Velha)
+- Sicoob Central (Vila Velha)
+
+### Reservas Ativas:
+- Sicoob Central → Amendoado 500g x30 (Evento dia 19)
+- Sicoob Central → Amendoado 500g x12 (Faturamento por outra associação)
+
+### Reservas Entregues:
+- Sicoob Central → Amendoado 500g x16 (05/11/2025)`,
     entidades: ["Cafe", "Cliente", "ReservaCafe", "PrecoCafe"],
     componentes: ["CafeCard", "CafeFormModal", "ReservasModal", "ReservaEditModal", "ReservasTab", "ClientesTab", "AdicionarEstoqueModal", "EstoqueStats", "PullToRefresh"]
   },
