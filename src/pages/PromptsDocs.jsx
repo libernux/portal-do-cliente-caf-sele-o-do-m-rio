@@ -1781,6 +1781,121 @@ export default function PromptsDocs() {
               </CardContent>
             </Card>
 
+            {/* Dados de Exemplo do Sistema */}
+            <Card className="border-[#E5DCC8] dark:border-gray-700">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg text-[#6B4423] dark:text-[#C9A961]">
+                  📊 Dados Cadastrados no Sistema (Exemplos Reais)
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Tabs defaultValue="cafes" className="w-full">
+                  <TabsList className="bg-[#F5F1E8] dark:bg-gray-800 flex-wrap h-auto">
+                    <TabsTrigger value="cafes" className="text-xs">Cafés</TabsTrigger>
+                    <TabsTrigger value="clientes" className="text-xs">Clientes</TabsTrigger>
+                    <TabsTrigger value="reservas" className="text-xs">Reservas</TabsTrigger>
+                    <TabsTrigger value="problemas" className="text-xs">Chamados</TabsTrigger>
+                    <TabsTrigger value="tarefas" className="text-xs">Tarefas</TabsTrigger>
+                    <TabsTrigger value="agendamentos" className="text-xs">Agendamentos</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="cafes" className="mt-4">
+                    <div className="space-y-2 max-h-48 overflow-auto">
+                      {dadosExemplo.cafes.map((cafe, i) => (
+                        <div key={i} className="p-3 bg-[#F5F1E8] dark:bg-gray-800 rounded-lg text-sm">
+                          <div className="font-semibold text-[#6B4423] dark:text-[#C9A961]">{cafe.nome}</div>
+                          <div className="text-xs text-[#8B7355] dark:text-gray-400">
+                            {cafe.forma} | {cafe.localizacao} {cafe.origem && `| ${cafe.origem}`}
+                          </div>
+                          {cafe.precos_private_label && (
+                            <div className="text-xs mt-1">
+                              Preços: {Object.entries(cafe.precos_private_label).filter(([k,v]) => v > 0).map(([k,v]) => `R$${v}/${k}`).join(', ')}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="clientes" className="mt-4">
+                    <div className="space-y-2 max-h-48 overflow-auto">
+                      {dadosExemplo.clientes.map((cliente, i) => (
+                        <div key={i} className="p-3 bg-[#F5F1E8] dark:bg-gray-800 rounded-lg text-sm">
+                          <div className="font-semibold text-[#6B4423] dark:text-[#C9A961]">{cliente.nome}</div>
+                          <div className="text-xs text-[#8B7355] dark:text-gray-400">
+                            {cliente.localizacao} | {cliente.ativo ? '✅ Ativo' : '❌ Inativo'}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="reservas" className="mt-4">
+                    <div className="space-y-2 max-h-48 overflow-auto">
+                      {dadosExemplo.reservas.map((reserva, i) => (
+                        <div key={i} className="p-3 bg-[#F5F1E8] dark:bg-gray-800 rounded-lg text-sm">
+                          <div className="font-semibold text-[#6B4423] dark:text-[#C9A961]">
+                            {reserva.cliente_nome} → {reserva.cafe_nome}
+                          </div>
+                          <div className="text-xs text-[#8B7355] dark:text-gray-400">
+                            {reserva.embalagem} x{reserva.quantidade_pacotes} | {reserva.status}
+                          </div>
+                          {reserva.observacoes && (
+                            <div className="text-xs mt-1 italic">"{reserva.observacoes}"</div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="problemas" className="mt-4">
+                    <div className="space-y-2 max-h-48 overflow-auto">
+                      {dadosExemplo.problemas.map((problema, i) => (
+                        <div key={i} className="p-3 bg-[#F5F1E8] dark:bg-gray-800 rounded-lg text-sm">
+                          <div className="font-semibold text-[#6B4423] dark:text-[#C9A961]">{problema.nome_cliente}</div>
+                          <div className="text-xs text-[#8B7355] dark:text-gray-400">
+                            {problema.email_cliente} | {problema.tipo} | {problema.prioridade} | {problema.status}
+                          </div>
+                          <div className="text-xs mt-1 line-clamp-2">{problema.descricao.substring(0, 100)}...</div>
+                        </div>
+                      ))}
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="tarefas" className="mt-4">
+                    <div className="space-y-2 max-h-48 overflow-auto">
+                      {dadosExemplo.tarefas.map((tarefa, i) => (
+                        <div key={i} className="p-3 bg-[#F5F1E8] dark:bg-gray-800 rounded-lg text-sm">
+                          <div className="font-semibold text-[#6B4423] dark:text-[#C9A961]">{tarefa.titulo}</div>
+                          <div className="text-xs text-[#8B7355] dark:text-gray-400">
+                            {tarefa.status} | {tarefa.prioridade} | {tarefa.responsavel} | {tarefa.tipo}
+                          </div>
+                          <div className="text-xs mt-1">{tarefa.descricao}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="agendamentos" className="mt-4">
+                    <div className="space-y-2 max-h-48 overflow-auto">
+                      {dadosExemplo.agendamentos.map((agendamento, i) => (
+                        <div key={i} className="p-3 bg-[#F5F1E8] dark:bg-gray-800 rounded-lg text-sm">
+                          <div className="font-semibold text-[#6B4423] dark:text-[#C9A961]">{agendamento.titulo}</div>
+                          <div className="text-xs text-[#8B7355] dark:text-gray-400">
+                            {agendamento.tipo} | {agendamento.status} | {agendamento.local}
+                          </div>
+                          <div className="text-xs mt-1">
+                            {new Date(agendamento.data_inicio).toLocaleString('pt-BR')} - {new Date(agendamento.data_fim).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                          </div>
+                          <div className="text-xs">Participantes: {agendamento.participantes.join(', ')}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
+
             {/* Prompt Content */}
             <Card className="border-[#E5DCC8] dark:border-gray-700">
               <CardHeader className="pb-3">
