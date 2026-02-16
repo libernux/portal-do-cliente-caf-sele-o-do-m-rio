@@ -547,7 +547,10 @@ const response = await base44.integrations.Core.InvokeLLM({
 - Aguardando Envio: Cinza
 - Em Trânsito: Azul
 - Entregue: Verde
-- Problema: Vermelho`,
+- Problema: Vermelho
+
+## DADOS DE EXEMPLO (REAIS DO SISTEMA)
+- Nenhuma caixa cadastrada no momento (sistema aguardando movimentações)`,
     entidades: ["Caixa"],
     componentes: ["CaixaCard", "CaixaFormModal", "ScanLabelModal", "BatchImageUploadModal", "PullToRefresh"]
   },
