@@ -404,10 +404,16 @@ const [tarefasData, etiquetasData, responsaveisData] = await Promise.all([
 - Animações suaves de transição
 - Badges coloridos por prioridade/tipo
 
-## DADOS DE EXEMPLO (REAIS DO SISTEMA)
+## DADOS INICIAIS (INSERIR APÓS ESTRUTURAÇÃO)
 
-### Tarefas:
-- "Pedido Findes" - Status: Em Revisão - Prioridade: Urgente - Responsável: Weslley - Tipo: Atendimento - Prazo: 12/10/2025`,
+⚠️ **IMPORTANTE**: Após criar a entidade Tarefa e seus componentes, insira os dados abaixo:
+
+### Inserir na Entidade "Tarefa":
+\`\`\`json
+[
+  { "titulo": "Pedido Findes", "descricao": "Acompanhar email para o 2 pedido da findes, falar com daiane", "status": "Em Revisão", "prioridade": "Urgente", "responsavel": "Weslley", "tipo": "Atendimento", "prazo": "2025-10-12", "tempo_estimado": 48 }
+]
+\`\`\``,
     entidades: ["Tarefa", "EtiquetaProblema", "Responsavel"],
     componentes: ["TarefaKanban", "TarefaFormModal", "TarefaStats"]
   },
