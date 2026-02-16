@@ -1447,7 +1447,7 @@ export default function DocumentacaoTecnica() {
                           <li>• Política de privacidade</li>
                           <li>• Exclusão de conta</li>
                           <li>• Página de suporte</li>
-                          <li>• Responsivo < 360px</li>
+                          <li>• Responsivo para telas menores que 360px</li>
                           <li>• Desabilitar text selection em nav</li>
                           <li>• Optimistic UI updates</li>
                         </ul>
