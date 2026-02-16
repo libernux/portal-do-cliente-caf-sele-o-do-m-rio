@@ -1013,16 +1013,26 @@ Props: atualizacoes
    - Resolvido: Verde
    - Cancelado: Cinza
 
-## DADOS DE EXEMPLO (REAIS DO SISTEMA)
+## DADOS INICIAIS (INSERIR APÓS ESTRUTURAÇÃO)
 
-### Chamados Abertos:
-1. **Henery Garção** (hgarcao@yahoo.com.br | 27992035992)
-   - Tipo: Logística | Prioridade: Média | Data: 28/01/2026
-   - Descrição: "Atraso na entrega da remessa referente ao mês de JANEIRO..."
+⚠️ **IMPORTANTE**: Após criar as entidades Problema, EtiquetaProblema e AtualizacaoProblema, insira os dados abaixo:
 
-2. **Keylla Cunha** (keyllafcunha@gmail.com | 27998377920)
-   - Tipo: Logística | Prioridade: Urgente | Data: 12/11/2025
-   - Descrição: "Compra dia 08/10 entregue em endereço errado..."`,
+### 1. Inserir na Entidade "EtiquetaProblema" (criar etiquetas primeiro):
+\`\`\`json
+[
+  { "nome": "Urgente", "cor": "#DC2626", "descricao": "Problemas que precisam de atenção imediata" },
+  { "nome": "Logística", "cor": "#2563EB", "descricao": "Problemas relacionados a entregas e transportes" },
+  { "nome": "Estoque", "cor": "#16A34A", "descricao": "Problemas de estoque e inventário" }
+]
+\`\`\`
+
+### 2. Inserir na Entidade "Problema":
+\`\`\`json
+[
+  { "nome_cliente": "Henery Garção", "email_cliente": "hgarcao@yahoo.com.br", "telefone_cliente": "27992035992", "descricao": "Atraso na entrega da remessa referente ao mês de JANEIRO. Cliente aguardando há mais de 15 dias.", "tipo": "Logística", "prioridade": "Média", "status": "Aberto", "data_abertura": "2026-01-28" },
+  { "nome_cliente": "Keylla Cunha", "email_cliente": "keyllafcunha@gmail.com", "telefone_cliente": "27998377920", "descricao": "Compra dia 08/10 entregue em endereço errado. Produto não foi recuperado ainda.", "tipo": "Logística", "prioridade": "Urgente", "status": "Aberto", "data_abertura": "2025-11-12" }
+]
+\`\`\``,
     entidades: ["Problema", "EtiquetaProblema", "AtualizacaoProblema", "Responsavel", "ConfiguracaoNotificacao"],
     componentes: ["ProblemaCard", "ProblemaStats", "ProblemaKanban", "ProblemaFormModal", "ProblemaDetalhesModal", "EtiquetasManager", "AtualizacoesTimeline", "PullToRefresh"]
   },
