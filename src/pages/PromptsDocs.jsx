@@ -3103,13 +3103,83 @@ export default function PromptsDocs() {
                     </Badge>
                   )}
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 mb-4">
                   <span className="text-xs font-medium text-[#8B7355] dark:text-gray-400">Componentes:</span>
                   {currentPrompt.componentes.map(c => (
                     <Badge key={c} className="text-xs bg-[#6B4423]/10 text-[#6B4423] dark:bg-[#C9A961]/10 dark:text-[#C9A961]">
                       {c}
                     </Badge>
                   ))}
+                </div>
+                
+                {/* Botão para copiar dados de exemplo relacionados */}
+                <div className="pt-3 border-t border-[#E5DCC8] dark:border-gray-700">
+                  <p className="text-xs text-[#8B7355] dark:text-gray-400 mb-2">Dados de exemplo para inserção:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {currentPrompt.entidades.includes("Cafe") && (
+                      <Button
+                        onClick={() => copyToClipboard(JSON.stringify(dadosExemplo.cafes, null, 2), `${selectedPrompt}-cafes`)}
+                        variant="outline"
+                        size="sm"
+                        className="text-xs h-7"
+                      >
+                        {copiedSection === `${selectedPrompt}-cafes` ? <><Check className="w-3 h-3 mr-1" /> Copiado!</> : <><Copy className="w-3 h-3 mr-1" /> Cafés</>}
+                      </Button>
+                    )}
+                    {currentPrompt.entidades.includes("Cliente") && (
+                      <Button
+                        onClick={() => copyToClipboard(JSON.stringify(dadosExemplo.clientes, null, 2), `${selectedPrompt}-clientes`)}
+                        variant="outline"
+                        size="sm"
+                        className="text-xs h-7"
+                      >
+                        {copiedSection === `${selectedPrompt}-clientes` ? <><Check className="w-3 h-3 mr-1" /> Copiado!</> : <><Copy className="w-3 h-3 mr-1" /> Clientes</>}
+                      </Button>
+                    )}
+                    {(currentPrompt.entidades.includes("ReservaCafe") || currentPrompt.entidades.includes("Reserva")) && (
+                      <Button
+                        onClick={() => copyToClipboard(JSON.stringify(dadosExemplo.reservas, null, 2), `${selectedPrompt}-reservas`)}
+                        variant="outline"
+                        size="sm"
+                        className="text-xs h-7"
+                      >
+                        {copiedSection === `${selectedPrompt}-reservas` ? <><Check className="w-3 h-3 mr-1" /> Copiado!</> : <><Copy className="w-3 h-3 mr-1" /> Reservas</>}
+                      </Button>
+                    )}
+                    {currentPrompt.entidades.includes("Problema") && (
+                      <Button
+                        onClick={() => copyToClipboard(JSON.stringify(dadosExemplo.problemas, null, 2), `${selectedPrompt}-problemas`)}
+                        variant="outline"
+                        size="sm"
+                        className="text-xs h-7"
+                      >
+                        {copiedSection === `${selectedPrompt}-problemas` ? <><Check className="w-3 h-3 mr-1" /> Copiado!</> : <><Copy className="w-3 h-3 mr-1" /> Chamados</>}
+                      </Button>
+                    )}
+                    {currentPrompt.entidades.includes("Tarefa") && (
+                      <Button
+                        onClick={() => copyToClipboard(JSON.stringify(dadosExemplo.tarefas, null, 2), `${selectedPrompt}-tarefas`)}
+                        variant="outline"
+                        size="sm"
+                        className="text-xs h-7"
+                      >
+                        {copiedSection === `${selectedPrompt}-tarefas` ? <><Check className="w-3 h-3 mr-1" /> Copiado!</> : <><Copy className="w-3 h-3 mr-1" /> Tarefas</>}
+                      </Button>
+                    )}
+                    {currentPrompt.entidades.includes("Agendamento") && (
+                      <Button
+                        onClick={() => copyToClipboard(JSON.stringify(dadosExemplo.agendamentos, null, 2), `${selectedPrompt}-agendamentos`)}
+                        variant="outline"
+                        size="sm"
+                        className="text-xs h-7"
+                      >
+                        {copiedSection === `${selectedPrompt}-agendamentos` ? <><Check className="w-3 h-3 mr-1" /> Copiado!</> : <><Copy className="w-3 h-3 mr-1" /> Agendamentos</>}
+                      </Button>
+                    )}
+                    {currentPrompt.entidades.length === 0 && (
+                      <span className="text-xs text-gray-400 italic">Nenhum dado de exemplo disponível</span>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
