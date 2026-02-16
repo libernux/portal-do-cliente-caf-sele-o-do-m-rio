@@ -59,6 +59,7 @@ import Configuracoes from './pages/Configuracoes';
 import ContratosRPA from './pages/ContratosRPA';
 import CotacaoFrete from './pages/CotacaoFrete';
 import Dashboard from './pages/Dashboard';
+import DocumentacaoTecnica from './pages/DocumentacaoTecnica';
 import Estoque from './pages/Estoque';
 import ExportarDados from './pages/ExportarDados';
 import FormularioProdutor from './pages/FormularioProdutor';
@@ -73,6 +74,7 @@ import MinhaAssinatura from './pages/MinhaAssinatura';
 import PortalCliente from './pages/PortalCliente';
 import Privacy from './pages/Privacy';
 import Problemas from './pages/Problemas';
+import README from './pages/README';
 import Relatorios from './pages/Relatorios';
 import ReservaPublica from './pages/ReservaPublica';
 import SolicitacoesCafe from './pages/SolicitacoesCafe';
@@ -81,8 +83,7 @@ import Support from './pages/Support';
 import TabelaPrivateLabel from './pages/TabelaPrivateLabel';
 import Tarefas from './pages/Tarefas';
 import Usuarios from './pages/Usuarios';
-import DocumentacaoTecnica from './pages/DocumentacaoTecnica';
-import README from './pages/README';
+import PromptsDocs from './pages/PromptsDocs';
 import __Layout from './Layout.jsx';
 
 
@@ -99,6 +100,7 @@ export const PAGES = {
     "ContratosRPA": ContratosRPA,
     "CotacaoFrete": CotacaoFrete,
     "Dashboard": Dashboard,
+    "DocumentacaoTecnica": DocumentacaoTecnica,
     "Estoque": Estoque,
     "ExportarDados": ExportarDados,
     "FormularioProdutor": FormularioProdutor,
@@ -113,6 +115,7 @@ export const PAGES = {
     "PortalCliente": PortalCliente,
     "Privacy": Privacy,
     "Problemas": Problemas,
+    "README": README,
     "Relatorios": Relatorios,
     "ReservaPublica": ReservaPublica,
     "SolicitacoesCafe": SolicitacoesCafe,
@@ -121,8 +124,7 @@ export const PAGES = {
     "TabelaPrivateLabel": TabelaPrivateLabel,
     "Tarefas": Tarefas,
     "Usuarios": Usuarios,
-    "DocumentacaoTecnica": DocumentacaoTecnica,
-    "README": README,
+    "PromptsDocs": PromptsDocs,
 }
 
 export const pagesConfig = {
