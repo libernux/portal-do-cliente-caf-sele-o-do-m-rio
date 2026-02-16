@@ -1126,7 +1126,24 @@ const datesWithEvents = agendamentos.map(a => new Date(a.data_inicio));
 ## ESTILO VISUAL
 - Calendário com destaque visual em datas com eventos
 - Cards com cores por tipo de compromisso
-- Layout responsivo: sidebar calendário em desktop, empilhado em mobile`,
+- Layout responsivo: sidebar calendário em desktop, empilhado em mobile
+
+## DADOS DE EXEMPLO (REAIS DO SISTEMA)
+
+### Agendamentos Cadastrados:
+1. **Reunião com cliente Gourmet Express**
+   - Tipo: Visita Cliente | Status: Confirmado
+   - Data: 22/01/2025 14:00 - 16:00
+   - Local: Escritório do cliente
+   - Participantes: Mário
+   - Descrição: Apresentação de novos produtos e renovação de contrato
+
+2. **Degustação com novo fornecedor**
+   - Tipo: Degustação | Status: Agendado
+   - Data: 25/01/2025 10:00 - 12:00
+   - Local: Vila Velha - Sala de Degustação
+   - Participantes: Mário, Fernando
+   - Descrição: Avaliar novos lotes de café especial da região de Caparaó`,
     entidades: ["Agendamento"],
     componentes: ["AgendamentoCard", "AgendamentoFormModal"]
   },
