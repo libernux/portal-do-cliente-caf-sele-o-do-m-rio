@@ -38,6 +38,67 @@ const dadosExemplo = {
     { cliente_nome: "Sicoob Central", cafe_nome: "Amendoado", cafe_forma: "Grão", embalagem: "500g", quantidade_pacotes: 30, data_reserva: "2025-11-14", status: "Ativa", observacoes: "Evento dia 19" },
     { cliente_nome: "Sicoob Central", cafe_nome: "Amendoado", cafe_forma: "Grão", embalagem: "500g", quantidade_pacotes: 12, data_reserva: "2025-11-14", status: "Ativa", observacoes: "Faturamento vai ser por outra associação" },
     { cliente_nome: "Sicoob Central", cafe_nome: "Amendoado", cafe_forma: "Grão", embalagem: "500g", quantidade_pacotes: 16, data_reserva: "2025-11-05", status: "Entregue" }
+  ],
+  caixas: [
+    { numero_identificacao: "CX-001", origem: "Venda Nova", destino: "Vila Velha", status: "Aguardando Envio", responsavel: "Fernando", conteudo: "Pacotes de café 250g" },
+    { numero_identificacao: "CX-002", origem: "Vila Velha", destino: "Venda Nova", status: "Em Trânsito", responsavel: "Cláudio", conteudo: "Amostras para degustação" }
+  ],
+  etiquetasProblema: [
+    { nome: "Urgente", cor: "#DC2626", descricao: "Problemas que precisam de atenção imediata" },
+    { nome: "Logística", cor: "#2563EB", descricao: "Problemas relacionados a entregas e transportes" },
+    { nome: "Estoque", cor: "#16A34A", descricao: "Problemas de estoque e inventário" }
+  ],
+  responsaveis: [
+    { nome: "Mário", email: "mario@cafeselecao.com", cargo: "Diretor", area: "Geral", receber_problemas: true, receber_estoque: true, ativo: true },
+    { nome: "Fernando", email: "fernando@cafeselecao.com", cargo: "Logística", area: "Logística", receber_logistica: true, ativo: true }
+  ],
+  clienteSlugs: [
+    { cliente_nome: "Sicoob Central", slug: "sicoob-central", ativo: true, mostrar_precos: true },
+    { cliente_nome: "Águia Branca", slug: "aguia-branca", ativo: true, mostrar_precos: false }
+  ],
+  solicitacoesEvento: [
+    { tipo_solicitacao: "Evento", cliente_nome: "Empresa ABC", email_cliente: "contato@abc.com", data_evento: "2025-03-15", local_evento: "Centro de Convenções", publico_total: 500, taxa_adesao: 30, dias_evento: 2, kg_total_calculado: 15, status: "Pendente" }
+  ],
+  infoCafes: [
+    { nome_display: "Café Especial Caparaó", origem_detalhada: "Fazenda Alto da Serra, Caparaó - ES", altitude: "1200m", variedade: "Catuaí Amarelo", processamento: "Natural", torra: "Média", notas_sensoriais: ["Chocolate", "Caramelo", "Frutas Vermelhas"], publicado: true }
+  ],
+  submissoesProdutores: [
+    { nome_cafe: "Café da Montanha", origem: "Venda Nova do Imigrante", tipo_grao: "Arábica", variedade: "Bourbon", processamento: "Lavado", pontuacao: 85, status: "Pendente" }
+  ],
+  precoCafe: [
+    { cliente_nome: "Sicoob Central", cafe_nome: "Amendoado", preco_por_pacote: 28.50, ativo: true },
+    { cliente_nome: "Águia Branca", cafe_nome: "Alma Gourmet", preco_por_pacote: 25.00, ativo: true }
+  ],
+  itemChecklist: [
+    { nome: "NF Gerada", ordem: 1, ativo: true },
+    { nome: "Boleto Enviado", ordem: 2, ativo: true },
+    { nome: "Pagamento Confirmado", ordem: 3, ativo: true },
+    { nome: "Entrega Realizada", ordem: 4, ativo: true }
+  ],
+  demandaExterna: [
+    { descricao: "Consultoria de Qualidade", valor: 5000, status: "Pendente", cliente_nome: "Fazenda Boa Vista", prazo: "2025-02-28" }
+  ],
+  assinantesClube: [
+    { nome: "João Silva", email: "joao@email.com", telefone: "27999999999", endereco: "Rua das Flores, 123", cep: "29100-000", cidade: "Vila Velha", estado: "ES", plano: "Premium", forma_cafe: "Moído", status: "Ativo" }
+  ],
+  entregasClube: [
+    { assinante_nome: "João Silva", mes_referencia: "2025-02", cafes_enviados: [{ cafe_nome: "Amendoado", embalagem: "250g", quantidade: 2 }], status: "Pendente" }
+  ],
+  solicitacoesPatrocinio: [
+    { nome_organizador: "Associação Cultural", email_contato: "contato@assoc.org", nome_evento: "Festival de Inverno", tipo_evento: "Cultural", data_evento: "2025-07-15", local_evento: "Praça Central", publico_esperado: 2000, tipo_solicitacao: "Patrocínio", proposta_patrocinio: "Fornecimento de café para o evento", contrapartidas_oferecidas: "Logo em materiais de divulgação", beneficios_visibilidade: "Alcance de 10.000 pessoas nas redes sociais", alcance_estimado: "15.000 pessoas", status: "Nova" }
+  ],
+  contratosRPA: [
+    { prestador_nome: "Carlos Oliveira", prestador_cpf: "123.456.789-00", prestador_email: "carlos@email.com", valor: 3500, descricao_servico: "Consultoria em torrefação", status: "Rascunho" }
+  ],
+  configuracaoNotificacao: [
+    { chave: "notificar_equipe_novo_problema", valor: true, categoria: "Problemas", descricao: "Notificar equipe ao criar novo chamado" },
+    { chave: "alertar_estoque_baixo", valor: true, categoria: "Estoque", descricao: "Alertar quando estoque estiver baixo" }
+  ],
+  produtosAgridrones: [
+    { nome: "Moedor Tipo 1", tipo: "Moedor", valor_compra: 850, valor_venda_sugerido: 1200, margem_padrao: 40, ativo: true }
+  ],
+  configuracaoFrete: [
+    { cep_origem: "29101-000", valor_base: 15, valor_por_kg: 2.5, frete_gratis_acima: 300 }
   ]
 };
 
