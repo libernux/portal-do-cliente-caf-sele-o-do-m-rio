@@ -3037,18 +3037,33 @@ export default function PromptsDocs() {
                 {Object.entries(prompts).map(([key, item]) => {
                   const ItemIcon = item.icon;
                   return (
-                    <button
-                      key={key}
-                      onClick={() => setSelectedPrompt(key)}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all ${
-                        selectedPrompt === key
-                          ? "bg-[#6B4423] text-white"
-                          : "hover:bg-[#6B4423]/10 text-[#5A4A3A] dark:text-gray-300"
-                      }`}
-                    >
-                      <ItemIcon className="w-4 h-4 flex-shrink-0" />
-                      <span className="text-sm font-medium truncate">{item.titulo}</span>
-                    </button>
+                    <div key={key} className="flex items-center gap-1">
+                      <button
+                        onClick={() => setSelectedPrompt(key)}
+                        className={`flex-1 flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all ${
+                          selectedPrompt === key
+                            ? "bg-[#6B4423] text-white"
+                            : "hover:bg-[#6B4423]/10 text-[#5A4A3A] dark:text-gray-300"
+                        }`}
+                      >
+                        <ItemIcon className="w-4 h-4 flex-shrink-0" />
+                        <span className="text-sm font-medium truncate">{item.titulo}</span>
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          copyToClipboard(item.prompt, `menu-${key}`);
+                        }}
+                        className="p-2 rounded-lg hover:bg-[#6B4423]/10 text-[#8B7355] hover:text-[#6B4423] dark:text-gray-400 dark:hover:text-[#C9A961] transition-colors"
+                        title={`Copiar prompt: ${item.titulo}`}
+                      >
+                        {copiedSection === `menu-${key}` ? (
+                          <Check className="w-3.5 h-3.5 text-green-600" />
+                        ) : (
+                          <Copy className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+                    </div>
                   );
                 })}
               </CardContent>
