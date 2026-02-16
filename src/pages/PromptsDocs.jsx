@@ -3456,6 +3456,78 @@ export default function PromptsDocs() {
                       ))}
                     </div>
                   </TabsContent>
+
+                  <TabsContent value="caixas" className="mt-4">
+                    <div className="flex justify-end mb-2">
+                      <Button
+                        onClick={() => copyToClipboard(JSON.stringify(dadosExemplo.caixas, null, 2), "caixas-json")}
+                        variant="outline"
+                        size="sm"
+                        className="text-xs"
+                      >
+                        {copiedSection === "caixas-json" ? (
+                          <><Check className="w-3 h-3 mr-1" /> Copiado!</>
+                        ) : (
+                          <><Copy className="w-3 h-3 mr-1" /> Copiar JSON</>
+                        )}
+                      </Button>
+                    </div>
+                    <div className="space-y-2 max-h-48 overflow-auto">
+                      {dadosExemplo.caixas.map((caixa, i) => (
+                        <div key={i} className="p-3 bg-[#F5F1E8] dark:bg-gray-800 rounded-lg text-sm">
+                          <div className="font-semibold text-[#6B4423] dark:text-[#C9A961]">{caixa.numero_identificacao}</div>
+                          <div className="text-xs text-[#8B7355] dark:text-gray-400">
+                            {caixa.origem} → {caixa.destino} | {caixa.status} | {caixa.responsavel}
+                          </div>
+                          <div className="text-xs mt-1">{caixa.conteudo}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="outros" className="mt-4">
+                    <div className="grid gap-3 md:grid-cols-2">
+                      {[
+                        { key: "etiquetasProblema", label: "Etiquetas de Problemas" },
+                        { key: "responsaveis", label: "Responsáveis" },
+                        { key: "clienteSlugs", label: "Links de Clientes" },
+                        { key: "solicitacoesEvento", label: "Solicitações de Evento" },
+                        { key: "infoCafes", label: "Info Cafés" },
+                        { key: "submissoesProdutores", label: "Submissões Produtores" },
+                        { key: "precoCafe", label: "Preços por Cliente" },
+                        { key: "itemChecklist", label: "Itens Checklist" },
+                        { key: "demandaExterna", label: "Demandas Externas" },
+                        { key: "assinantesClube", label: "Assinantes Clube" },
+                        { key: "entregasClube", label: "Entregas Clube" },
+                        { key: "solicitacoesPatrocinio", label: "Solicitações Patrocínio" },
+                        { key: "contratosRPA", label: "Contratos RPA" },
+                        { key: "configuracaoNotificacao", label: "Configurações Notificação" },
+                        { key: "produtosAgridrones", label: "Produtos Agridrones" },
+                        { key: "configuracaoFrete", label: "Configuração Frete" }
+                      ].map(({ key, label }) => (
+                        <div key={key} className="p-3 bg-[#F5F1E8] dark:bg-gray-800 rounded-lg">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-medium text-[#6B4423] dark:text-[#C9A961]">{label}</span>
+                            <Button
+                              onClick={() => copyToClipboard(JSON.stringify(dadosExemplo[key], null, 2), `${key}-json`)}
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 px-2"
+                            >
+                              {copiedSection === `${key}-json` ? (
+                                <Check className="w-3 h-3 text-green-600" />
+                              ) : (
+                                <Copy className="w-3 h-3" />
+                              )}
+                            </Button>
+                          </div>
+                          <div className="text-xs text-[#8B7355] dark:text-gray-400">
+                            {dadosExemplo[key]?.length || 0} registro(s)
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </TabsContent>
                 </Tabs>
               </CardContent>
             </Card>
