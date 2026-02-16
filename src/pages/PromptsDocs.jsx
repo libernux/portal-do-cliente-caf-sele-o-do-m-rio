@@ -1567,6 +1567,1274 @@ Content-Type: application/json
     componentes: ["EditarProdutoModal", "CriarProdutoModal", "PedidoDetalhesModal", "BuscarProdutoModal", "VariacoesModal", "PreviewImportacaoModal", "LogsSincronizacao", "AtualizarStatusModal"]
   },
 
+  aReceber: {
+    titulo: "A Receber",
+    icon: DollarSign,
+    descricao: "Controle de reservas a receber e demandas externas financeiras",
+    prompt: `# PROMPT PARA RECRIAR: A Receber
+
+## OBJETIVO
+Criar sistema para controle de valores a receber de reservas de café e demandas externas, com checklist de acompanhamento.
+
+## ESTRUTURA DA PÁGINA
+
+### 1. TABS PRINCIPAIS
+1. **Reservas** - Reservas ativas com checklist de itens
+2. **Demandas Externas** - Demandas financeiras externas
+
+### 2. ABA RESERVAS
+
+**Estatísticas:**
+- Total de reservas ativas
+- Valor total a receber
+- Itens pendentes no checklist
+
+**Lista de Reservas:**
+- Agrupadas por cliente
+- Para cada reserva:
+  - Nome do café, embalagem, quantidade
+  - Checklist de itens (entrega, pagamento, NF, etc.)
+  - Progresso do checklist
+  - Ações: Gerenciar checklist, Marcar entregue
+
+**ReservaChecklistCard:**
+- Exibe reserva com progresso visual
+- Botão para gerenciar itens do checklist
+- Indicador de % completado
+
+### 3. ABA DEMANDAS EXTERNAS
+
+**Botão:** "Nova Demanda"
+
+**Lista de Demandas:**
+- Cards com informações:
+  - Descrição, valor, status
+  - Data de criação, prazo
+  - Histórico de atualizações
+
+**DemandaExternaCard:**
+- Badge de status (Pendente, Parcial, Quitada)
+- Valor e prazo
+- Ações: Editar, Ver histórico
+
+## ENTIDADES NECESSÁRIAS
+
+### ItemChecklist
+{
+  nome: string (required),
+  ordem: number,
+  ativo: boolean (default: true)
+}
+
+### ClienteChecklistItem
+{
+  reserva_id: string (required),
+  cliente_id: string (required),
+  item_checklist_id: string (required),
+  concluido: boolean (default: false),
+  data_conclusao: datetime,
+  observacao: string
+}
+
+### DemandaExterna
+{
+  descricao: string (required),
+  valor: number (required),
+  status: enum ["Pendente", "Parcial", "Quitada", "Cancelada"] (default: "Pendente"),
+  cliente_nome: string,
+  prazo: date,
+  observacoes: string
+}
+
+### HistoricoDemanda
+{
+  demanda_id: string (required),
+  tipo: enum ["Criação", "Pagamento", "Atualização", "Cancelamento"],
+  valor: number,
+  observacao: string,
+  autor: string
+}
+
+## COMPONENTES NECESSÁRIOS
+
+### ReservaChecklistCard
+Props: reserva, cafe, itensChecklist, checklistStatus, onGerenciarChecklist
+- Exibe reserva com progresso
+- Barra de progresso visual
+- Botão para abrir modal de checklist
+
+### GerenciarItensChecklistModal
+Props: open, onClose, reserva, itensDisponiveis, statusAtual, onSave
+- Lista de itens do checklist
+- Toggle para marcar/desmarcar
+- Observações por item
+
+### DemandaExternaCard
+Props: demanda, onEdit, onViewHistory
+- Informações da demanda
+- Badge de status colorido
+- Menu de ações
+
+### DemandaExternaFormModal
+Props: open, onClose, onSave, demanda
+- Formulário completo
+- Campos de valor com máscara
+
+### HistoricoDemandaModal
+Props: open, onClose, demanda, historico
+- Timeline de eventos
+- Valores e observações
+
+## FUNCIONALIDADES
+
+1. **Checklist por Reserva:**
+   - Itens configuráveis (ex: "Entregue", "NF Emitida", "Pago")
+   - Progresso visual por cliente/reserva
+
+2. **Demandas Externas:**
+   - CRUD completo
+   - Histórico de pagamentos parciais
+   - Status automático baseado em pagamentos
+
+3. **Cálculo de Totais:**
+   - Soma de valores a receber
+   - Filtros por status`,
+    entidades: ["ItemChecklist", "ClienteChecklistItem", "DemandaExterna", "HistoricoDemanda", "ReservaCafe"],
+    componentes: ["ReservaChecklistCard", "GerenciarItensChecklistModal", "DemandaExternaCard", "DemandaExternaFormModal", "HistoricoDemandaModal"]
+  },
+
+  linksClientes: {
+    titulo: "Links Clientes",
+    icon: LinkIcon,
+    descricao: "Geração de links personalizados para clientes visualizarem seus cafés e reservas",
+    prompt: `# PROMPT PARA RECRIAR: Links Clientes
+
+## OBJETIVO
+Criar sistema para gerar links únicos (slugs) para clientes, permitindo acesso a uma página pública com seus cafés, preços e reservas.
+
+## ESTRUTURA DA PÁGINA
+
+### 1. HEADER
+- Título: "Links para Clientes"
+- Subtítulo: "Gere links personalizados para seus clientes"
+- Botão: "Novo Link"
+
+### 2. LISTA DE LINKS
+
+**Para cada link:**
+- Nome do cliente
+- Slug gerado (ex: /cliente/joao-silva)
+- Status: Ativo/Inativo
+- Opção de mostrar preços
+- Ações: Copiar link, Editar, Excluir, Visualizar
+
+**ClienteSlugCard:**
+- Badge de status
+- URL copiável
+- Toggle de preços
+- Menu de ações
+
+### 3. MODAL DE FORMULÁRIO
+
+**Campos:**
+- cliente_id: Select de clientes existentes
+- slug: Input (auto-gerado a partir do nome)
+- ativo: Toggle
+- mostrar_precos: Toggle
+
+## ENTIDADE CLIENTESLUG
+
+{
+  cliente_id: string (required),
+  cliente_nome: string (required),
+  slug: string (required, unique),
+  ativo: boolean (default: true),
+  mostrar_precos: boolean (default: false)
+}
+
+## PÁGINA PÚBLICA (PortalCliente)
+
+**URL:** /PortalCliente?slug={slug}
+
+**Conteúdo:**
+- Nome do cliente
+- Lista de cafés disponíveis
+- Preços (se habilitado)
+- Reservas ativas do cliente
+- Formulário para solicitar reserva
+
+## FUNCIONALIDADES
+
+1. **Geração de Slug:**
+   - Automático a partir do nome
+   - Normalização (lowercase, sem acentos, hífen)
+   - Validação de unicidade
+
+2. **Página Pública:**
+   - Não requer autenticação
+   - Exibe apenas dados do cliente específico
+   - Formulário de contato/solicitação
+
+3. **Controle de Visibilidade:**
+   - Toggle ativo/inativo
+   - Toggle mostrar preços`,
+    entidades: ["ClienteSlug", "Cliente", "Cafe", "PrecoCafe"],
+    componentes: ["ClienteSlugCard", "ClienteSlugFormModal"]
+  },
+
+  infoCafes: {
+    titulo: "Informações Cafés",
+    icon: Info,
+    descricao: "Gestão de informações detalhadas dos cafés para exibição pública",
+    prompt: `# PROMPT PARA RECRIAR: Informações Cafés
+
+## OBJETIVO
+Criar sistema para gerenciar informações detalhadas de cafés que serão exibidas publicamente, incluindo notas sensoriais, origem, processamento, etc.
+
+## ESTRUTURA DA PÁGINA
+
+### 1. HEADER
+- Título: "Informações dos Cafés"
+- Subtítulo: "Gerencie as fichas técnicas dos cafés"
+- Botão: "Nova Ficha"
+
+### 2. LISTA DE CAFÉS
+
+**Grid de cards:**
+- Imagem do café
+- Nome e origem
+- Notas sensoriais (tags)
+- Status: Publicado/Rascunho
+- Ações: Editar, Visualizar público, Excluir
+
+### 3. MODAL DE FORMULÁRIO
+
+**Campos:**
+- cafe_id: Select (vincular a café existente)
+- nome_display: string
+- origem_detalhada: string
+- altitude: string
+- variedade: string
+- processamento: string
+- torra: enum
+- notas_sensoriais: array[string]
+- descricao_completa: textarea
+- harmonizacoes: array[string]
+- metodos_preparo: array[string]
+- imagem_url: upload
+- publicado: boolean
+
+## ENTIDADE INFOCAFE
+
+{
+  cafe_id: string,
+  nome_display: string (required),
+  origem_detalhada: string,
+  altitude: string,
+  variedade: string,
+  processamento: string,
+  torra: enum ["Clara", "Média", "Escura"],
+  notas_sensoriais: array[string],
+  descricao_completa: string,
+  harmonizacoes: array[string],
+  metodos_preparo: array[string],
+  imagem_url: string,
+  publicado: boolean (default: false)
+}
+
+## PÁGINA PÚBLICA (InfoCafePublico)
+
+**URL:** /InfoCafePublico?id={id}
+
+**Conteúdo:**
+- Layout elegante com imagem
+- Todas as informações formatadas
+- Ícones para notas sensoriais
+- Seção de métodos de preparo`,
+    entidades: ["InfoCafe", "Cafe"],
+    componentes: ["InfoCafeCard", "InfoCafeFormModal"]
+  },
+
+  submissoesProdutores: {
+    titulo: "Submissões Produtores",
+    icon: Coffee,
+    descricao: "Gestão de submissões de cafés enviadas por produtores",
+    prompt: `# PROMPT PARA RECRIAR: Submissões Produtores
+
+## OBJETIVO
+Criar sistema para receber e gerenciar submissões de cafés de produtores, com formulário público e painel de análise.
+
+## ESTRUTURA DA PÁGINA (Admin)
+
+### 1. HEADER
+- Título: "Submissões de Produtores"
+- Subtítulo: "Analise as submissões de cafés"
+- Link para formulário público
+
+### 2. FILTROS
+- Status: Todas, Pendente, Em Análise, Aprovado, Recusado
+- Busca por nome do café
+
+### 3. LISTA DE SUBMISSÕES
+
+**SubmissaoCard:**
+- Nome do café
+- Origem e variedade
+- Data de submissão
+- Status (badge colorido)
+- Ações: Ver detalhes, Aprovar, Recusar
+
+### 4. MODAL DE DETALHES
+
+**Visualização completa:**
+- Todos os campos da submissão
+- Notas do admin
+- Histórico de status
+- Ações: Mudar status, Adicionar notas
+
+## ENTIDADE SUBMISSAOPRODUTOR
+
+{
+  nome_cafe: string (required),
+  origem: string,
+  tipo_grao: string,
+  variedade: string,
+  processamento: string,
+  bebida: string,
+  sabor_notas_sensoriais: string,
+  docura: string,
+  aroma: string,
+  acidez_tipo: string,
+  acidez_intensidade: string,
+  corpo: string,
+  torra: string,
+  moagem: string,
+  escala_intensidade: number,
+  pontuacao: number,
+  modo_conservacao: string,
+  metodos_preparo: string,
+  notas_degustacao: string,
+  altitude: string,
+  certificacoes: string,
+  observacoes: string,
+  status: enum ["Pendente", "Em Análise", "Aprovado", "Recusado"] (default: "Pendente"),
+  notas_admin: string
+}
+
+## PÁGINA PÚBLICA (FormularioProdutor)
+
+**URL:** /FormularioProdutor
+
+**Formulário extenso:**
+- Todos os campos da entidade
+- Validações
+- Mensagem de sucesso ao enviar`,
+    entidades: ["SubmissaoProdutor"],
+    componentes: ["SubmissaoCard", "EditarSubmissaoModal"]
+  },
+
+  solicitacoesCafe: {
+    titulo: "Solicitações Café",
+    icon: FileText,
+    descricao: "Gestão de solicitações de café para eventos e uso interno",
+    prompt: `# PROMPT PARA RECRIAR: Solicitações Café
+
+## OBJETIVO
+Criar sistema Kanban para gerenciar solicitações de café para eventos e uso interno de empresas.
+
+## ESTRUTURA DA PÁGINA
+
+### 1. HEADER
+- Título: "Solicitações de Café"
+- Subtítulo: "Gerencie pedidos para eventos e empresas"
+- Botão: "Nova Solicitação"
+
+### 2. VISUALIZAÇÃO KANBAN
+
+**Colunas:**
+1. Pendente (amarelo)
+2. Em Análise (azul)
+3. Aprovada (verde)
+4. Cancelada (cinza)
+
+**SolicitacaoCard:**
+- Tipo (Evento/Interno) badge
+- Cliente e local
+- Data do evento
+- KG calculado
+- Lista de cafés selecionados
+- Valor total (se configurado)
+
+### 3. MODAL DE DETALHES
+
+**Informações:**
+- Dados do cliente
+- Parâmetros da calculadora usados
+- Cafés selecionados com quantidades
+- Timeline de atualizações
+- Ações: Mudar status, Adicionar comentário
+
+## ENTIDADE SOLICITACAOEVENTO
+
+{
+  tipo_solicitacao: enum ["Evento", "Interno"] (default: "Evento"),
+  cliente_id: string,
+  cliente_nome: string (required),
+  email_cliente: email,
+  telefone_cliente: string,
+  data_evento: date (required),
+  local_evento: string (required),
+  
+  // Parâmetros Evento
+  publico_total: number,
+  taxa_adesao: number,
+  dias_evento: number,
+  horas_por_dia: number,
+  ml_por_copo: number,
+  fator_perdas: number,
+  
+  // Parâmetros Uso Interno
+  quantidade_funcionarios: number,
+  consumo_diario_ml: number,
+  xicaras_por_dia: number,
+  tamanho_xicara: number,
+  
+  // Resultados
+  consumidores_esperados: number,
+  kg_total_calculado: number,
+  pacotes_totais_calculados: number,
+  
+  // Seleção de Cafés
+  cafes_selecionados: array[{
+    cafe_id: string,
+    cafe_nome: string,
+    cafe_forma: string,
+    embalagem: string,
+    quantidade_pacotes: number
+  }],
+  
+  observacoes: string,
+  status: enum ["Pendente", "Em Análise", "Aprovada", "Cancelada"],
+  resposta_admin: string,
+  valor_total: number
+}
+
+## ENTIDADE ATUALIZACAOSOLICITACAO
+
+{
+  solicitacao_id: string (required),
+  tipo: enum ["Comentário", "Mudança Status", "Aprovação", "Cancelamento", "Observação"],
+  status_anterior: string,
+  status_novo: string,
+  comentario: string (required),
+  autor: string (required),
+  autor_email: string
+}`,
+    entidades: ["SolicitacaoEvento", "AtualizacaoSolicitacao"],
+    componentes: ["SolicitacoesKanban", "SolicitacaoDetalhesModal", "SolicitacaoFormModal"]
+  },
+
+  calculadoraAgridrones: {
+    titulo: "Calculadora Agridrones",
+    icon: Plane,
+    descricao: "Calculadora para orçamentos de serviços com drones agrícolas",
+    prompt: `# PROMPT PARA RECRIAR: Calculadora Agridrones
+
+## OBJETIVO
+Criar calculadora para orçamentos de serviços de aplicação com drones agrícolas (Agridrones).
+
+## ESTRUTURA DA PÁGINA
+
+### 1. HEADER
+- Título: "Calculadora Agridrones"
+- Logo ou ícone de drone
+- Descrição do serviço
+
+### 2. FORMULÁRIO DE CÁLCULO
+
+**Inputs:**
+- area_hectares: Number - Área em hectares
+- tipo_aplicacao: Select - Tipo de aplicação
+- quantidade_passadas: Number - Número de passadas
+- produto_aplicado: String - Nome do produto
+- concentracao: Number - Concentração por hectare
+
+### 3. TABELA DE PREÇOS
+
+**Configuração de Preços:**
+- Preço por hectare base
+- Descontos por volume
+- Taxas adicionais
+
+### 4. RESULTADO
+
+**Cards:**
+- Área total
+- Valor total
+- Tempo estimado
+- Economia vs método tradicional
+
+## ENTIDADE PRODUTOAGRIDRONES
+
+{
+  nome: string (required),
+  tipo: enum ["Defensivo", "Fertilizante", "Semente"],
+  preco_por_litro: number,
+  dosagem_recomendada: number,
+  observacoes: string
+}
+
+## ENTIDADE COTACAOAGRIDRONES
+
+{
+  cliente_nome: string,
+  area_hectares: number,
+  tipo_aplicacao: string,
+  valor_total: number,
+  status: enum ["Orçamento", "Aprovado", "Executado"]
+}`,
+    entidades: ["ProdutoAgridrones", "CotacaoAgridrones"],
+    componentes: ["AgridronesForm", "AgridronesResultado", "TabelaPrecosAgridrones"]
+  },
+
+  calculadoraFornecedores: {
+    titulo: "Calculadora Fornecedores",
+    icon: Calculator,
+    descricao: "Calculadora para comparação de preços entre fornecedores",
+    prompt: `# PROMPT PARA RECRIAR: Calculadora Fornecedores
+
+## OBJETIVO
+Criar ferramenta para comparar preços e condições entre diferentes fornecedores de café verde.
+
+## ESTRUTURA DA PÁGINA
+
+### 1. HEADER
+- Título: "Comparador de Fornecedores"
+- Subtítulo: "Compare preços e condições"
+
+### 2. FORMULÁRIO
+
+**Dados do Produto:**
+- quantidade_kg: Number
+- tipo_cafe: Select
+
+**Fornecedor 1:**
+- nome: string
+- preco_kg: number
+- frete: number
+- prazo_pagamento: number (dias)
+- prazo_entrega: number (dias)
+
+**Fornecedor 2:**
+- (mesmos campos)
+
+**Fornecedor 3 (opcional):**
+- (mesmos campos)
+
+### 3. RESULTADO
+
+**Comparativo:**
+- Tabela side-by-side
+- Menor preço total destacado
+- Melhor prazo destacado
+- Custo total (produto + frete)
+- Economia percentual
+
+**Recomendação:**
+- Análise automática
+- Melhor custo-benefício`,
+    entidades: [],
+    componentes: ["FornecedorForm", "ComparativoTable", "RecomendacaoCard"]
+  },
+
+  clubeAssinatura: {
+    titulo: "Clube Assinatura",
+    icon: Gift,
+    descricao: "Gestão de assinantes do clube de café e entregas mensais",
+    prompt: `# PROMPT PARA RECRIAR: Clube Assinatura
+
+## OBJETIVO
+Criar sistema completo de gestão de clube de assinatura de café, com controle de assinantes e entregas.
+
+## ESTRUTURA DA PÁGINA
+
+### 1. TABS PRINCIPAIS
+1. **Assinantes** - Lista de membros
+2. **Entregas** - Controle de entregas mensais
+3. **Configurações** - Planos e preços
+
+### 2. ABA ASSINANTES
+
+**Estatísticas:**
+- Total de assinantes ativos
+- Novos este mês
+- Cancelamentos
+- MRR (receita recorrente)
+
+**Lista:**
+- AssinanteCard para cada membro
+- Plano atual
+- Próxima entrega
+- Status: Ativo, Pausado, Cancelado
+
+**AssinanteFormModal:**
+- nome, email, telefone
+- endereco completo
+- plano selecionado
+- forma_cafe: Grão ou Moído
+- dia_entrega_preferido
+- observacoes
+
+### 3. ABA ENTREGAS
+
+**Filtros:**
+- Mês/Ano
+- Status: Pendente, Enviada, Entregue, Problema
+
+**Grid de Entregas:**
+- EntregaCard com status
+- Assinante, plano, endereço
+- Código rastreamento
+- Ações: Marcar enviada, Marcar entregue
+
+### 4. ABA CONFIGURAÇÕES
+
+**Planos:**
+- Nome, descrição, preço
+- Quantidade de pacotes/mês
+- Frete incluso ou não
+
+## ENTIDADE ASSINANTECLUBE
+
+{
+  nome: string (required),
+  email: email (required),
+  telefone: string,
+  endereco: string (required),
+  cep: string,
+  cidade: string,
+  estado: string,
+  plano: enum ["Básico", "Premium", "VIP"],
+  forma_cafe: enum ["Grão", "Moído"],
+  dia_entrega_preferido: number,
+  status: enum ["Ativo", "Pausado", "Cancelado"] (default: "Ativo"),
+  data_inicio: date,
+  observacoes: string
+}
+
+## ENTIDADE ENTREGACLUBE
+
+{
+  assinante_id: string (required),
+  assinante_nome: string,
+  mes_referencia: string, // "2025-01"
+  cafes_enviados: array[{ cafe_nome, embalagem, quantidade }],
+  status: enum ["Pendente", "Enviada", "Entregue", "Problema"],
+  codigo_rastreamento: string,
+  data_envio: date,
+  data_entrega: date,
+  observacoes: string
+}
+
+## ENTIDADE CONFIGURACAOFRETE
+
+{
+  cep_origem: string,
+  valor_base: number,
+  valor_por_kg: number,
+  frete_gratis_acima: number
+}`,
+    entidades: ["AssinanteClube", "EntregaClube", "ConfiguracaoFrete"],
+    componentes: ["AssinanteCard", "AssinanteFormModal", "EntregaCard", "EntregaFormModal"]
+  },
+
+  cotacaoFrete: {
+    titulo: "Cotação de Frete",
+    icon: Truck,
+    descricao: "Sistema de cotação de frete integrado com Melhor Envio",
+    prompt: `# PROMPT PARA RECRIAR: Cotação de Frete
+
+## OBJETIVO
+Criar sistema de cotação de frete integrado com a API do Melhor Envio.
+
+## ESTRUTURA DA PÁGINA
+
+### 1. HEADER
+- Título: "Cotação de Frete"
+- Subtítulo: "Calcule o melhor frete para suas entregas"
+
+### 2. FORMULÁRIO DE COTAÇÃO
+
+**Origem (pré-configurado):**
+- CEP de origem
+- Endereço (visualização)
+
+**Destino:**
+- cep_destino: Input com máscara
+- Busca automática de endereço
+
+**Pacote:**
+- peso_kg: Number
+- altura_cm: Number
+- largura_cm: Number
+- comprimento_cm: Number
+- valor_declarado: Number
+
+### 3. RESULTADO
+
+**Lista de Opções:**
+- Transportadora e serviço
+- Prazo de entrega
+- Valor do frete
+- Destaque para mais barato
+- Destaque para mais rápido
+
+**ResultadoCotacao:**
+- Cards ordenados por preço
+- Badge "Mais barato" / "Mais rápido"
+- Botão para selecionar
+
+### 4. CONFIGURAÇÕES
+
+**ConfiguracaoFreteForm:**
+- CEP de origem padrão
+- Dimensões padrão do pacote
+- Token Melhor Envio
+
+## INTEGRAÇÃO MELHOR ENVIO
+
+**Endpoint:** POST /api/v2/me/shipment/calculate
+
+**Headers:**
+- Authorization: Bearer {MELHOR_ENVIO_TOKEN}
+- Content-Type: application/json
+
+**Payload:**
+\`\`\`json
+{
+  "from": { "postal_code": "29101000" },
+  "to": { "postal_code": "01310100" },
+  "package": {
+    "height": 10,
+    "width": 15,
+    "length": 20,
+    "weight": 0.5
+  }
+}
+\`\`\`
+
+## FUNÇÃO BACKEND: cotarFrete
+
+\`\`\`javascript
+// Chama API Melhor Envio
+// Retorna array de opções
+// Ordena por preço e prazo
+\`\`\`
+
+## SECRETS NECESSÁRIOS
+- MELHOR_ENVIO_TOKEN
+- MELHOR_ENVIO_SANDBOX (boolean)`,
+    entidades: ["ConfiguracaoFrete"],
+    componentes: ["CotacaoForm", "ResultadoCotacao", "ConfiguracaoFreteForm"]
+  },
+
+  contratosRPA: {
+    titulo: "Contratos RPA",
+    icon: FileText,
+    descricao: "Gestão de contratos RPA com assinatura digital via Autentique",
+    prompt: `# PROMPT PARA RECRIAR: Contratos RPA
+
+## OBJETIVO
+Criar sistema para gestão de contratos de Recibo de Pagamento a Autônomo (RPA) com assinatura digital via Autentique.
+
+## ESTRUTURA DA PÁGINA
+
+### 1. HEADER
+- Título: "Contratos RPA"
+- Subtítulo: "Gestão de contratos e assinaturas digitais"
+- Botão: "Novo Contrato"
+
+### 2. FILTROS
+- Status: Todos, Rascunho, Aguardando Assinatura, Assinado, Cancelado
+- Busca por nome
+
+### 3. LISTA DE CONTRATOS
+
+**ContratoRPACard:**
+- Nome do prestador
+- Valor do contrato
+- Status (badge colorido)
+- Data de criação
+- Signatários e status de cada um
+- Ações: Ver, Enviar para assinatura, Cancelar
+
+### 4. MODAL DE FORMULÁRIO
+
+**Dados do Contrato:**
+- prestador_nome: string
+- prestador_cpf: string
+- prestador_endereco: string
+- valor: number
+- descricao_servico: textarea
+- data_inicio: date
+- data_fim: date
+
+**Signatários:**
+- Lista de pessoas que devem assinar
+- Email de cada signatário
+- Papel (Contratante, Contratado, Testemunha)
+
+### 5. INTEGRAÇÃO AUTENTIQUE
+
+**Fluxo:**
+1. Criar contrato localmente
+2. Gerar PDF do contrato
+3. Enviar para Autentique via API
+4. Adicionar signatários
+5. Acompanhar status de assinaturas
+6. Webhook para atualização automática
+
+## ENTIDADE CONTRATORPA
+
+{
+  prestador_nome: string (required),
+  prestador_cpf: string (required),
+  prestador_email: email,
+  prestador_endereco: string,
+  valor: number (required),
+  descricao_servico: string (required),
+  data_inicio: date,
+  data_fim: date,
+  status: enum ["Rascunho", "Aguardando Assinatura", "Assinado", "Cancelado"],
+  autentique_id: string,
+  autentique_url: string,
+  pdf_url: string
+}
+
+## ENTIDADE SIGNATARIOCONTRATO
+
+{
+  contrato_id: string (required),
+  nome: string (required),
+  email: email (required),
+  papel: enum ["Contratante", "Contratado", "Testemunha"],
+  status: enum ["Pendente", "Assinado", "Recusado"],
+  data_assinatura: datetime,
+  autentique_signer_id: string
+}
+
+## FUNÇÕES BACKEND
+
+### criarContratoAutentique
+- Gera PDF
+- Cria documento na Autentique
+- Adiciona signatários
+- Retorna URL de assinatura
+
+### consultarStatusContrato
+- Consulta status na Autentique
+- Atualiza local
+
+### webhookAutentique
+- Recebe notificações de assinatura
+- Atualiza status automaticamente
+
+## SECRETS NECESSÁRIOS
+- AUTENTIQUE_API_TOKEN`,
+    entidades: ["ContratoRPA", "SignatarioContrato"],
+    componentes: ["ContratoRPACard", "ContratoRPAFormModal", "EnviarAssinaturaModal"]
+  },
+
+  relatorios: {
+    titulo: "Relatórios",
+    icon: BarChart3,
+    descricao: "Relatórios e dashboards analíticos do sistema",
+    prompt: `# PROMPT PARA RECRIAR: Relatórios
+
+## OBJETIVO
+Criar página de relatórios com gráficos e métricas analíticas do sistema.
+
+## ESTRUTURA DA PÁGINA
+
+### 1. HEADER
+- Título: "Relatórios"
+- Filtro de período (data início - data fim)
+- Botão: Exportar PDF
+
+### 2. CARDS DE MÉTRICAS
+
+**Grid 4 colunas:**
+- Vendas do período
+- Ticket médio
+- Cafés mais vendidos
+- Clientes novos
+
+### 3. GRÁFICOS
+
+**Gráfico de Vendas (LineChart):**
+- Vendas por dia/semana/mês
+- Comparativo com período anterior
+
+**Gráfico de Cafés (PieChart):**
+- Distribuição por tipo de café
+- Percentual de cada um
+
+**Gráfico de Status (BarChart):**
+- Chamados por status
+- Tarefas por status
+
+**Gráfico de Logística (BarChart):**
+- Caixas por status
+- Origem vs Destino
+
+### 4. TABELAS
+
+**Top 10 Clientes:**
+- Nome, total de compras, valor total
+- Ordenado por valor
+
+**Top 10 Cafés:**
+- Nome, quantidade vendida
+- Ordenado por quantidade
+
+## BIBLIOTECAS
+
+- **recharts**: Para gráficos
+- **date-fns**: Para manipulação de datas
+- **jspdf**: Para exportação PDF
+
+## COMPONENTES
+
+### MetricCard
+Props: title, value, change, icon, color
+
+### SalesChart
+Props: data, period
+
+### CoffeeDistributionChart
+Props: cafes
+
+### StatusChart
+Props: data, title
+
+### RankingTable
+Props: data, columns, title`,
+    entidades: [],
+    componentes: ["MetricCard", "SalesChart", "CoffeeDistributionChart", "StatusChart", "RankingTable"]
+  },
+
+  usuarios: {
+    titulo: "Usuários",
+    icon: Users,
+    descricao: "Gestão de usuários do sistema e permissões",
+    prompt: `# PROMPT PARA RECRIAR: Usuários
+
+## OBJETIVO
+Criar página para gestão de usuários do sistema, convites e permissões.
+
+## ESTRUTURA DA PÁGINA
+
+### 1. HEADER
+- Título: "Usuários"
+- Subtítulo: "Gerencie os usuários do sistema"
+- Botão: "Convidar Usuário"
+
+### 2. LISTA DE USUÁRIOS
+
+**UserCard para cada usuário:**
+- Avatar (inicial do nome)
+- Nome completo
+- Email
+- Role (Admin/User)
+- Cargo personalizado
+- Data de criação
+- Status: Ativo/Inativo
+- Ações: Editar role, Editar cargo, Remover
+
+### 3. MODAL DE CONVITE
+
+**Campos:**
+- email: Email do convidado
+- role: Select ["admin", "user"]
+
+**Uso:**
+\`\`\`javascript
+await base44.users.inviteUser(email, role);
+\`\`\`
+
+### 4. MODAL DE EDIÇÃO
+
+**Campos editáveis:**
+- cargo: Select ["Administrativo", "Parceiro Logístico", "Representante"]
+- (role apenas para admins)
+
+## ENTIDADE USER (Built-in)
+
+**Campos read-only:**
+- id
+- email
+- full_name
+- created_date
+
+**Campos editáveis:**
+- role: enum ["admin", "user"]
+- cargo: enum ["Administrativo", "Parceiro Logístico", "Representante"]
+
+## PERMISSÕES POR CARGO
+
+### Administrativo
+- Acesso total
+- Pode convidar usuários
+- Pode editar roles
+
+### Parceiro Logístico
+- Acesso à Logística
+- Acesso ao Estoque (leitura)
+- Não vê valores financeiros
+
+### Representante
+- Acesso ao Estoque
+- Acesso a Clientes
+- Acesso a Solicitações
+- Pode criar reservas
+
+## FUNCIONALIDADES
+
+1. **Listagem com RLS:**
+   - Admins veem todos
+   - Outros veem apenas próprio perfil
+
+2. **Convite:**
+   - Envia email de convite
+   - Usuário cria senha no primeiro acesso
+
+3. **Edição de Cargo:**
+   - Atualiza campo personalizado no User`,
+    entidades: ["User"],
+    componentes: ["UserCard", "InviteUserModal", "EditUserModal"]
+  },
+
+  exportarDados: {
+    titulo: "Exportar Dados",
+    icon: Download,
+    descricao: "Exportação de dados do sistema em diferentes formatos",
+    prompt: `# PROMPT PARA RECRIAR: Exportar Dados
+
+## OBJETIVO
+Criar ferramenta para exportação de dados do sistema em diferentes formatos (JSON, CSV, Excel).
+
+## ESTRUTURA DA PÁGINA
+
+### 1. HEADER
+- Título: "Exportar Dados"
+- Subtítulo: "Baixe os dados do sistema"
+
+### 2. SELEÇÃO DE ENTIDADE
+
+**Cards para cada entidade:**
+- Café
+- Cliente
+- Reservas
+- Chamados
+- Tarefas
+- Agendamentos
+- Caixas
+- Pedidos Yampi
+
+**Para cada card:**
+- Nome da entidade
+- Contagem de registros
+- Última atualização
+- Botão: Exportar
+
+### 3. MODAL DE EXPORTAÇÃO
+
+**Opções:**
+- Formato: JSON / CSV
+- Período: Todo / Últimos 30 dias / Personalizado
+- Campos: Todos / Selecionar
+- Incluir campos do sistema (id, created_date, etc.)
+
+### 4. PREVIEW
+
+**Antes de baixar:**
+- Quantidade de registros
+- Tamanho estimado
+- Preview das primeiras linhas
+
+## FUNCIONALIDADES
+
+1. **Exportação JSON:**
+\`\`\`javascript
+const data = await base44.entities.Cafe.list();
+const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+const url = URL.createObjectURL(blob);
+// Download
+\`\`\`
+
+2. **Exportação CSV:**
+\`\`\`javascript
+const headers = Object.keys(data[0]).join(',');
+const rows = data.map(item => Object.values(item).join(','));
+const csv = [headers, ...rows].join('\\n');
+\`\`\`
+
+3. **Filtro por Data:**
+\`\`\`javascript
+const filtered = data.filter(item => 
+  new Date(item.created_date) >= startDate &&
+  new Date(item.created_date) <= endDate
+);
+\`\`\`
+
+## COMPONENTES
+
+### EntityExportCard
+Props: entity, count, onExport
+
+### ExportModal
+Props: open, onClose, entity, onConfirm
+
+### ExportPreview
+Props: data, format`,
+    entidades: [],
+    componentes: ["EntityExportCard", "ExportModal", "ExportPreview"]
+  },
+
+  solicitarPatrocinio: {
+    titulo: "Solicitar Patrocínio",
+    icon: Award,
+    descricao: "Sistema de recebimento e gestão de solicitações de patrocínio",
+    prompt: `# PROMPT PARA RECRIAR: Solicitar Patrocínio
+
+## OBJETIVO
+Criar sistema para receber e gerenciar solicitações de patrocínio para eventos.
+
+## ESTRUTURA - PÁGINA PÚBLICA (SolicitarPatrocinio)
+
+### Formulário de Solicitação
+
+**Dados do Organizador:**
+- nome_organizador: string (required)
+- email_contato: email (required)
+- telefone_contato: string
+
+**Dados do Evento:**
+- nome_evento: string (required)
+- tipo_evento: Select ["Corporativo", "Esportivo", "Cultural", "Educacional", "Social", "Feira/Exposição", "Outro"]
+- data_evento: date (required)
+- local_evento: string (required)
+- publico_esperado: number
+- duracao_dias: number
+
+**Solicitação:**
+- tipo_solicitacao: Select ["Patrocínio", "Doação", "Participação/Stand"]
+- proposta_patrocinio: textarea (required)
+- contrapartidas_oferecidas: textarea (required)
+- beneficios_visibilidade: textarea (required)
+- alcance_estimado: string (required)
+
+**Informações Adicionais:**
+- descricao_evento: textarea
+- historico_eventos: textarea
+- material_divulgacao: string
+- outras_marcas_patrocinadoras: string
+- exclusividade_categoria: Select ["sim", "nao", "negociavel"]
+- midia_redes_sociais: string
+- orcamento_evento: string
+- cafe_necessario_kg: number
+
+## ESTRUTURA - PÁGINA ADMIN (GerenciarPatrocinios)
+
+### Kanban de Solicitações
+
+**Colunas:**
+1. Nova
+2. Em Análise
+3. Aguardando Informações
+4. Aprovada
+5. Recusada
+6. Concluída
+
+**PatrocinioCard:**
+- Nome do evento
+- Tipo e data
+- Organizador
+- Alcance estimado
+- Pontuação (se avaliado)
+
+### Modal de Detalhes
+
+**Informações completas**
+**Sistema de Pontuação:**
+- Alinhamento com marca (0-10)
+- Visibilidade (0-10)
+- ROI potencial (0-10)
+- Pontuação total calculada
+
+**Decisão:**
+- Aprovado Total / Parcial / Recusado
+- Nível de patrocínio
+- Quantidade de café aprovada
+- Outros recursos
+
+**Timeline de Atualizações**
+
+## ENTIDADE SOLICITACAOPATROCINIO
+
+{
+  nome_organizador: string (required),
+  email_contato: email (required),
+  telefone_contato: string,
+  nome_evento: string (required),
+  tipo_evento: enum,
+  data_evento: date (required),
+  local_evento: string (required),
+  publico_esperado: number,
+  duracao_dias: number,
+  tipo_solicitacao: enum,
+  descricao_evento: string,
+  historico_eventos: string,
+  proposta_patrocinio: string (required),
+  contrapartidas_oferecidas: string (required),
+  beneficios_visibilidade: string (required),
+  alcance_estimado: string (required),
+  material_divulgacao: string,
+  outras_marcas_patrocinadoras: string,
+  exclusividade_categoria: enum,
+  midia_redes_sociais: string,
+  orcamento_evento: string,
+  cafe_necessario_kg: number,
+  status: enum ["Nova", "Em Análise", "Aguardando Informações", "Aprovada", "Recusada", "Concluída"],
+  pontuacao_alinhamento: number,
+  pontuacao_visibilidade: number,
+  pontuacao_roi: number,
+  pontuacao_total: number,
+  decisao_final: enum ["Pendente", "Aprovado Total", "Aprovado Parcial", "Recusado"],
+  nivel_patrocinio: enum,
+  quantidade_cafe_aprovada: number,
+  outros_recursos: string,
+  observacoes_internas: string,
+  resposta_organizador: string,
+  responsavel_analise: string
+}
+
+## ENTIDADE ATUALIZACAOPATROCINIO
+
+{
+  patrocinio_id: string (required),
+  tipo: enum,
+  status_anterior: string,
+  status_novo: string,
+  comentario: string (required),
+  autor: string (required),
+  autor_email: string,
+  visivel_solicitante: boolean
+}`,
+    entidades: ["SolicitacaoPatrocinio", "AtualizacaoPatrocinio"],
+    componentes: ["PatrocinioKanban", "PatrocinioDetalhesModal", "PatrocinioFormPublico"]
+  },
+
   configuracoes: {
     titulo: "Configurações do Sistema",
     icon: Settings,
