@@ -21,7 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Search, Mail, Clock, MessageSquare, Coffee, Plus, X, ChevronRight, AlertCircle, Sparkles, Copy, Check } from "lucide-react";
+import { Search, Mail, Clock, MessageSquare, Coffee, Plus, X, ChevronRight, AlertCircle, Sparkles } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { motion, AnimatePresence } from "framer-motion";
