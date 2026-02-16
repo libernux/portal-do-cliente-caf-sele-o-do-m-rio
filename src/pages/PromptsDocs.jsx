@@ -7,7 +7,7 @@ import {
   Coffee, Copy, Check, ChevronDown, ChevronRight,
   LayoutDashboard, Package, AlertCircle, Calendar, CheckSquare,
   Users, Settings, FileText, Calculator, DollarSign, Link as LinkIcon,
-  ShoppingBag, Info
+  ShoppingBag, Info, Truck, BarChart3, Download, Gift, Award, Plane
 } from "lucide-react";
 
 const dadosExemplo = {
