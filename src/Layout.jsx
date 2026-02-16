@@ -40,6 +40,7 @@ import ThemeToggle from "@/components/layout/ThemeToggle";
 const navigationItems = [
   { title: "Dashboard", url: createPageUrl("Dashboard"), icon: LayoutDashboard },
   { title: "Tarefas", url: createPageUrl("Tarefas"), icon: LayoutDashboard },
+  { title: "Documentação", url: createPageUrl("DocumentacaoTecnica"), icon: FileText },
   { title: "Logística", url: createPageUrl("Logistica"), icon: Package },
   { title: "Estoque", url: createPageUrl("Estoque"), icon: Coffee },
   { title: "A Receber", url: createPageUrl("AReceber"), icon: DollarSign },
