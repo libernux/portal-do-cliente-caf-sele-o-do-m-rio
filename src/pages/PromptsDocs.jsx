@@ -793,26 +793,38 @@ const calcularDisponivel = (cafe) => {
 4. Salvar reserva (não altera estoque)
 5. Quando entregar: marcar como entregue (altera estoque)
 
-## DADOS DE EXEMPLO (REAIS DO SISTEMA)
+## DADOS INICIAIS (INSERIR APÓS ESTRUTURAÇÃO)
 
-### Cafés Cadastrados:
-- **Alma Gourmet** (Moído) - Vila Velha - Origem: Alto Caxixe - Torra: Média - Preços: R$25/250g, R$50/500g, R$100/1kg
-- **Intenso** (Grão) - Vila Velha - Origem: Alto Caxixe - Torra: Média - Preço: R$35/250g
-- **Chocolate** (Grão) - Vila Velha - Preço: R$35/250g
-- **Amendoado** (Grão) - Vila Velha
+⚠️ **IMPORTANTE**: Após criar todas as entidades (Cafe, Cliente, ReservaCafe), insira os dados abaixo na ordem indicada para manter as referências.
 
-### Clientes:
-- Aurélio (Vila Velha)
-- Dani Pimenta (Vila Velha)
-- Águia Branca (Vila Velha)
-- Sicoob Central (Vila Velha)
+### 1. Inserir na Entidade "Cafe":
+\`\`\`json
+[
+  { "nome": "Alma Gourmet", "forma": "Moído", "localizacao": "Vila Velha", "origem": "Alto Caxixe - Venda Nova do Imigrante", "torra": "Média", "is_private_label": true, "precos_private_label": { "250g": 25, "500g": 50, "1kg": 100 } },
+  { "nome": "Intenso", "forma": "Grão", "localizacao": "Vila Velha", "origem": "Alto Caxixe", "torra": "Média", "is_private_label": true, "precos_private_label": { "250g": 35 } },
+  { "nome": "Chocolate", "forma": "Grão", "localizacao": "Vila Velha", "is_private_label": true, "precos_private_label": { "250g": 35 } },
+  { "nome": "Amendoado", "forma": "Grão", "localizacao": "Vila Velha" }
+]
+\`\`\`
 
-### Reservas Ativas:
-- Sicoob Central → Amendoado 500g x30 (Evento dia 19)
-- Sicoob Central → Amendoado 500g x12 (Faturamento por outra associação)
+### 2. Inserir na Entidade "Cliente":
+\`\`\`json
+[
+  { "nome": "Aurélio", "localizacao": "Vila Velha", "ativo": true },
+  { "nome": "Dani Pimenta", "localizacao": "Vila Velha", "ativo": true },
+  { "nome": "Águia Branca", "localizacao": "Vila Velha", "ativo": true },
+  { "nome": "Sicoob Central", "localizacao": "Vila Velha", "ativo": true }
+]
+\`\`\`
 
-### Reservas Entregues:
-- Sicoob Central → Amendoado 500g x16 (05/11/2025)`,
+### 3. Inserir na Entidade "ReservaCafe" (após ter IDs dos Cafés e Clientes):
+\`\`\`json
+[
+  { "cliente_nome": "Sicoob Central", "cafe_nome": "Amendoado", "cafe_forma": "Grão", "embalagem": "500g", "quantidade_pacotes": 30, "status": "Ativa", "observacoes": "Evento dia 19" },
+  { "cliente_nome": "Sicoob Central", "cafe_nome": "Amendoado", "cafe_forma": "Grão", "embalagem": "500g", "quantidade_pacotes": 12, "status": "Ativa", "observacoes": "Faturamento vai ser por outra associação" },
+  { "cliente_nome": "Sicoob Central", "cafe_nome": "Amendoado", "cafe_forma": "Grão", "embalagem": "500g", "quantidade_pacotes": 16, "status": "Entregue" }
+]
+\`\`\``,
     entidades: ["Cafe", "Cliente", "ReservaCafe", "PrecoCafe"],
     componentes: ["CafeCard", "CafeFormModal", "ReservasModal", "ReservaEditModal", "ReservasTab", "ClientesTab", "AdicionarEstoqueModal", "EstoqueStats", "PullToRefresh"]
   },
