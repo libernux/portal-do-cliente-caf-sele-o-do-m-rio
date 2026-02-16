@@ -3561,7 +3561,13 @@ export default function PromptsDocs() {
                         { key: "contratosRPA", label: "Contratos RPA" },
                         { key: "configuracaoNotificacao", label: "Configurações Notificação" },
                         { key: "produtosAgridrones", label: "Produtos Agridrones" },
-                        { key: "configuracaoFrete", label: "Configuração Frete" }
+                        { key: "configuracaoFrete", label: "Configuração Frete" },
+                        { key: "empresaPermuta", label: "Empresas Permuta" },
+                        { key: "cotacaoAgridrones", label: "Cotações Agridrones" },
+                        { key: "signatariosContrato", label: "Signatários Contratos" },
+                        { key: "historicosDemanda", label: "Históricos Demandas" },
+                        { key: "atualizacoesProblema", label: "Atualizações Problemas" },
+                        { key: "atualizacoesSolicitacao", label: "Atualizações Solicitações" }
                       ].map(({ key, label }) => (
                         <div key={key} className="p-3 bg-[#F5F1E8] dark:bg-gray-800 rounded-lg">
                           <div className="flex items-center justify-between mb-2">
