@@ -167,6 +167,11 @@ export default function DocumentacaoTecnica() {
             </div>
           )}
 
+          {/* JSON COMPLETO */}
+          {activeSection === "json-completo" && (
+            <JsonEstrutura />
+          )}
+
           {/* ARQUITETURA */}
           {activeSection === "arquitetura" && (
             <div className="space-y-6">
