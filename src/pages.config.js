@@ -71,6 +71,7 @@ import IntegracaoYampi from './pages/IntegracaoYampi';
 import LinksClientes from './pages/LinksClientes';
 import Logistica from './pages/Logistica';
 import MinhaAssinatura from './pages/MinhaAssinatura';
+import PortalCliente from './pages/PortalCliente';
 import Privacy from './pages/Privacy';
 import Problemas from './pages/Problemas';
 import PromptsDocs from './pages/PromptsDocs';
@@ -83,7 +84,6 @@ import Support from './pages/Support';
 import TabelaPrivateLabel from './pages/TabelaPrivateLabel';
 import Tarefas from './pages/Tarefas';
 import Usuarios from './pages/Usuarios';
-import PortalCliente from './pages/PortalCliente';
 import __Layout from './Layout.jsx';
 
 
@@ -112,6 +112,7 @@ export const PAGES = {
     "LinksClientes": LinksClientes,
     "Logistica": Logistica,
     "MinhaAssinatura": MinhaAssinatura,
+    "PortalCliente": PortalCliente,
     "Privacy": Privacy,
     "Problemas": Problemas,
     "PromptsDocs": PromptsDocs,
@@ -124,7 +125,6 @@ export const PAGES = {
     "TabelaPrivateLabel": TabelaPrivateLabel,
     "Tarefas": Tarefas,
     "Usuarios": Usuarios,
-    "PortalCliente": PortalCliente,
 }
 
 export const pagesConfig = {
