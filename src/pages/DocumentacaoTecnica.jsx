@@ -6,14 +6,16 @@ import {
   Coffee, Package, AlertCircle, Calendar, Users, Settings, FileText, 
   Calculator, DollarSign, Link as LinkIcon, ShoppingBag, LayoutDashboard,
   Database, Server, Shield, Smartphone, Globe, Zap, MessageSquare,
-  ChevronRight, BookOpen, Code, Layers
+  ChevronRight, BookOpen, Code, Layers, Braces
 } from "lucide-react";
+import JsonEstrutura from "../components/documentacao/JsonEstrutura";
 
 export default function DocumentacaoTecnica() {
   const [activeSection, setActiveSection] = useState("visao-geral");
 
   const sections = [
     { id: "visao-geral", label: "Visão Geral", icon: BookOpen },
+    { id: "json-completo", label: "JSON Completo", icon: Braces },
     { id: "arquitetura", label: "Arquitetura", icon: Layers },
     { id: "entidades", label: "Entidades", icon: Database },
     { id: "paginas", label: "Páginas", icon: Globe },
